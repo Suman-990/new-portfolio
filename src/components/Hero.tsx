@@ -53,6 +53,7 @@ function Hero() {
           src="/suman.png"
           alt="Sketch portrait of Suman Mahanty"
           zoom={1.1}
+          mirror
           className="aspect-square w-full max-w-sm sm:max-w-md"
         />
       </div>

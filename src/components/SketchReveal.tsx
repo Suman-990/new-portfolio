@@ -3,17 +3,17 @@ import { useEffect, useRef } from "react"
 function PencilIcon() {
   return (
     <svg
-      width="34"
-      height="14"
-      viewBox="0 0 34 14"
+      width="68"
+      height="28"
+      viewBox="0 0 68 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className="drop-shadow-md"
     >
-      <rect x="0" y="4" width="21" height="6" rx="1.5" fill="#14130f" />
-      <rect x="0" y="4" width="6" height="6" rx="1.5" fill="#c9a13b" />
-      <path d="M21 2.5L32 7L21 11.5Z" fill="#14130f" />
-      <circle cx="32.5" cy="7" r="1.4" fill="#6b6a64" />
+      <rect x="0" y="8" width="42" height="12" rx="3" fill="#14130f" />
+      <rect x="0" y="8" width="12" height="12" rx="3" fill="#c9a13b" />
+      <path d="M42 5L64 14L42 23Z" fill="#14130f" />
+      <circle cx="64" cy="14" r="2.8" fill="#6b6a64" />
     </svg>
   )
 }
@@ -23,6 +23,10 @@ interface SketchRevealProps {
   alt: string
   durationMs?: number
   rows?: number
+  /** Tilt of the scan bands, in degrees. 0 = horizontal rows. */
+  angleDeg?: number
+  /** Mirror the diagonal across the vertical axis. */
+  mirror?: boolean
   /** Extra zoom on the source image, e.g. to crop out a background margin. */
   zoom?: number
   className?: string
@@ -32,7 +36,9 @@ function SketchReveal({
   src,
   alt,
   durationMs = 4400,
-  rows = 10,
+  rows = 13,
+  angleDeg = 45,
+  mirror = false,
   zoom = 1,
   className = "",
 }: SketchRevealProps) {
@@ -101,12 +107,27 @@ function SketchReveal({
       maskCtx.lineJoin = "round"
       maskCtx.strokeStyle = "#fff"
 
-      const rowHeight = h / rows
-      const strokeWidthCss = rowHeight * 1.55
+      // Scan in a coordinate space oversized to the canvas diagonal, then
+      // rotate it onto the canvas — this guarantees full coverage at any
+      // tilt angle (a rotated square of side `diag` always contains the
+      // whole w x h rect, since diag/2 is exactly the rect's own circumradius).
+      const diag = Math.sqrt(w * w + h * h)
+      const bandSize = diag / rows
+      const strokeWidthCss = bandSize * 2.2 // generous overlap: no seams between bands
+      const theta = (angleDeg * Math.PI) / 180
+      const cosT = Math.cos(theta)
+      const sinT = Math.sin(theta)
+      const cx = w / 2
+      const cy = h / 2
+      const halfDiag = diag / 2
 
-      let prevX = 0
-      let prevY = 0
-      let start = 0
+      const project = (u: number, v: number) => {
+        const pu = u - halfDiag
+        const pv = v - halfDiag
+        const x = cx + pu * cosT - pv * sinT
+        const y = cy + pu * sinT + pv * cosT
+        return { x: mirror ? w - x : x, y }
+      }
 
       const drawSegment = (fromX: number, fromY: number, x: number, y: number) => {
         maskCtx.lineWidth = strokeWidthCss * dpr
@@ -122,20 +143,37 @@ function SketchReveal({
         ctx.globalCompositeOperation = "source-over"
       }
 
+      const startPoint = project(0, 0)
+      let prevX = startPoint.x
+      let prevY = startPoint.y
+      let start = 0
+      let lastNow = 0
+      let simElapsed = 0
+      // Cap how far a single frame can advance simulated time so a dropped
+      // frame (tab throttling, jank) can never skip an entire scan band.
+      const maxFrameMs = Math.min(40, durationMs / (rows * 3))
+
       const tick = (now: number) => {
         if (cancelled) return
-        if (!start) start = now
-        const t = Math.min((now - start) / durationMs, 1)
+        if (!start) {
+          start = now
+          lastNow = now
+        }
+        simElapsed += Math.min(now - lastNow, maxFrameMs)
+        lastNow = now
+        const t = Math.min(simElapsed / durationMs, 1)
 
-        // Boustrophedon scan: rows sweep alternately left-right / right-left,
-        // while y drifts continuously downward for an overall top-left -> bottom-right feel.
+        // Boustrophedon scan in (u, v) space: bands sweep alternately
+        // left-right / right-left, while v drifts continuously "downward"
+        // for an overall corner-to-corner feel; project() applies the tilt.
         const rawRow = t * rows
         const rowIndex = Math.min(Math.floor(rawRow), rows - 1)
         const rowFrac = rawRow - rowIndex
         const goingRight = rowIndex % 2 === 0
-        const x = goingRight ? rowFrac * w : (1 - rowFrac) * w
-        const wobble = Math.sin(x / 24) * (rowHeight * 0.16)
-        const y = t * h + wobble
+        const u = goingRight ? rowFrac * diag : (1 - rowFrac) * diag
+        const wobble = Math.sin(u / 30) * (bandSize * 0.12)
+        const v = t * diag + wobble
+        const { x, y } = project(u, v)
 
         drawSegment(prevX, prevY, x, y)
 
@@ -165,7 +203,7 @@ function SketchReveal({
       cancelled = true
       cancelAnimationFrame(frameId)
     }
-  }, [src, durationMs, rows, zoom])
+  }, [src, durationMs, rows, angleDeg, mirror, zoom])
 
   return (
     <div
