@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Fraunces", "Times New Roman", serif;
+
+  --color-paper: #f5f4ef;
+  --color-card: #eae8e2;
+  --color-ink: #14130f;
+  --color-muted: #6b6a64;
+  --color-line: #ddd9d0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
