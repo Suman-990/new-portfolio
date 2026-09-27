@@ -312,8 +312,6 @@ function SketchReveal({
       let displayX = 0
       let displayY = 0
       let displayInit = false
-      const trail: { x: number; y: number; born: number }[] = []
-      const trailMaxAgeMs = 240
 
       // A hand doesn't sweep smoothly across the page — it flicks back and
       // forth a couple of times in one spot, then moves on to the next.
@@ -332,25 +330,6 @@ function SketchReveal({
       const pseudoRandom = (seed: number) => {
         const s = Math.sin(seed * 12.9898) * 43758.5453
         return s - Math.floor(s)
-      }
-
-      const drawTrail = () => {
-        for (const p of trail) {
-          const age = simElapsed - p.born
-          if (age > trailMaxAgeMs) continue
-          const life = 1 - age / trailMaxAgeMs
-          const radius = bandSize * 0.16 * (0.35 + 0.65 * life) * dpr
-          const alpha = 0.55 * life * life
-          const px = p.x * dpr
-          const py = p.y * dpr
-          const gradient = ctx.createRadialGradient(px, py, 0, px, py, radius)
-          gradient.addColorStop(0, `rgba(201,161,59,${alpha})`)
-          gradient.addColorStop(1, "rgba(201,161,59,0)")
-          ctx.fillStyle = gradient
-          ctx.beginPath()
-          ctx.arc(px, py, radius, 0, Math.PI * 2)
-          ctx.fill()
-        }
       }
 
       const tick = (now: number) => {
@@ -417,12 +396,6 @@ function SketchReveal({
         const { x, y } = project(u, v)
 
         drawSegment(prevX, prevY, x, y)
-
-        trail.push({ x, y, born: simElapsed })
-        while (trail.length && simElapsed - trail[0].born > trailMaxAgeMs) {
-          trail.shift()
-        }
-        drawTrail()
 
         if (pencil) {
           // Unit vector pointing into the side that hasn't been revealed yet
