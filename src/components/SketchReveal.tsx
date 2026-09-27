@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState, type RefObject } from "react"
 
 // Native size of the icon, used to compute the tip pivot and the
 // container-relative scale applied in the animation loop below. Laid out
@@ -18,6 +18,17 @@ const PENCIL_TIP = { x: PENCIL_WIDTH - GRAPHITE_W / 2, y: PENCIL_HEIGHT / 2 }
 // doesn't look like a ruler, with a few degrees of sway as it flicks.
 const PENCIL_TILT_DEG = 32
 const PENCIL_SWAY_DEG = 7
+// While waiting to be clicked the pencil pokes up over the peek element's
+// bottom edge: tip up (the icon points +X, so -90° aims it skyward), with
+// this much of its length showing above the edge.
+const REST_ANGLE_DEG = -90
+const PEEK_VISIBLE_FRACTION = 0.58
+// The little entrance as it rises into view, then a slow idle bob.
+const PEEK_RISE_MS = 700
+const PEEK_BOB_PX = 6
+const PEEK_BOB_MS = 1900
+// How long the pencil takes to float up from rest into the drawing pose.
+const FLOAT_IN_MS = 900
 
 // A cute, characterful pencil (eraser, ferrule, faceted body with a face,
 // wood cone, graphite point) — reworked from a vertical reference design
@@ -131,6 +142,12 @@ interface SketchRevealProps {
   mirror?: boolean
   /** Extra zoom on the source image, e.g. to crop out a background margin. */
   zoom?: number
+  /**
+   * Element whose bottom edge the pencil peeks over while it waits to be
+   * clicked. That element needs `overflow-hidden` for the peek to read.
+   * Defaults to this component's own box.
+   */
+  peekFrom?: RefObject<HTMLElement | null>
   className?: string
 }
 
@@ -142,11 +159,33 @@ function SketchReveal({
   angleDeg = 45,
   mirror = false,
   zoom = 1,
+  peekFrom,
   className = "",
 }: SketchRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pencilRef = useRef<HTMLDivElement>(null)
+  // Last pose actually rendered, so the float-in can start from wherever the
+  // idle bob happened to leave the pencil instead of snapping first.
+  const lastPose = useRef<{
+    tipX: number
+    tipY: number
+    angle: number
+    scale: number
+  } | null>(null)
+  // Where the pencil pokes up, in container coordinates — the prompt bubble
+  // positions itself off this.
+  const [peekAnchor, setPeekAnchor] = useState<{ x: number; y: number } | null>(
+    null,
+  )
+  // "idle" has the pencil peeking over the card's bottom edge next to a
+  // prompt; clicking it floats the pencil up and hands off to the reveal.
+  const [phase, setPhase] = useState<"idle" | "running">("idle")
+  const [reduceMotion] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  )
 
   useEffect(() => {
     const container = containerRef.current
@@ -157,24 +196,89 @@ function SketchReveal({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches
-
     let frameId = 0
     let cancelled = false
 
+    // Measured up front (no image needed) so the pencil can be parked at its
+    // resting spot immediately, before the portrait has even loaded.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    const rect = container.getBoundingClientRect()
+    const w = rect.width
+    const h = rect.height
+    const wd = Math.round(w * dpr)
+    const hd = Math.round(h * dpr)
+
+    // Scale the icon up relative to the container so it reads clearly
+    // even though it darts across the frame quickly, and pin its
+    // graphite tip (not its bounding-box corner) to the drawing point so
+    // rotation pivots around the point that's actually "drawing".
+    const iconTargetWidth = Math.min(132, Math.max(64, w * 0.22))
+    const iconScale = iconTargetWidth / PENCIL_WIDTH
+    if (pencil) {
+      pencil.style.transformOrigin = `${PENCIL_TIP.x}px ${PENCIL_TIP.y}px`
+    }
+
+    const applyPose = (tipX: number, tipY: number, angle: number, scale: number) => {
+      lastPose.current = { tipX, tipY, angle, scale }
+      if (!pencil) return
+      pencil.style.transform = `translate(${tipX - PENCIL_TIP.x}px, ${tipY - PENCIL_TIP.y}px) rotate(${angle}deg) scale(${scale})`
+    }
+
+    // Resting pose: standing upright behind the peek element's bottom edge,
+    // only its top part showing. Coordinates are this container's, which the
+    // pencil layer is free to overflow — the peek element does the clipping.
+    const peekEl = peekFrom?.current ?? container
+    const peekRect = peekEl.getBoundingClientRect()
+    const peekBottomY = peekRect.bottom - rect.top
+    const peekCenterX = peekRect.left + peekRect.width / 2 - rect.left
+
+    const pencilLength = PENCIL_WIDTH * iconScale
+    // Tip up means the body hangs downward from the tip, so the tip is the
+    // part that clears the edge.
+    const restTipX = peekCenterX
+    const restTipY = peekBottomY - pencilLength * PEEK_VISIBLE_FRACTION
+    const hiddenTipY = peekBottomY + 24
+    const restAngle = REST_ANGLE_DEG
+
+    setPeekAnchor((prev) =>
+      prev && prev.x === restTipX && prev.y === restTipY
+        ? prev
+        : { x: restTipX, y: restTipY },
+    )
+
     const img = new Image()
     img.src = src
+
+    // Idle: rise into view, then bob gently. The canvas stays blank, and
+    // loading the image now warms the cache so the click draws without a stall.
+    if (phase === "idle" && !reduceMotion) {
+      let peekStart = 0
+      const peekTick = (now: number) => {
+        if (cancelled) return
+        if (!peekStart) peekStart = now
+        const elapsed = now - peekStart
+        const rise = Math.min(elapsed / PEEK_RISE_MS, 1)
+        const eased = 1 - Math.pow(1 - rise, 3)
+        const bob =
+          rise >= 1 ? Math.sin((elapsed / PEEK_BOB_MS) * Math.PI * 2) * PEEK_BOB_PX : 0
+        applyPose(
+          restTipX,
+          hiddenTipY + (restTipY - hiddenTipY) * eased + bob,
+          restAngle,
+          iconScale,
+        )
+        frameId = requestAnimationFrame(peekTick)
+      }
+      frameId = requestAnimationFrame(peekTick)
+
+      return () => {
+        cancelled = true
+        cancelAnimationFrame(frameId)
+      }
+    }
+
     img.onload = () => {
       if (cancelled) return
-
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const rect = container.getBoundingClientRect()
-      const w = rect.width
-      const h = rect.height
-      const wd = Math.round(w * dpr)
-      const hd = Math.round(h * dpr)
 
       canvas.width = wd
       canvas.height = hd
@@ -272,16 +376,6 @@ function SketchReveal({
       // frame (tab throttling, jank) can never skip an entire scan band.
       const maxFrameMs = Math.min(40, durationMs / (rows * 3))
 
-      // Scale the icon up relative to the container so it reads clearly
-      // even though it darts across the frame quickly, and pin its
-      // graphite tip (not its bounding-box corner) to the drawing point so
-      // rotation pivots around the point that's actually "drawing".
-      const iconTargetWidth = Math.min(132, Math.max(64, w * 0.22))
-      const iconScale = iconTargetWidth / PENCIL_WIDTH
-      if (pencil) {
-        pencil.style.transformOrigin = `${PENCIL_TIP.x}px ${PENCIL_TIP.y}px`
-      }
-
       // The scan point legitimately roams outside the circular crop (the
       // oversized diagonal scan space guarantees full coverage at any tilt
       // angle). Keep the *displayed* icon inside the circle with a soft,
@@ -332,17 +426,10 @@ function SketchReveal({
         return s - Math.floor(s)
       }
 
-      const tick = (now: number) => {
-        if (cancelled) return
-        if (!start) {
-          start = now
-          lastNow = now
-        }
-        const rawDt = now - lastNow
-        simElapsed += Math.min(rawDt, maxFrameMs)
-        lastNow = now
-        const t = Math.min(simElapsed / durationMs, 1)
-
+      // Everything about where the pencil is at a given progress `t`, with no
+      // side effects — so the float-in can aim at exactly the pose the draw
+      // loop will start from.
+      const scanAt = (t: number) => {
         // Boustrophedon scan in (u, v) space: bands sweep alternately
         // left-right / right-left, while v drifts continuously "downward"
         // for an overall corner-to-corner feel; project() applies the tilt.
@@ -395,84 +482,118 @@ function SketchReveal({
         const v = vBase + wobble
         const { x, y } = project(u, v)
 
-        drawSegment(prevX, prevY, x, y)
+        // Unit vector pointing into the side that hasn't been revealed yet
+        // (+v is where the sweep is headed). It's a pure V-axis vector, so
+        // it doesn't flip when the flutter reverses on the U axis.
+        const vAheadPoint = project(u, v + 1)
+        const fdx0 = vAheadPoint.x - x
+        const fdy0 = vAheadPoint.y - y
+        const flen = Math.hypot(fdx0, fdy0) || 1
+        const blankX = fdx0 / flen
+        const blankY = fdy0 / flen
+
+        // Ink is stroked centered on the path, so the visible edge sits
+        // about halfStroke ahead of (x, y). Put the tip right there — on
+        // the frontier, not on pixels that are already filled in.
+        return {
+          x,
+          y,
+          blankX,
+          blankY,
+          flutterOffset,
+          flutterAmp,
+          tipX: x + blankX * halfStroke * 0.9,
+          tipY: y + blankY * halfStroke * 0.9,
+        }
+      }
+
+      type Scan = ReturnType<typeof scanAt>
+
+      // Turn a (possibly smoothed) tip position into the pose actually
+      // rendered: held inside the circle, shrunk near the rim, and angled so
+      // the body lies back over the blank side.
+      const resolvePose = (scan: Scan, rawTipX: number, rawTipY: number) => {
+        // Keep the icon inside the circle with a soft saturation instead
+        // of a hard clamp, so it never has to snap to the boundary.
+        const dx = rawTipX - cx
+        const dy = rawTipY - cy
+        const dist = Math.hypot(dx, dy)
+        const kneeRange = safeRadius - clampKnee || 1
+        const softDist =
+          dist <= clampKnee
+            ? dist
+            : clampKnee + kneeRange * Math.tanh((dist - clampKnee) / kneeRange)
+        const tipX = dist > 0 ? cx + (dx / dist) * softDist : rawTipX
+        const tipY = dist > 0 ? cy + (dy / dist) * softDist : rawTipY
+
+        // As the frontier nears the rim, the blank side is only a thin
+        // crescent — a full-size body laid back into it would hang off the
+        // edge and get cropped away. Shrink toward the rim so it still
+        // fits (and reads as the pencil easing off as the sketch lands).
+        const rimCloseness = Math.min(1, Math.max(0, (dist / safeRadius - 0.62) / 0.38))
+
+        // Hold the pencil the way a hand actually does while shading: tip
+        // on the frontier, body laid back over the blank paper it's about
+        // to fill. The icon points along +X, and its body extends back
+        // from the tip, so aiming +X *against* the blank direction puts
+        // the whole body on the unrevealed side.
+        //
+        // Deriving this from the sweep geometry rather than the
+        // instantaneous velocity is what keeps it readable — velocity
+        // reverses several times a second during the flutter, which spun
+        // the icon far too fast to see.
+        const blankAngle = (Math.atan2(scan.blankY, scan.blankX) * 180) / Math.PI
+        const sway = (scan.flutterOffset / (scan.flutterAmp || 1)) * PENCIL_SWAY_DEG
+
+        return {
+          tipX,
+          tipY,
+          angle: blankAngle + 180 + PENCIL_TILT_DEG + sway,
+          scale: iconScale * (1 - 0.42 * rimCloseness),
+        }
+      }
+
+      const tick = (now: number) => {
+        if (cancelled) return
+        if (!start) {
+          start = now
+          lastNow = now
+        }
+        const rawDt = now - lastNow
+        simElapsed += Math.min(rawDt, maxFrameMs)
+        lastNow = now
+        const t = Math.min(simElapsed / durationMs, 1)
+
+        const scan = scanAt(t)
+        drawSegment(prevX, prevY, scan.x, scan.y)
 
         if (pencil) {
-          // Unit vector pointing into the side that hasn't been revealed yet
-          // (+v is where the sweep is headed). It's a pure V-axis vector, so
-          // it doesn't flip when the flutter reverses on the U axis.
-          const vAheadPoint = project(u, v + 1)
-          const fdx0 = vAheadPoint.x - x
-          const fdy0 = vAheadPoint.y - y
-          const flen = Math.hypot(fdx0, fdy0) || 1
-          const blankX = fdx0 / flen
-          const blankY = fdy0 / flen
-
-          // Ink is stroked centered on the path, so the visible edge sits
-          // about halfStroke ahead of (x, y). Put the tip right there — on
-          // the frontier, not on pixels that are already filled in.
-          const targetX = x + blankX * halfStroke * 0.9
-          const targetY = y + blankY * halfStroke * 0.9
-
           if (!displayInit) {
-            displayX = targetX
-            displayY = targetY
+            displayX = scan.tipX
+            displayY = scan.tipY
             displayInit = true
           } else {
             const posSmoothing = 1 - Math.exp(-Math.max(rawDt, 0) / 110)
-            displayX += (targetX - displayX) * posSmoothing
-            displayY += (targetY - displayY) * posSmoothing
+            displayX += (scan.tipX - displayX) * posSmoothing
+            displayY += (scan.tipY - displayY) * posSmoothing
           }
 
-          // Keep the icon inside the circle with a soft saturation instead
-          // of a hard clamp, so it never has to snap to the boundary.
-          const dx = displayX - cx
-          const dy = displayY - cy
-          const dist = Math.hypot(dx, dy)
-          const kneeRange = safeRadius - clampKnee || 1
-          const softDist =
-            dist <= clampKnee
-              ? dist
-              : clampKnee + kneeRange * Math.tanh((dist - clampKnee) / kneeRange)
-          const pencilX = dist > 0 ? cx + (dx / dist) * softDist : displayX
-          const pencilY = dist > 0 ? cy + (dy / dist) * softDist : displayY
-
-          // As the frontier nears the rim, the blank side is only a thin
-          // crescent — a full-size body laid back into it would hang off the
-          // edge and get cropped away. Shrink toward the rim so it still
-          // fits (and reads as the pencil easing off as the sketch lands).
-          const rimCloseness = Math.min(1, Math.max(0, (dist / safeRadius - 0.62) / 0.38))
-          const rimScale = 1 - 0.42 * rimCloseness
-
-          // Hold the pencil the way a hand actually does while shading: tip
-          // on the frontier, body laid back over the blank paper it's about
-          // to fill. The icon points along +X, and its body extends back
-          // from the tip, so aiming +X *against* the blank direction puts
-          // the whole body on the unrevealed side.
-          //
-          // Deriving this from the sweep geometry rather than the
-          // instantaneous velocity is what keeps it readable — velocity
-          // reverses several times a second during the flutter, which spun
-          // the icon far too fast to see.
-          const blankAngle = (Math.atan2(blankY, blankX) * 180) / Math.PI
-          const sway =
-            (flutterOffset / (flutterAmp || 1)) * PENCIL_SWAY_DEG
-          const targetAngle = blankAngle + 180 + PENCIL_TILT_DEG + sway
+          const pose = resolvePose(scan, displayX, displayY)
           if (!angleInit) {
-            currentAngle = targetAngle
+            currentAngle = pose.angle
             angleInit = true
           } else {
-            let delta = (targetAngle - currentAngle) % 360
+            let delta = (pose.angle - currentAngle) % 360
             if (delta > 180) delta -= 360
             if (delta < -180) delta += 360
             const smoothing = 1 - Math.exp(-Math.max(rawDt, 0) / 70)
             currentAngle += delta * smoothing
           }
-          pencil.style.transform = `translate(${pencilX - PENCIL_TIP.x}px, ${pencilY - PENCIL_TIP.y}px) rotate(${currentAngle}deg) scale(${iconScale * rimScale})`
+          applyPose(pose.tipX, pose.tipY, currentAngle, pose.scale)
         }
 
-        prevX = x
-        prevY = y
+        prevX = scan.x
+        prevY = scan.y
 
         if (t < 1) {
           frameId = requestAnimationFrame(tick)
@@ -485,23 +606,64 @@ function SketchReveal({
         }
       }
 
-      frameId = requestAnimationFrame(tick)
+      // Float up from the resting spot into the pose the reveal starts from,
+      // then hand straight over to the draw loop.
+      const entryScan = scanAt(0)
+      const entryPose = resolvePose(entryScan, entryScan.tipX, entryScan.tipY)
+      // Start from wherever the peek left it (mid-bob), not a fixed point.
+      const from = lastPose.current ?? {
+        tipX: restTipX,
+        tipY: restTipY,
+        angle: restAngle,
+        scale: iconScale,
+      }
+      let angleDelta = (entryPose.angle - from.angle) % 360
+      if (angleDelta > 180) angleDelta -= 360
+      if (angleDelta < -180) angleDelta += 360
+
+      let floatStart = 0
+      const floatIn = (now: number) => {
+        if (cancelled) return
+        if (!floatStart) floatStart = now
+        const p = Math.min((now - floatStart) / FLOAT_IN_MS, 1)
+        const eased = 1 - Math.pow(1 - p, 3)
+        // A slight arc over the straight line reads as floating rather than sliding.
+        const lift = Math.sin(Math.PI * eased) * h * 0.07
+
+        applyPose(
+          from.tipX + (entryPose.tipX - from.tipX) * eased,
+          from.tipY + (entryPose.tipY - from.tipY) * eased - lift,
+          from.angle + angleDelta * eased,
+          from.scale + (entryPose.scale - from.scale) * eased,
+        )
+
+        frameId = requestAnimationFrame(p < 1 ? floatIn : tick)
+      }
+
+      frameId = requestAnimationFrame(floatIn)
     }
 
     return () => {
       cancelled = true
       cancelAnimationFrame(frameId)
     }
-  }, [src, durationMs, rows, angleDeg, mirror, zoom])
+  }, [src, durationMs, rows, angleDeg, mirror, zoom, phase, reduceMotion, peekFrom])
 
   return (
-    <div
-      ref={containerRef}
-      role="img"
-      aria-label={alt}
-      className={`relative overflow-hidden rounded-full ${className}`}
-    >
-      <canvas ref={canvasRef} aria-hidden="true" className="block h-full w-full" />
+    // The image semantics live on the canvas, not this wrapper — a wrapper
+    // with role="img" would swallow the button inside it for assistive tech.
+    // Note this wrapper is deliberately NOT clipped: the pencil layer has to
+    // reach outside the circle to peek over the card's bottom edge. Only the
+    // canvas gets the circular crop.
+    <div ref={containerRef} className={`relative ${className}`}>
+      <div className="absolute inset-0 overflow-hidden rounded-full">
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label={alt}
+          className="block h-full w-full"
+        />
+      </div>
       <div
         ref={pencilRef}
         aria-hidden="true"
@@ -509,6 +671,37 @@ function SketchReveal({
       >
         <PencilIcon />
       </div>
+
+      {/* A stationary hit area over the peeking pencil. Putting the button on
+          the pencil itself would mean a target that never stops moving, since
+          the pencil bobs the whole time it waits. */}
+      {phase === "idle" && !reduceMotion && peekAnchor && (
+        <button
+          type="button"
+          onClick={() => setPhase("running")}
+          aria-label={`Draw ${alt}`}
+          className="absolute -translate-x-1/2 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          style={{
+            left: peekAnchor.x,
+            top: peekAnchor.y - 58,
+            width: 150,
+            height: 125,
+          }}
+        />
+      )}
+
+      {phase === "idle" && !reduceMotion && peekAnchor && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -translate-x-1/2 -translate-y-full"
+          style={{ left: peekAnchor.x, top: peekAnchor.y - 14 }}
+        >
+          <span className="sketch-bob relative block whitespace-nowrap rounded-full border border-line bg-paper px-4 py-1.5 text-sm font-medium text-ink shadow-sm">
+            click me
+            <span className="absolute left-1/2 top-full h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-r border-line bg-paper" />
+          </span>
+        </div>
+      )}
     </div>
   )
 }

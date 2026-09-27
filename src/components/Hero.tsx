@@ -1,3 +1,5 @@
+import { useRef } from "react"
+
 import SketchReveal from "./SketchReveal"
 
 const STATS = [
@@ -7,10 +9,15 @@ const STATS = [
 ]
 
 function Hero() {
+  // The pencil peeks up over this card's bottom edge, so the card has to clip
+  // it (overflow-hidden) and SketchReveal has to know where that edge is.
+  const cardRef = useRef<HTMLElement>(null)
+
   return (
     <section
       id="home"
-      className="grid gap-10 rounded-3xl bg-card p-8 md:grid-cols-2 md:gap-8 md:p-14"
+      ref={cardRef}
+      className="relative grid gap-10 overflow-hidden rounded-3xl bg-card p-8 md:grid-cols-2 md:gap-8 md:p-14"
     >
       <div className="flex flex-col justify-center">
         <h1 className="font-serif text-5xl leading-[1.1] tracking-tight text-ink md:text-6xl">
@@ -54,6 +61,7 @@ function Hero() {
           alt="Sketch portrait of Suman Mahanty"
           zoom={1.1}
           mirror
+          peekFrom={cardRef}
           className="aspect-square w-full max-w-sm sm:max-w-md"
         />
       </div>
