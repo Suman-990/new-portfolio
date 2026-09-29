@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
+import Skills from "./components/Skills"
 import TechStrip from "./components/TechStrip"
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <main>
         <Hero />
         <TechStrip />
+        <Skills />
       </main>
     </div>
   )

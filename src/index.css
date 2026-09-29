@@ -3,12 +3,19 @@
 @theme {
   --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
   --font-serif: "Fraunces", "Times New Roman", serif;
+  --font-cursive: "Caveat", cursive;
 
   --color-paper: #f5f4ef;
   --color-card: #eae8e2;
   --color-ink: #14130f;
   --color-muted: #6b6a64;
   --color-line: #ddd9d0;
+
+  /* Dark, matte counterparts — used by sections that flip the palette
+     (paper/ink swap for background/text), e.g. the Skills section. */
+  --color-onyx: #0a0a08;
+  --color-dim: #9a978d;
+  --color-edge: #201f1a;
 }
 
 html {
