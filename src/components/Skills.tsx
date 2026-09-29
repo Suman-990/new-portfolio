@@ -20,6 +20,10 @@ function Skills() {
   // Once revealed, stays revealed — this is a one-way theme change, not
   // something that should undo itself if the user scrolls back up.
   const [revealed, setRevealed] = useState(false)
+  // Flips once PixelSwap's own onComplete fires — i.e. once the background
+  // dissolve has actually finished, not just started — so the content's
+  // entrance never overlaps the background animation.
+  const [backgroundDone, setBackgroundDone] = useState(false)
 
   useEffect(() => {
     const section = sectionRef.current
@@ -63,31 +67,38 @@ function Skills() {
           trigger="none"
           firstContent={<div className="h-full w-full bg-paper" />}
           secondContent={<div className="h-full w-full bg-onyx" />}
+          onComplete={(to) => {
+            if (to) setBackgroundDone(true)
+          }}
           aspectRatio="auto"
           className="h-full"
         />
       </div>
 
       {/* Foreground: the real content, always live, sitting on top of the
-          background rather than inside it. Fades in on its own timeline once
-          the background starts flipping dark, instead of riding PixelSwap's
-          per-tile reveal. */}
-      <div
-        className={`absolute inset-0 z-10 flex w-full items-center px-6 transition-opacity delay-300 duration-700 md:px-14 ${
-          revealed ? "opacity-100" : "opacity-0"
-        }`}
-      >
+          background rather than inside it. Waits for `backgroundDone` (the
+          background's own onComplete, not just `revealed`) so the entrance
+          only starts once the dissolve has actually finished — no overlap. */}
+      <div className="absolute inset-0 z-10 flex w-full items-center px-6 md:px-14">
         <div className="mx-auto grid w-full max-w-7xl gap-12 md:grid-cols-2 md:items-center md:gap-8">
-          <div className="flex flex-col justify-center">
+          <div
+            className={`flex flex-col justify-center transition-all duration-700 ease-out ${
+              backgroundDone ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            }`}
+          >
             <p className="font-cursive text-4xl leading-snug text-paper sm:text-5xl md:text-6xl">
-              With great products, comes great complexities
+              With great product, comes great complexities
             </p>
             <p className="mt-5 text-sm text-dim sm:text-base">
-              and i use these technologies to tackle them
+              and I use these technologies to tackle them
             </p>
           </div>
 
-          <div className="h-[380px] sm:h-[440px] md:h-[520px]">
+          <div
+            className={`h-[380px] transition-all delay-150 duration-700 ease-out sm:h-[440px] md:h-[520px] ${
+              backgroundDone ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+            }`}
+          >
             <InfiniteSpiral items={TECH_ITEMS} className="h-full w-full" />
           </div>
         </div>
