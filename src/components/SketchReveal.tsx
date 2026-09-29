@@ -27,8 +27,11 @@ const PEEK_VISIBLE_FRACTION = 0.58
 const PEEK_RISE_MS = 700
 const PEEK_BOB_PX = 6
 const PEEK_BOB_MS = 1900
-// How long the pencil takes to float up from rest into the drawing pose.
+// How long the pencil takes to float up from rest into the drawing pose,
+// and to make the return trip once the sketch has landed.
 const FLOAT_IN_MS = 900
+const FLOAT_OUT_MS = 900
+const DUCK_OUT_MS = 420
 
 // A cute, characterful pencil (eraser, ferrule, faceted body with a face,
 // wood cone, graphite point) — reworked from a vertical reference design
@@ -216,6 +219,7 @@ function SketchReveal({
     const iconScale = iconTargetWidth / PENCIL_WIDTH
     if (pencil) {
       pencil.style.transformOrigin = `${PENCIL_TIP.x}px ${PENCIL_TIP.y}px`
+      pencil.style.opacity = "1"
     }
 
     const applyPose = (tipX: number, tipY: number, angle: number, scale: number) => {
@@ -553,6 +557,63 @@ function SketchReveal({
         }
       }
 
+      // Once the sketch lands, walk the pencil back to where it peeked from
+      // and let it duck below that edge, rather than blinking out mid-air.
+      let exitFrom: {
+        tipX: number
+        tipY: number
+        angle: number
+        scale: number
+      } | null = null
+      let exitAngleDelta = 0
+      let exitStart = 0
+      const floatOut = (now: number) => {
+        if (cancelled) return
+        if (!exitStart) {
+          exitStart = now
+          exitFrom = lastPose.current ?? {
+            tipX: restTipX,
+            tipY: restTipY,
+            angle: restAngle,
+            scale: iconScale,
+          }
+          exitAngleDelta = (restAngle - exitFrom.angle) % 360
+          if (exitAngleDelta > 180) exitAngleDelta -= 360
+          if (exitAngleDelta < -180) exitAngleDelta += 360
+        }
+        const origin = exitFrom!
+        const elapsed = now - exitStart
+
+        if (elapsed < FLOAT_OUT_MS) {
+          const p = elapsed / FLOAT_OUT_MS
+          // Smoothstep: eases out of the drawing pose and settles on landing.
+          const eased = p * p * (3 - 2 * p)
+          const lift = Math.sin(Math.PI * eased) * h * 0.07
+          applyPose(
+            origin.tipX + (restTipX - origin.tipX) * eased,
+            origin.tipY + (restTipY - origin.tipY) * eased - lift,
+            origin.angle + exitAngleDelta * eased,
+            origin.scale + (iconScale - origin.scale) * eased,
+          )
+          frameId = requestAnimationFrame(floatOut)
+          return
+        }
+
+        // Then drop back under the edge it came from.
+        const p = Math.min((elapsed - FLOAT_OUT_MS) / DUCK_OUT_MS, 1)
+        const eased = p * p
+        applyPose(
+          restTipX,
+          restTipY + (hiddenTipY - restTipY) * eased,
+          restAngle,
+          iconScale,
+        )
+        // The peek element clips it on the way down, but fade too so this
+        // still ends cleanly when no clipping ancestor was provided.
+        if (pencil) pencil.style.opacity = `${1 - eased}`
+        if (p < 1) frameId = requestAnimationFrame(floatOut)
+      }
+
       const tick = (now: number) => {
         if (cancelled) return
         if (!start) {
@@ -602,7 +663,7 @@ function SketchReveal({
           maskCtx.fillRect(0, 0, wd, hd)
           ctx.clearRect(0, 0, wd, hd)
           ctx.drawImage(srcCanvas, 0, 0)
-          if (pencil) pencil.style.opacity = "0"
+          frameId = requestAnimationFrame(floatOut)
         }
       }
 
@@ -664,10 +725,12 @@ function SketchReveal({
           className="block h-full w-full"
         />
       </div>
+      {/* No opacity transition here — the exit animation drives opacity per
+          frame, and a CSS transition would lag behind it. */}
       <div
         ref={pencilRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-0 transition-opacity duration-300"
+        className="pointer-events-none absolute left-0 top-0"
       >
         <PencilIcon />
       </div>
