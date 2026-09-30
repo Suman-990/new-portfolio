@@ -52,7 +52,27 @@ interface LanyardProps {
   imageFit?: ImageFit
   lanyardImage?: string | null
   lanyardWidth?: number
+  // While false, the whole rope+card chain is held fixed in its initial
+  // (unsettled) pose instead of immediately falling under gravity — flip it
+  // to true to let go, so it visibly drops/swings into its resting hang the
+  // same way it does after a drag is released, rather than already being
+  // settled the moment it becomes visible.
+  dropTrigger?: boolean
 }
+
+// The container this component renders into is deliberately much taller than
+// the card's resting frame — see Skills.tsx, which sizes and positions it so
+// the extra height is mostly usable drag room below the card, and gives the
+// card somewhere to go when dragged instead of being clipped by its own box
+// edge. REFERENCE_HEIGHT is the container height (px) `position`'s z was
+// originally tuned against; as the real container grows past that, camera
+// distance is scaled up by the same ratio so the resting card keeps the
+// exact same on-screen size instead of growing to fill the bigger box.
+// (Vertical *position* is compensated separately, via CSS in Skills.tsx —
+// R3F's default camera auto-aims at the world origin, which makes its own
+// vertical position an unreliable lever for this: moving it re-pitches the
+// whole view around that fixed origin rather than simply panning the frame.)
+const REFERENCE_HEIGHT = 320
 
 export default function Lanyard({
   position = [0, 0, 30],
@@ -64,8 +84,11 @@ export default function Lanyard({
   imageFit = "cover",
   lanyardImage = null,
   lanyardWidth = 1,
+  dropTrigger = true,
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [cameraZ, setCameraZ] = useState(position[2])
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768)
@@ -73,13 +96,37 @@ export default function Lanyard({
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
+  useEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+    const observer = new ResizeObserver(([entry]) => {
+      const height = entry.contentRect.height
+      if (height > 0) setCameraZ(position[2] * (height / REFERENCE_HEIGHT))
+    })
+    observer.observe(wrapper)
+    return () => observer.disconnect()
+  }, [position])
+
   return (
-    <div className="lanyard-wrapper">
+    <div className="lanyard-wrapper" ref={wrapperRef}>
       <Canvas
-        camera={{ position, fov }}
+        camera={{ position: [position[0], position[1], cameraZ], fov }}
         dpr={[1, isMobile ? 1.5 : 2]}
         gl={{ alpha: transparent }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
+        // The container now spans a much bigger area than the card's resting
+        // frame (to give it room to be dragged), which would otherwise block
+        // clicks/hovers on whatever sits underneath across that whole area.
+        // Forward anything that doesn't actually hit the card to the real
+        // element below it, so links like the tech-spiral cards still work.
+        onPointerMissed={(event) => {
+          const canvasEl = event.target as HTMLElement
+          const previous = canvasEl.style.pointerEvents
+          canvasEl.style.pointerEvents = "none"
+          const under = document.elementFromPoint(event.clientX, event.clientY)
+          canvasEl.style.pointerEvents = previous
+          if (under) under.dispatchEvent(new MouseEvent(event.type, event))
+        }}
       >
         <ambientLight intensity={Math.PI} />
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
@@ -90,6 +137,7 @@ export default function Lanyard({
             imageFit={imageFit}
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
+            dropTrigger={dropTrigger}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -112,6 +160,7 @@ interface BandProps {
   imageFit?: ImageFit
   lanyardImage?: string | null
   lanyardWidth?: number
+  dropTrigger?: boolean
 }
 
 // The model ships without per-node/material types, so useGLTF's generic
@@ -138,6 +187,7 @@ function Band({
   imageFit = "cover",
   lanyardImage = null,
   lanyardWidth = 1,
+  dropTrigger = true,
 }: BandProps) {
   const band = useRef<THREE.Mesh<MeshLineGeometry>>(null!)
   const fixed = useRef<RapierRigidBody>(null!)
@@ -149,8 +199,19 @@ function Band({
   const ang = new THREE.Vector3()
   const rot = new THREE.Vector3()
   const dir = new THREE.Vector3()
+  // Held "kinematicPosition" (immovable, in the plain spread-out pose the
+  // segments are authored at below) until dropTrigger flips true, at which
+  // point they become "dynamic" and gravity takes over — the same
+  // mechanism already used for drag release (see the card's own type
+  // below), just applied to the whole chain instead of triggered by a
+  // pointer event. "fixed" looks equivalent at rest but doesn't reliably
+  // wake into a properly-simulated dynamic body on release — it left j1/j2
+  // stuck at their frozen spots indefinitely while the rest of the chain
+  // fell. "kinematicPosition" uses the same fixed→dynamic-on-release path
+  // already proven to work for the card during drag.
+  const restType: "dynamic" | "kinematicPosition" = dropTrigger ? "dynamic" : "kinematicPosition"
   const segmentProps = {
-    type: "dynamic" as const,
+    type: restType,
     canSleep: true,
     colliders: false as const,
     angularDamping: 4,
@@ -261,6 +322,15 @@ function Band({
     }
   }, [hovered, dragged])
 
+  // Switching a body's type from "fixed" to "dynamic" doesn't necessarily
+  // wake it — same as the drag-start code below waking every ref before
+  // moving the card, these need an explicit nudge or they can sit inert
+  // (still "dynamic", just never actually simulated) instead of falling.
+  useEffect(() => {
+    if (!dropTrigger) return
+    ;[j1, j2, j3, card].forEach((ref) => ref.current?.wakeUp())
+  }, [dropTrigger])
+
   useFrame((state, delta) => {
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera)
@@ -337,7 +407,7 @@ function Band({
           position={[2, 0, 0]}
           ref={card}
           {...segmentProps}
-          type={dragged ? "kinematicPosition" : "dynamic"}
+          type={dragged ? "kinematicPosition" : restType}
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group

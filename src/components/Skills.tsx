@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import InfiniteSpiral from "./InfiniteSpiral"
 import Lanyard from "./Lanyard"
@@ -95,6 +95,13 @@ function SkillCard({ category }: { category: SkillCategory }) {
 // of the dissolve's actual finish, rather than waiting for it exactly.
 const BACKGROUND_DISSOLVE_MS = 1400
 const HERO_EARLY_BY_MS = 450
+// The hero row (punchline + spiral) fades/rises over this long once
+// `heroVisible` flips — the card's own drop waits for that to actually
+// finish, not just start, before it begins.
+const HERO_ENTRANCE_MS = 700
+// How long after the hero row's entrance finishes the card waits before it
+// starts dropping in.
+const CARD_DROP_DELAY_MS = 300
 
 function Skills() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -143,6 +150,19 @@ function Skills() {
     return () => window.clearTimeout(timer)
   }, [revealed, heroVisible, reduceMotion])
 
+  // The lanyard card drops in on its own, after the hero row it sits above
+  // has actually finished its own fade/rise — not at the same time as it —
+  // so it reads as a separate, deliberate entrance rather than one more
+  // piece of the same reveal.
+  const [cardVisible, setCardVisible] = useState(false)
+
+  useEffect(() => {
+    if (!heroVisible || cardVisible) return
+    const delay = reduceMotion ? 0 : HERO_ENTRANCE_MS + CARD_DROP_DELAY_MS
+    const timer = window.setTimeout(() => setCardVisible(true), delay)
+    return () => window.clearTimeout(timer)
+  }, [heroVisible, cardVisible, reduceMotion])
+
   // The card grid gets its own on-view entrance (terminal-dark §11: fade +
   // 12px rise, 400ms, once) — separate from the hero row, since it sits
   // below a full-viewport block and is scrolled to well after that entrance
@@ -165,6 +185,36 @@ function Skills() {
     observer.observe(el)
     return () => observer.disconnect()
   }, [cardsInView])
+
+  // The lanyard's drag-room box (below) needs to be wide enough that
+  // dragging the card doesn't clip at its edge before reaching the
+  // viewport's own edge. Its natural home is column 1 of a 2-column grid —
+  // left-of-center, not viewport-centered — so a box merely as wide as the
+  // viewport, centered on that off-center point, would still come up short
+  // on whichever side is farther away. Measuring the column's actual
+  // position and solving for the width/left that make a box *centered on
+  // it* just reach both viewport edges avoids guessing at a fixed
+  // (and necessarily oversized, to cover the worst case blindly) value —
+  // this is exactly as wide as this viewport actually needs, no more.
+  const lanyardColRef = useRef<HTMLDivElement>(null)
+  const [lanyardBox, setLanyardBox] = useState<{ left: number; width: number } | null>(null)
+
+  useLayoutEffect(() => {
+    const col = lanyardColRef.current
+    if (!col) return
+
+    const measure = () => {
+      const rect = col.getBoundingClientRect()
+      const centerFromLeft = rect.width / 2
+      const centerInViewport = rect.left + centerFromLeft
+      const half = Math.max(centerInViewport, window.innerWidth - centerInViewport)
+      setLanyardBox({ left: centerFromLeft - half, width: half * 2 })
+    }
+
+    measure()
+    window.addEventListener("resize", measure)
+    return () => window.removeEventListener("resize", measure)
+  }, [])
 
   return (
     // Full-bleed: breaks out of the site's centered max-w-7xl/px-6 wrapper so
@@ -201,28 +251,76 @@ function Skills() {
       </div>
 
       {/* The lanyard card: an overlay (z-20, above the content's z-10)
-          sized to the gap between the section's top edge and where the
-          text column starts, and aligned to that column's own width/
-          position — same outer max-w-7xl/px-6/md:px-14 container and
-          md:grid-cols-2 split as the content row below, so column 1 here
-          lines up exactly with the text column there, with nothing placed
-          in column 2. This is deliberately small and near the top now, not
-          a full-section overlay — its drag range is whatever fits inside
-          this box. */}
+          aligned to the text column's own width/position — same outer
+          max-w-7xl/px-6/md:px-14 container and md:grid-cols-2 split as the
+          content row below, so column 1 here lines up exactly with the text
+          column there, with nothing placed in column 2.
+
+          The inner box is much taller than the card's resting frame (the
+          320px frame its camera distance is tuned for in Lanyard.tsx) and
+          shifted up by half the difference, so it grows symmetrically around
+          the same center instead of pushing the resting card down. Camera
+          distance is scaled to match (in Lanyard.tsx), which keeps a
+          constant *offset from that center* regardless of box size — so
+          growing the box symmetrically, rather than only downward, is what
+          actually keeps the resting card pinned in place; growing it
+          downward only shifts the center (and the card with it) as the box
+          grows. Half the extra height ends up above the section, clipped by
+          its own overflow-hidden and effectively wasted, so the box is sized
+          well past what's needed just to clear the content below — the
+          height here (300dvh) is chosen so the other half is still enough
+          drag room to comfortably reach the card grid section further down.
+
+          Width gets the same symmetric-growth treatment for the same
+          clipping reason, but doesn't need a matching camera change: a
+          perspective camera's horizontal extent is *derived* from its
+          vertical fov and the box's aspect ratio, so widening the box alone
+          doesn't change apparent size or position — only how much
+          horizontal room there is. It's centered on the same point the
+          narrow box already occupied — its parent column's own center, NOT
+          the viewport's center, since column 1 of a 2-column grid sits
+          left-of-center — using `left`/`width` computed from the column's
+          actual measured position (the `lanyardBox` effect above), rather
+          than a fixed guess: a box merely as wide as the viewport, centered
+          on an off-center point, would still come up short on whichever
+          side is farther away, and a fixed value big enough to always cover
+          that worst case would be excessive (and was — it made the card
+          visibly slower to settle after a release, from the sheer pixel
+          area a transparent-but-still-rendered canvas that size costs to
+          draw every frame) for how much any *particular* viewport actually
+          needs. `lanyardColRef` sits at the original (unmodified) column
+          position purely so its rect can be measured; the actual box is
+          absolutely positioned inside it once that measurement lands. */}
+      {/* No translate here — the "drop" motion itself now comes from real
+          physics (Lanyard's `dropTrigger`), not a CSS transform, so this
+          only needs a quick fade to cover the single frame where the chain
+          is still in its unsettled starting pose right as it appears. */}
       <div
-        className={`absolute inset-x-0 top-0 z-20 transition-opacity duration-700 ${
-          heroVisible ? "opacity-100" : "opacity-0"
+        className={`absolute inset-x-0 top-0 z-20 transition-opacity duration-150 ${
+          cardVisible ? "opacity-100" : "opacity-0"
         }`}
       >
         <div className="mx-auto grid w-full max-w-7xl px-6 md:grid-cols-2 md:px-14">
-          <div className="h-64 sm:h-72 md:h-80">
-            <Lanyard
-              position={[0, 0, 20]}
-              gravity={[0, -40, 0]}
-              frontImage="/il_fullxfull.6691917804_k8k3.avif"
-              backImage="/gradient-background-in-black-and-red-colors-with-icon-of-spider-vector.jpg"
-              lanyardImage="/bfe6bbe3b6cc5dccfe8cd91d2b6b0353.jpg"
-            />
+          <div ref={lanyardColRef} className="relative">
+            <div
+              className="relative"
+              style={{
+                top: "calc((320px - 300dvh) / 2)",
+                height: "300dvh",
+                ...(lanyardBox
+                  ? { position: "absolute" as const, left: lanyardBox.left, width: lanyardBox.width }
+                  : {}),
+              }}
+            >
+              <Lanyard
+                position={[0, 0, 20]}
+                gravity={[0, -40, 0]}
+                frontImage="/il_fullxfull.6691917804_k8k3.avif"
+                backImage="/gradient-background-in-black-and-red-colors-with-icon-of-spider-vector.jpg"
+                lanyardImage="/bfe6bbe3b6cc5dccfe8cd91d2b6b0353.jpg"
+                dropTrigger={cardVisible}
+              />
+            </div>
           </div>
         </div>
       </div>
