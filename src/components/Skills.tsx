@@ -163,6 +163,22 @@ function Skills() {
     return () => window.clearTimeout(timer)
   }, [heroVisible, cardVisible, reduceMotion])
 
+  // Unlike `revealed` above (which fires once and stays true), this tracks
+  // whether the section is *currently* in the viewport, continuously — it
+  // gates the card's scroll-reactive sway, which should only respond to
+  // scrolling while the card itself is actually on screen.
+  const [sectionInView, setSectionInView] = useState(false)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const observer = new IntersectionObserver(([entry]) => setSectionInView(entry.isIntersecting), {
+      threshold: 0,
+    })
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
   // The card grid gets its own on-view entrance (terminal-dark §11: fade +
   // 12px rise, 400ms, once) — separate from the hero row, since it sits
   // below a full-viewport block and is scrolled to well after that entrance
@@ -319,6 +335,7 @@ function Skills() {
                 backImage="/gradient-background-in-black-and-red-colors-with-icon-of-spider-vector.jpg"
                 lanyardImage="/bfe6bbe3b6cc5dccfe8cd91d2b6b0353.jpg"
                 dropTrigger={cardVisible}
+                scrollReactive={sectionInView}
               />
             </div>
           </div>

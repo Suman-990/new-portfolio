@@ -42,6 +42,13 @@ const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 }
 
 type ImageFit = "cover" | "contain"
 
+// Converts a wheel event's deltaY (scroll intensity) into a sideways
+// physics impulse on the card — see the scroll-reactive effect in Band.
+// Tuned by eye: strong enough that a normal scroll visibly sways the card,
+// capped so a very fast/large scroll jump can't fling it into a wild spin.
+const SCROLL_IMPULSE_SCALE = 0.004
+const SCROLL_IMPULSE_MAX = 0.4
+
 interface LanyardProps {
   position?: [number, number, number]
   gravity?: [number, number, number]
@@ -58,6 +65,10 @@ interface LanyardProps {
   // same way it does after a drag is released, rather than already being
   // settled the moment it becomes visible.
   dropTrigger?: boolean
+  // While true, page-scroll ("wheel") events nudge the card sideways with
+  // a small impulse scaled to scroll intensity, so it sways a bit as the
+  // page scrolls instead of sitting perfectly still.
+  scrollReactive?: boolean
 }
 
 // The container this component renders into is deliberately much taller than
@@ -85,6 +96,7 @@ export default function Lanyard({
   lanyardImage = null,
   lanyardWidth = 1,
   dropTrigger = true,
+  scrollReactive = false,
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -138,6 +150,7 @@ export default function Lanyard({
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
             dropTrigger={dropTrigger}
+            scrollReactive={scrollReactive}
           />
         </Physics>
         <Environment blur={0.75}>
@@ -161,6 +174,7 @@ interface BandProps {
   lanyardImage?: string | null
   lanyardWidth?: number
   dropTrigger?: boolean
+  scrollReactive?: boolean
 }
 
 // The model ships without per-node/material types, so useGLTF's generic
@@ -188,6 +202,7 @@ function Band({
   lanyardImage = null,
   lanyardWidth = 1,
   dropTrigger = true,
+  scrollReactive = false,
 }: BandProps) {
   const band = useRef<THREE.Mesh<MeshLineGeometry>>(null!)
   const fixed = useRef<RapierRigidBody>(null!)
@@ -330,6 +345,25 @@ function Band({
     if (!dropTrigger) return
     ;[j1, j2, j3, card].forEach((ref) => ref.current?.wakeUp())
   }, [dropTrigger])
+
+  // Nudges the card sideways (X, perpendicular to the rope) on each wheel
+  // event, scaled to how fast the page is scrolling — a horizontal push
+  // makes it swing like a pendulum at roughly its existing rope length,
+  // rather than pulling straight along the rope (which is what would visibly
+  // stretch it, since that's the one direction the rope's max-distance
+  // joints actually resist).
+  useEffect(() => {
+    if (!scrollReactive || !dropTrigger || dragged) return
+    const handleWheel = (event: WheelEvent) => {
+      const body = card.current
+      if (!body) return
+      body.wakeUp()
+      const impulse = Math.max(-SCROLL_IMPULSE_MAX, Math.min(SCROLL_IMPULSE_MAX, event.deltaY * SCROLL_IMPULSE_SCALE))
+      body.applyImpulse({ x: impulse, y: 0, z: 0 }, true)
+    }
+    window.addEventListener("wheel", handleWheel, { passive: true })
+    return () => window.removeEventListener("wheel", handleWheel)
+  }, [scrollReactive, dropTrigger, dragged])
 
   useFrame((state, delta) => {
     if (dragged) {
