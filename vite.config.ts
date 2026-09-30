@@ -10,4 +10,7 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
   ],
+  // .glb isn't in Vite's default asset list — without this it tries to parse
+  // the binary model as JS. Needed for Lanyard's card.glb import.
+  assetsInclude: ['**/*.glb'],
 })

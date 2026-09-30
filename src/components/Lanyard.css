@@ -1,0 +1,14 @@
+.lanyard-wrapper {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  /* Source component hardcodes 100vh here, sized for a full-page hero use.
+     Here it's placed as one element within a section, so it fills whatever
+     height its parent container gives it instead. */
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: scale(1);
+  transform-origin: center;
+}

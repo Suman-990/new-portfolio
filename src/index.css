@@ -16,6 +16,32 @@
   --color-onyx: #0a0a08;
   --color-dim: #9a978d;
   --color-edge: #201f1a;
+
+  /* "terminal-dark" design system (see project notes) — a separate, more
+     fully-specified dark system for developer-tool-flavoured parts of the
+     site (e.g. the skill cards). Kept distinct from onyx/dim/edge above
+     rather than merged into them, so existing dark sections built on those
+     tokens are untouched; bg-base and onyx are near-identical in practice,
+     so the two systems still sit flush against each other with no seam. */
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --color-bg-base: #0a0b0d;
+  --color-bg-surface: #101216;
+  --color-bg-elevated: #16181d;
+  --color-border-subtle: #1e2127;
+  --color-border-strong: #2a2e37;
+  --color-text-primary: #e6e8eb;
+  --color-text-secondary: #9ba1ac;
+  --color-text-tertiary: #6b7280;
+  --color-text-disabled: #454b54;
+
+  --color-syntax-kw: #c792ea;
+  --color-syntax-str: #c3e88d;
+  --color-syntax-fn: #82aaff;
+  --color-syntax-num: #f78c6c;
+  --color-syntax-comment: #5c6370;
+  --color-syntax-const: #ffcb6b;
+  --color-syntax-err: #f07178;
 }
 
 html {

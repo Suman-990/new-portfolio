@@ -3,8 +3,8 @@ import {
   useMemo,
   useRef,
   type CSSProperties,
-  type ElementType,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
 } from "react"
 
 import "./InfiniteSpiral.css"
@@ -293,7 +293,25 @@ const InfiniteSpiral = ({
     >
       <div className="infinite-spiral__stage" role="list" aria-label="Infinite spiral gallery">
         {normalizedItems.map((item, index) => {
-          const Card = (item.href ? "a" : "div") as ElementType
+          // Cast to a plain function-component signature, not `ElementType`
+          // (even parameterized). `ElementType<P>` is defined as a filter
+          // over every key of JSX.IntrinsicElements, and with
+          // @react-three/fiber in the project that set now includes hundreds
+          // of three.js elements — computing that filtered union is what
+          // blows up ("too complex to represent"). A function-component type
+          // is resolved directly, with no per-intrinsic enumeration.
+          type CardComponent = (props: {
+            ref: (node: HTMLElement | null) => void
+            className?: string
+            style?: CSSProperties
+            href?: string
+            target?: string
+            rel?: string
+            role?: string
+            "aria-label"?: string
+            children?: ReactNode
+          }) => ReactNode
+          const Card = (item.href ? "a" : "div") as unknown as CardComponent
           return (
             <Card
               key={item.id ?? `${item.src}-${index}`}
