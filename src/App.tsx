@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
 import Skills from "./components/Skills"
 import TechStrip from "./components/TechStrip"
+import MacBook from "./components/MacBook"
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Hero />
         <TechStrip />
         <Skills />
+        <MacBook />
       </main>
     </div>
   )
