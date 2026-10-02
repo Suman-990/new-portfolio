@@ -13,9 +13,13 @@
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.1",
     "@react-three/rapier": "^2.2.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.50.0",
     "meshline": "^3.3.1",
+    "motion": "^14.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "tailwind-merge": "^3.7.0",
     "three": "^0.186.1"
   },
   "devDependencies": {

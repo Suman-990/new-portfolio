@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import DriftWall from "./DriftWall"
 import Lanyard from "./Lanyard"
 import PixelSwap from "./PixelSwap"
+import VSCodeWindow from "./VSCodeWindow"
 
 // Same stack as TechStrip. Files don't exist yet — drop matching logos into
 // public/logos/ (one file per src below) and these will just start showing up.
@@ -434,7 +435,9 @@ function Skills() {
           </div>
         </div>
 
-        {/* Block 2: the skill-category cards — a separate shape (asymmetric
+      </div>
+
+      {/* Block 2: the skill-category cards — a separate shape (asymmetric
             header + hairline grid) from block 1's two-column split, per
             terminal-dark §2.1 ("no two consecutive sections share a
             layout"). Its own on-view entrance, and — unlike block 1 — one
@@ -442,7 +445,7 @@ function Skills() {
             declarations above), since there's no reason for it to rush. */}
         <div
           ref={cardsRef}
-          className={`px-6 pb-24 pt-16 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] md:px-14 md:pb-32 md:pt-20 ${
+          className={`px-6 pb-24 pt-16 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] md:px-14 md:pb-32 md:pt-20 relative z-30 ${
             cardsVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >
@@ -462,14 +465,17 @@ function Skills() {
               </div>
             </div>
 
-            <div className="mt-10 grid grid-cols-1 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 hidden md:block">
+              <VSCodeWindow />
+            </div>
+            {/* Mobile fallback for smaller screens */}
+            <div className="mt-10 grid grid-cols-1 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-3 md:hidden">
               {SKILL_CATEGORIES.map((category) => (
                 <SkillCard key={category.varName} category={category} />
               ))}
             </div>
           </div>
         </div>
-      </div>
     </section>
   )
 }

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react";
+import { AsciiArt } from "./ui/ascii-art";
 import "./MacBook.css"
 
 function clamp(value: number, min: number, max: number) {
@@ -29,6 +30,7 @@ function MacBook() {
   const [position, setPosition] = useState({ x: 88, y: 164 });
   const [isDragging, setIsDragging] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const updateTime = () => {
@@ -263,20 +265,18 @@ function MacBook() {
                     
                     {/* Body */}
                     <div 
-                      className={`p-3 text-gray-200 text-[13px] font-mono leading-relaxed overflow-auto ${isTerminalMaximized ? "h-[calc(100%-28px)]" : "h-[calc(100%-28px)]"}`}
+                      className={`bg-black/90 overflow-hidden rounded-b-lg ${isTerminalMaximized ? "h-[calc(100%-28px)] rounded-none" : "h-[calc(100%-28px)]"}`}
                     >
-                      <div className="flex flex-col">
-                        <div className="opacity-70 mb-1">Last login: {new Date().toDateString()} on ttys000</div>
-                        <div className="flex items-center">
-                          <span className="text-[#27c93f] font-bold mr-2">suman@macbook ~ %</span>
-                          <span className="text-white">echo "Hello, World!"</span>
-                        </div>
-                        <div className="text-white mt-1 mb-1">Hello, World!</div>
-                        <div className="flex items-center">
-                          <span className="text-[#27c93f] font-bold mr-2">suman@macbook ~ %</span>
-                          <span className="w-2 h-3.5 bg-gray-400 animate-[pulse_1s_ease-in-out_infinite] ml-1"></span>
-                        </div>
-                      </div>
+                      <AsciiArt
+                        src="/suman.png"
+                        resolution={140}
+                        color="#e5e5e5"
+                        animationStyle="typewriter"
+                        
+                        animateOnView={false}
+                        className="w-full h-full"
+                        objectFit="contain"
+                      />
                     </div>
                   </div>
                 )}
@@ -284,10 +284,9 @@ function MacBook() {
                 <div className="w-full h-6 bg-[#1a1a1a]/40 flex items-center justify-between px-3 text-white text-[11px] font-medium font-sans border-b border-white/10 shadow-sm relative z-10">
                   {/* Left items */}
                   <div className="flex items-center space-x-1">
-                    <div className="cursor-pointer hover:bg-white/20 px-2 py-0.5 rounded flex items-center justify-center">
-                      <svg viewBox="0 0 170 170" width="14" height="14" fill="currentColor" className="mb-[2px]">
-                        <path d="M110.15 43.14c7.63-9.52 12.63-22.38 11.23-35.34-11.23 4.63-24.88 11.85-32.78 21.36-7 8.3-12.77 21.5-11.1 34.18 12.63 1 25.1-6.1 32.65-20.2z" />
-                        <path d="M141.25 158.4c-12 17.5-24.36 34.62-43.5 35-18.7.4-24.75-11.1-46.12-11.1-21.5 0-28.2 10.74-45.75 11.5-18.33.74-32.3-18.15-44.55-35.75C-13.8 115 13.9 64.9 37.9 64.5c11.6-.25 22.37 7.78 29.77 7.78 7.26 0 20.37-9.65 33.92-8.3 14.5 1.13 25.4 7.27 32.64 17.77-27.76 16.14-23.16 54.95 3.37 65.5-5.9 14.82-14.33 28.5-26.35 46.15z" />
+                    <div className="cursor-pointer hover:bg-white/20 h-full px-3 flex items-center justify-center transition-colors">
+                      <svg viewBox="0 0 384 512" width="12" height="12" fill="currentColor" className="mb-[1px]">
+                        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
                       </svg>
                     </div>
                   </div>
