@@ -9,22 +9,16 @@
   position: relative;
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
-  perspective: 2500px;
-  -webkit-perspective: 2500px;
+  /* Wide perspective distance so the screen panel doesn't explode into a
+     stray streak as rotateX nears grazing incidence (~90deg) mid-scrub —
+     see MacBook.tsx for why that range matters here. */
+  perspective: 6000px;
+  -webkit-perspective: 6000px;
   perspective-origin: center bottom;
   -webkit-perspective-origin: center bottom;
 }
 
-.macbook .screen-open img {
-  position: absolute;
-  width: 94%;
-  left: 3%;
-  height: 88%;
-  top: 6%;
-  object-fit: cover;
-  background: #151515;
-  opacity: 1;
-}
+
 
 .macbook .screen-open::before {
   content: "";
@@ -50,11 +44,13 @@
 
 .macbook .screen-close {
   position: absolute;
-  transform: rotateX(90deg) scale(0.9);
-  -webkit-transform: rotateX(90deg) scale(0.9);
+  /* Pinned at its "shut" pose at all times — see MacBook.tsx for why this
+     piece is crossfaded via opacity rather than rotated continuously. */
+  transform: rotateX(0deg) scale(1);
+  -webkit-transform: rotateX(0deg) scale(1);
   transform-origin: center bottom -580px;
   -webkit-transform-origin: center bottom -580px;
-  bottom: -5px;
+  bottom: 0;
   width: 860px;
   height: 13px;
   background: linear-gradient(
@@ -85,8 +81,8 @@
 }
 
 .macbook .screen-open {
-  transform: translateZ(-580px) rotateX(0deg);
-  -webkit-transform: translateZ(-580px) rotateX(0deg);
+  transform: scale(0.9118) rotateX(0deg);
+  -webkit-transform: scale(0.9118) rotateX(0deg);
   transform-origin: center bottom;
   -webkit-transform-origin: center bottom;
   height: 578px;

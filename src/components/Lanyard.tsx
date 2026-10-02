@@ -130,7 +130,7 @@ export default function Lanyard({
         // frame (to give it room to be dragged), which would otherwise block
         // clicks/hovers on whatever sits underneath across that whole area.
         // Forward anything that doesn't actually hit the card to the real
-        // element below it, so links like the tech-spiral cards still work.
+        // element below it, so links and hover effects still work.
         onPointerMissed={(event) => {
           const canvasEl = event.target as HTMLElement
           const previous = canvasEl.style.pointerEvents

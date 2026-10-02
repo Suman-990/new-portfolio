@@ -1,20 +1,54 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 
-import InfiniteSpiral from "./InfiniteSpiral"
+// @ts-ignore
+import DriftWall from "./DriftWall"
 import Lanyard from "./Lanyard"
 import PixelSwap from "./PixelSwap"
 
 // Same stack as TechStrip. Files don't exist yet — drop matching logos into
 // public/logos/ (one file per src below) and these will just start showing up.
-const TECH_ITEMS = [
-  { src: "/logos/react.svg", alt: "React" },
-  { src: "/logos/typescript.svg", alt: "TypeScript" },
-  { src: "/logos/nodejs.svg", alt: "Node.js" },
-  { src: "/logos/spring-boot.svg", alt: "Spring Boot" },
-  { src: "/logos/docker.svg", alt: "Docker" },
-  { src: "/logos/postgresql.svg", alt: "PostgreSQL" },
-  { src: "/logos/aws.svg", alt: "AWS" },
+const TECH_LOGOS = [
+  { image: "/aws_transparent.png", title: "AWS" },
+  { image: "/docker_transparent.png", title: "Docker" },
+  { image: "/firebase_transparent.png", title: "Firebase" },
+  { image: "/github_transparent.png", title: "GitHub" },
+  { image: "/git_transparent.png", title: "Git" },
+  { image: "/golang_transparent.png", title: "Golang" },
+  { image: "/java_transparent.png", title: "Java" },
+  { image: "/javascript_transparent.png", title: "JavaScript" },
+  { image: "/kafka_transparent.png", title: "Kafka" },
+  { image: "/mongoDB_transparent.png", title: "MongoDB" },
+  { image: "/nodeJS_transparent.png", title: "Node.js" },
+  { image: "/pgSQL_transparent.png", title: "PostgreSQL" },
+  { image: "/prisma_transparent.png", title: "Prisma" },
+  { image: "/react_transparent.png", title: "React" },
+  { image: "/springboot_transparent.png", title: "Spring Boot" },
 ]
+
+// Deterministic shuffle (seeded) so the wall looks random but stays stable
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const a = [...arr]
+  let s = seed
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (s * 16807 + 0) % 2147483647
+    const j = s % (i + 1)
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+const TECH_ITEMS: typeof TECH_LOGOS = []
+// DriftWall has 5 columns and distributes items round-robin (i % 5).
+// To ensure every column gets exactly one of each logo (no duplicates in a row,
+// no missing logos), we generate 5 individually shuffled sets of the 15 logos
+// and interleave them.
+for (let i = 0; i < 15; i++) {
+  const seeds = [42, 100, 200, 300, 400]
+  for (let c = 0; c < 5; c++) {
+    const shuffledForColumn = seededShuffle(TECH_LOGOS, seeds[c])
+    TECH_ITEMS.push(shuffledForColumn[i])
+  }
+}
 
 // Straight from the Skills section of the resume — "Developer Tools" split
 // into local tooling vs. cloud/infra (its own natural grouping, and it also
@@ -312,7 +346,7 @@ function Skills() {
           only needs a quick fade to cover the single frame where the chain
           is still in its unsettled starting pose right as it appears. */}
       <div
-        className={`absolute inset-x-0 top-0 z-20 transition-opacity duration-150 ${
+        className={`hidden md:block pointer-events-none absolute inset-x-0 top-0 z-20 transition-opacity duration-150 ${
           cardVisible ? "opacity-100" : "opacity-0"
         }`}
       >
@@ -373,7 +407,29 @@ function Skills() {
                 heroVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
-              <InfiniteSpiral items={TECH_ITEMS} className="h-full w-full" />
+              <DriftWall
+                items={TECH_ITEMS as any}
+                columns={5}
+                tileWidth={160}
+                tileHeight={100}
+                gap={18}
+                tilt={16}
+                turn={-14}
+                perspective={1200}
+                depth={120}
+                speed={42}
+                direction="up"
+                variance={0.7}
+                parallax={0.6}
+                lift={64}
+                fade={0.6}
+                dim={0.9}
+                overlayColor="transparent"
+                radius={14}
+                roll={0}
+                pauseOnHover={false}
+                grayscale={false}
+              />
             </div>
           </div>
         </div>

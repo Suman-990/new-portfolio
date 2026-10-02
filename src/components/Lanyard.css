@@ -12,3 +12,10 @@
   transform: scale(1);
   transform-origin: center;
 }
+
+/* The parent overlay uses pointer-events: none so that elements behind it
+   (e.g. DriftWall tiles) are hoverable. The canvas itself opts back in so
+   the 3D card can still be dragged. */
+.lanyard-wrapper canvas {
+  pointer-events: auto;
+}
