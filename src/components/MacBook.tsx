@@ -1,5 +1,6 @@
 import VSCodeWindow from "./VSCodeWindow";
 import InteractiveTerminal from "./InteractiveTerminal";
+import InteractiveKeyboard from "./InteractiveKeyboard";
 import { useEffect, useRef, useState } from "react";
 import { AsciiArt } from "./ui/ascii-art";
 import "./MacBook.css"
@@ -166,8 +167,10 @@ function MacBook() {
       ref={sectionRef}
       className="relative w-screen overflow-hidden bg-onyx py-24 ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
     >
-      <div className="mx-auto w-full max-w-7xl px-6 md:px-8">
-        <div className="macbook">
+      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-8 flex flex-col xl:flex-row items-center xl:items-start justify-center xl:justify-between gap-12 xl:gap-8">
+        {/* Left Side: MacBook (Full size, no downscaling) */}
+        <div className="shrink-0 w-full max-w-[860px] xl:w-[860px]">
+          <div className="macbook">
           <div className="screen">
             <div ref={screenCloseRef} className="screen-close pointer-events-none"></div>
             <div ref={screenOpenRef} className="screen-open">
@@ -489,6 +492,29 @@ function MacBook() {
           <div className="body"></div>
         </div>
       </div>
+
+      {/* Right Column: Interactive Playground Info & 3D Keyboard */}
+      <div className="w-full xl:w-[380px] 2xl:w-[440px] shrink-0 flex flex-col space-y-4 pt-4 xl:pt-8 items-center xl:items-start text-center xl:text-left pointer-events-auto">
+        <div className="inline-flex items-center space-x-2 text-[12px] font-mono tracking-wider text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full w-fit">
+          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+          <span>guest@suman-macbook:~$</span>
+        </div>
+
+        <h2 className="text-3xl sm:text-4xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-paper font-sans">
+          Interactive Playground
+        </h2>
+
+        <div className="text-[12px] text-gray-400 font-mono flex items-center pt-1">
+          <span className="text-yellow-400 mr-2 font-semibold">Tip:</span>
+          Click the dock icons at the bottom of the screen to start exploring.
+        </div>
+
+        {/* Interactive 3D Keyboard */}
+        <div className="pt-2 w-full flex justify-center xl:justify-start overflow-visible">
+          <InteractiveKeyboard />
+        </div>
+      </div>
+    </div>
     </section>
   )
 }

@@ -1,0 +1,169 @@
+.interactive-keyboard-container {
+  --gap: 4px;
+  --key-width: 17px;
+  --rot-x: 22deg;
+  --rot-y: -6deg;
+  user-select: none;
+  perspective: 1000px;
+}
+
+@media (min-width: 1280px) {
+  .interactive-keyboard-container {
+    --gap: 4.5px;
+    --key-width: 18.5px;
+    --rot-x: 20deg;
+    --rot-y: -8deg;
+  }
+}
+
+@media (min-width: 1536px) {
+  .interactive-keyboard-container {
+    --gap: 5px;
+    --key-width: 20px;
+  }
+}
+
+.interactive-keyboard {
+  display: inline-flex;
+  flex-direction: column;
+  padding: calc(var(--gap) * 1.5);
+  border-radius: 10px;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(var(--rot-x)) rotateY(var(--rot-y));
+  transition: 120ms transform ease-out;
+  background: hsl(0, 0%, 7%);
+  border: 1.5px solid hsla(0, 0%, 30%, 0.25);
+  box-shadow:
+    -6px -6px 12px hsla(0, 0%, 100%, 0.02),
+    -2px -2px 6px hsla(0, 0%, 100%, 0.03),
+    4px 4px 10px rgba(0, 0, 0, 0.6),
+    8px 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+.interactive-keyboard .keyboard-row {
+  display: flex;
+  transform-style: preserve-3d;
+}
+
+.interactive-keyboard .keyboard-row + .keyboard-row {
+  margin-top: var(--gap);
+}
+
+.interactive-keyboard .key {
+  --width: var(--key-width);
+  --color: hsl(0, 0%, 80%);
+  --size: 1;
+  --size-2: 1.654545;
+  --size-3: 1.981818;
+  --size-4: 2.290909;
+  --size-5: 2.618181;
+  --size-6: 1.327272;
+  --size-7: 7.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--width) * var(--size));
+  height: var(--width);
+  border-radius: 4px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transform: translate3d(0, 0, 14px);
+  transition: 200ms transform, 150ms border-color, 150ms box-shadow;
+  cursor: pointer;
+  background: hsl(0, 0%, 10%);
+  border: 1.5px solid hsla(0, 0%, 25%, 0.3);
+  box-shadow:
+    -2px -2px 4px hsla(0, 0%, 100%, 0.02),
+    2px 2px 4px rgba(0, 0, 0, 0.4),
+    4px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.interactive-keyboard .key + .key {
+  margin-left: var(--gap);
+}
+
+.interactive-keyboard .key:hover {
+  transform: translate3d(0, 0, 18px);
+  border-color: hsla(0, 0%, 50%, 0.4);
+}
+
+.interactive-keyboard .key:active,
+.interactive-keyboard .key[data-selected="true"] {
+  transition: 70ms;
+  transform: translate3d(0, 0, 6px);
+  border-color: var(--color);
+  box-shadow:
+    0px 2px 8px var(--color),
+    0px 4px 16px var(--color),
+    -2px -2px 4px hsla(0, 0%, 100%, 0.02),
+    2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.interactive-keyboard .key:before {
+  display: block;
+  content: "";
+  width: calc(var(--key-width) * 0.3);
+  height: calc(var(--key-width) * 0.3);
+  border-radius: 50%;
+  background-color: var(--color);
+  transition: 150ms background-color;
+}
+
+.interactive-keyboard .key.stretch {
+  padding: 0 calc(var(--key-width) * 0.3);
+}
+
+.interactive-keyboard .key.stretch:before {
+  width: 100%;
+  border-radius: 2px;
+}
+
+.interactive-keyboard .key.empty:before {
+  display: none;
+}
+
+.interactive-keyboard .key.has-label:before {
+  display: none;
+}
+
+.interactive-keyboard .key .key-char {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: calc(var(--key-width) * 0.46);
+  font-weight: 700;
+  color: var(--color);
+  line-height: 1;
+  text-align: center;
+  transition: 150ms color, 150ms text-shadow;
+  pointer-events: none;
+  user-select: none;
+}
+
+.interactive-keyboard .key[data-selected="true"] .key-char {
+  color: var(--color);
+  text-shadow: 0 0 8px var(--color);
+}
+
+/* Key size classes */
+.interactive-keyboard .key.size-2 { --size: var(--size-2); }
+.interactive-keyboard .key.size-3 { --size: var(--size-3); }
+.interactive-keyboard .key.size-4 { --size: var(--size-4); }
+.interactive-keyboard .key.size-5 { --size: var(--size-5); }
+.interactive-keyboard .key.size-6 { --size: var(--size-6); }
+.interactive-keyboard .key.size-7 { --size: var(--size-7); }
+
+/* Color presets */
+.interactive-keyboard .key.grey   { --color: hsl(0, 0%, 50%); }
+.interactive-keyboard .key.red    { --color: hsl(0, 85%, 60%); }
+.interactive-keyboard .key.orange { --color: hsl(25, 85%, 60%); }
+.interactive-keyboard .key.yellow { --color: hsl(50, 85%, 60%); }
+.interactive-keyboard .key.green  { --color: hsl(150, 80%, 55%); }
+.interactive-keyboard .key.blue   { --color: hsl(210, 85%, 60%); }
+.interactive-keyboard .key.purple { --color: hsl(270, 80%, 65%); }
+
+.interactive-keyboard .key[data-color="grey"]   { --color: hsl(0, 0%, 50%); }
+.interactive-keyboard .key[data-color="red"]    { --color: hsl(0, 85%, 60%); }
+.interactive-keyboard .key[data-color="orange"] { --color: hsl(25, 85%, 60%); }
+.interactive-keyboard .key[data-color="yellow"] { --color: hsl(50, 85%, 60%); }
+.interactive-keyboard .key[data-color="green"]  { --color: hsl(150, 80%, 55%); }
+.interactive-keyboard .key[data-color="blue"]   { --color: hsl(210, 85%, 60%); }
+.interactive-keyboard .key[data-color="purple"] { --color: hsl(270, 80%, 65%); }
