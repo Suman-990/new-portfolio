@@ -510,7 +510,7 @@ function MacBook() {
         </div>
 
         {/* Interactive 3D Keyboard */}
-        <div className="pt-2 w-full flex justify-center xl:justify-start overflow-visible">
+        <div className="pt-14 sm:pt-20 xl:pt-28 w-full flex justify-center xl:justify-start overflow-visible">
           <InteractiveKeyboard />
         </div>
       </div>

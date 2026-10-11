@@ -169,6 +169,7 @@ export default function InteractiveTerminal({ onOpenAsciiTerminal }: Interactive
         <span className="text-gray-400 shrink-0 mr-2 select-none">%</span>
         <input
           ref={inputRef}
+          data-terminal-input="true"
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}

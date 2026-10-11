@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { playKeySound } from "../lib/sound";
 import "./InteractiveKeyboard.css";
 
@@ -7,6 +7,27 @@ interface KeyDef {
   macro?: string;
   className?: string;
   label?: string;
+}
+
+const LABEL_MAP: Record<string, string> = {
+  KeyQ: "Q", KeyW: "W", KeyE: "E", KeyR: "R", KeyT: "T",
+  KeyY: "Y", KeyU: "U", KeyI: "I", KeyO: "O", KeyP: "P",
+  KeyA: "A", KeyS: "S", KeyD: "D", KeyF: "F", KeyG: "G",
+  KeyH: "H", KeyJ: "J", KeyK: "K", KeyL: "L",
+  KeyZ: "Z", KeyX: "X", KeyC: "C", KeyV: "V", KeyB: "B",
+  KeyN: "N", KeyM: "M",
+  ArrowUp: "↑",
+  ArrowLeft: "←",
+  ArrowDown: "↓",
+  ArrowRight: "→",
+};
+
+interface FloatingBubble {
+  id: number;
+  char: string;
+  x: number;
+  y: number;
+  driftX: number;
 }
 
 const ROW_1: KeyDef[] = [
@@ -82,14 +103,138 @@ interface KeyElementWithMacro extends HTMLElement {
   _macroDistances?: Record<string, number>;
 }
 
+const KEY_CHAR_MAP: Record<string, string> = {
+  Digit1: "1", Digit2: "2", Digit3: "3", Digit4: "4", Digit5: "5",
+  Digit6: "6", Digit7: "7", Digit8: "8", Digit9: "9", Digit0: "0",
+  Minus: "-", Equal: "=",
+  BracketLeft: "[", BracketRight: "]", Backslash: "\\",
+  Semicolon: ";", Quote: "'",
+  Comma: ",", Period: ".", Slash: "/",
+  Space: " ",
+};
+
+function setReactInputValue(input: HTMLInputElement, value: string) {
+  const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+    window.HTMLInputElement.prototype,
+    "value"
+  )?.set;
+  if (nativeInputValueSetter) {
+    nativeInputValueSetter.call(input, value);
+  } else {
+    input.value = value;
+  }
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+function typeKeyIntoInput(code: string, isCaps: boolean) {
+  // Find currently active input, or fallback to the terminal input
+  let targetInput = document.activeElement as HTMLInputElement | null;
+  if (!targetInput || (targetInput.tagName !== "INPUT" && targetInput.tagName !== "TEXTAREA")) {
+    const terminalInput = document.querySelector<HTMLInputElement>('input[data-terminal-input="true"]');
+    if (terminalInput) {
+      terminalInput.focus();
+      targetInput = terminalInput;
+    }
+  }
+
+  if (!targetInput) return;
+
+  // Make sure input is focused
+  if (document.activeElement !== targetInput) {
+    targetInput.focus();
+  }
+
+  if (code === "Enter") {
+    const enterEvt = new KeyboardEvent("keydown", {
+      key: "Enter",
+      code: "Enter",
+      bubbles: true,
+      cancelable: true,
+    });
+    targetInput.dispatchEvent(enterEvt);
+    return;
+  }
+
+  if (code === "ArrowUp") {
+    const upEvt = new KeyboardEvent("keydown", {
+      key: "ArrowUp",
+      code: "ArrowUp",
+      bubbles: true,
+      cancelable: true,
+    });
+    targetInput.dispatchEvent(upEvt);
+    return;
+  }
+
+  if (code === "ArrowDown") {
+    const downEvt = new KeyboardEvent("keydown", {
+      key: "ArrowDown",
+      code: "ArrowDown",
+      bubbles: true,
+      cancelable: true,
+    });
+    targetInput.dispatchEvent(downEvt);
+    return;
+  }
+
+  const start = targetInput.selectionStart ?? targetInput.value.length;
+  const end = targetInput.selectionEnd ?? targetInput.value.length;
+
+  if (code === "ArrowLeft") {
+    const newPos = Math.max(0, start - 1);
+    targetInput.setSelectionRange(newPos, newPos);
+    return;
+  }
+
+  if (code === "ArrowRight") {
+    const newPos = Math.min(targetInput.value.length, end + 1);
+    targetInput.setSelectionRange(newPos, newPos);
+    return;
+  }
+
+  if (code === "Backspace") {
+    if (start === end) {
+      if (start > 0) {
+        const newValue = targetInput.value.slice(0, start - 1) + targetInput.value.slice(end);
+        setReactInputValue(targetInput, newValue);
+        targetInput.setSelectionRange(start - 1, start - 1);
+      }
+    } else {
+      const newValue = targetInput.value.slice(0, start) + targetInput.value.slice(end);
+      setReactInputValue(targetInput, newValue);
+      targetInput.setSelectionRange(start, start);
+    }
+    return;
+  }
+
+  let charToInsert: string | null = null;
+  if (code.startsWith("Key") && code.length === 4) {
+    const letter = code.slice(3);
+    charToInsert = isCaps ? letter.toUpperCase() : letter.toLowerCase();
+  } else if (KEY_CHAR_MAP[code]) {
+    charToInsert = KEY_CHAR_MAP[code];
+  }
+
+  if (charToInsert) {
+    const newValue = targetInput.value.slice(0, start) + charToInsert + targetInput.value.slice(end);
+    setReactInputValue(targetInput, newValue);
+    const newCursor = start + charToInsert.length;
+    targetInput.setSelectionRange(newCursor, newCursor);
+  }
+}
+
 export default function InteractiveKeyboard() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const keyboardRef = useRef<HTMLDivElement>(null);
+  const [bubbles, setBubbles] = useState<FloatingBubble[]>([]);
+  const bubbleIdCounter = useRef(0);
+  const lastBubbleTimeRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     const keyboard = keyboardRef.current;
     if (!keyboard) return;
 
-    const rotation = { x: 20, y: -6 };
+    const rotation = { x: 20, y: 0 };
     const animating: AnimatingWave[] = [];
     const keysDown = new Set<number>();
     const keyCodeToEle = new Map<string, HTMLElement>();
@@ -103,9 +248,6 @@ export default function InteractiveKeyboard() {
     });
 
     const capsLockKeyIndex = allKeys.indexOf(keyCodeToEle.get("CapsLock") as KeyElementWithMacro);
-    const arrowKeyIndexes = ["Up", "Left", "Down", "Right"].map((n) =>
-      allKeys.indexOf(keyCodeToEle.get(`Arrow${n}`) as KeyElementWithMacro)
-    );
     const macroKeys = Array.from(
       keyboard.querySelectorAll<KeyElementWithMacro>('[data-code="Escape"], [data-macro]')
     );
@@ -223,9 +365,63 @@ export default function InteractiveKeyboard() {
       }
     };
 
+    const spawnBubble = (code?: string, repeat = false) => {
+      const char = code ? LABEL_MAP[code] : undefined;
+      if (!char) return;
+
+      // Throttle repeat key events (when a key is held down)
+      if (repeat && code) {
+        const now = performance.now();
+        if (now - (lastBubbleTimeRef.current[code] || 0) < 120) {
+          return;
+        }
+        lastBubbleTimeRef.current[code] = now;
+      }
+
+      const container = containerRef.current;
+      const keyboard = keyboardRef.current;
+      if (!container || !keyboard) return;
+
+      const cRect = container.getBoundingClientRect();
+      const kRect = keyboard.getBoundingClientRect();
+
+      // Horizontal: Align with the column of the typed key, or center of keyboard
+      let x = kRect.left - cRect.left + kRect.width / 2;
+      const keyEle = code ? keyCodeToEle.get(code) : undefined;
+      if (keyEle) {
+        const elRect = keyEle.getBoundingClientRect();
+        x = elRect.left - cRect.left + elRect.width / 2;
+      }
+
+      // Vertical: Appear directly ABOVE the keyboard component
+      const y = (kRect.top - cRect.top) - 14;
+
+      const driftX = (Math.random() - 0.5) * 20;
+      const id = ++bubbleIdCounter.current;
+
+      setBubbles((prev) => [...prev.slice(-25), { id, char, x, y, driftX }]);
+
+      setTimeout(() => {
+        setBubbles((prev) => prev.filter((b) => b.id !== id));
+      }, 1400);
+    };
+
     // Click handler on keys
     const handleKeyClick = (ele: KeyElementWithMacro) => {
       playKeySound();
+      const code = ele.dataset.code;
+      if (code && LABEL_MAP[code]) {
+        spawnBubble(code, false);
+      }
+      if (code === "CapsLock") {
+        const isCurrentlyActive = keysDown.has(capsLockKeyIndex);
+        setKeyState("CapsLock", !isCurrentlyActive);
+        return;
+      }
+      if (code) {
+        const isCaps = keysDown.has(capsLockKeyIndex);
+        typeKeyIntoInput(code, isCaps);
+      }
       if (ele.dataset.macro) {
         animateMacro(ele);
       } else {
@@ -236,10 +432,6 @@ export default function InteractiveKeyboard() {
         }, 150);
       }
     };
-
-    allKeys.forEach((ele) => {
-      ele.addEventListener("click", () => handleKeyClick(ele));
-    });
 
     const setKeyState = (code: string, state: boolean) => {
       const ele = keyCodeToEle.get(code);
@@ -255,16 +447,64 @@ export default function InteractiveKeyboard() {
             animateMacro(ele);
           }
         }
+      }
+    };
 
-        const [up, left, down, right] = arrowKeyIndexes.map((n) => keysDown.has(n));
-        if (up) rotation.x += 1;
-        if (left) rotation.y += -1;
-        if (down) rotation.x += -1;
-        if (right) rotation.y += 1;
+    // Mouse drag rotation state
+    let isPointerDown = false;
+    let hasDragged = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let startRotX = 20;
+    let startRotY = 0;
+    let clickedKey: KeyElementWithMacro | null = null;
+
+    const onKeyboardPointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+
+      isPointerDown = true;
+      hasDragged = false;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      startRotX = rotation.x;
+      startRotY = rotation.y;
+      clickedKey = (e.target as HTMLElement).closest<KeyElementWithMacro>(".key");
+    };
+
+    const onWindowPointerMove = (e: PointerEvent) => {
+      if (!isPointerDown) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+
+      if (!hasDragged && Math.hypot(dx, dy) > 4) {
+        hasDragged = true;
+        keyboard.classList.add("is-dragging");
+        document.body.style.cursor = "grabbing";
+      }
+
+      if (hasDragged) {
+        // Drag vertically rotates around X-axis (pitch)
+        rotation.x = Math.max(-5, Math.min(55, startRotX - dy * 0.35));
+        // Drag horizontally rotates around Y-axis (yaw)
+        rotation.y = Math.max(-50, Math.min(50, startRotY + dx * 0.35));
 
         keyboard.style.setProperty("--rot-x", `${rotation.x}deg`);
         keyboard.style.setProperty("--rot-y", `${rotation.y}deg`);
       }
+    };
+
+    const onWindowPointerUp = () => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      keyboard.classList.remove("is-dragging");
+      document.body.style.cursor = "";
+
+      // Single click: trigger key click exactly once without duplication
+      if (!hasDragged && clickedKey) {
+        handleKeyClick(clickedKey);
+      }
+      clickedKey = null;
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -272,6 +512,22 @@ export default function InteractiveKeyboard() {
         return;
       }
       playKeySound(e.repeat);
+      if (LABEL_MAP[e.code]) {
+        spawnBubble(e.code, e.repeat);
+      }
+
+      // Handle CapsLock toggle directly
+      if (e.code === "CapsLock") {
+        const currentlyActive = keysDown.has(capsLockKeyIndex);
+        setKeyState("CapsLock", !currentlyActive);
+        return;
+      }
+
+      // Synchronize CapsLock modifier state from the OS
+      if (typeof e.getModifierState === "function") {
+        setKeyState("CapsLock", e.getModifierState("CapsLock"));
+      }
+
       // Do not block typing inside form inputs or textareas!
       const activeTag = document.activeElement?.tagName;
       if (activeTag === "INPUT" || activeTag === "TEXTAREA") {
@@ -279,19 +535,23 @@ export default function InteractiveKeyboard() {
         return;
       }
 
-      setKeyState("CapsLock", e.getModifierState("CapsLock"));
-      if (e.code === "CapsLock") {
-        return;
-      }
       setKeyState(e.code, true);
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
-      setKeyState("CapsLock", e.getModifierState("CapsLock"));
+      if (typeof e.getModifierState === "function") {
+        setKeyState("CapsLock", e.getModifierState("CapsLock"));
+      }
       if (e.code === "CapsLock") {
         return;
       }
       setKeyState(e.code, false);
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (typeof e.getModifierState === "function") {
+        setKeyState("CapsLock", e.getModifierState("CapsLock"));
+      }
     };
 
     const onBlur = () => {
@@ -308,21 +568,36 @@ export default function InteractiveKeyboard() {
       }
     };
 
+    keyboard.addEventListener("pointerdown", onKeyboardPointerDown);
+    window.addEventListener("pointermove", onWindowPointerMove);
+    window.addEventListener("pointerup", onWindowPointerUp);
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("blur", onBlur);
 
     return () => {
       cancelAnimationFrame(initialRaf);
       if (rafId) cancelAnimationFrame(rafId);
+      keyboard.removeEventListener("pointerdown", onKeyboardPointerDown);
+      window.removeEventListener("pointermove", onWindowPointerMove);
+      window.removeEventListener("pointerup", onWindowPointerUp);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("blur", onBlur);
     };
   }, []);
 
   return (
-    <div className="interactive-keyboard-container w-full overflow-visible flex items-center justify-center lg:justify-start">
+    <div
+      ref={containerRef}
+      onMouseDown={(e) => {
+        // Prevent clicking keyboard from blurring the active terminal input or losing cursor
+        e.preventDefault();
+      }}
+      className="interactive-keyboard-container relative w-full overflow-visible flex items-center justify-center lg:justify-start"
+    >
       <div ref={keyboardRef} className="interactive-keyboard">
         {ALL_ROWS.map((row, rowIdx) => (
           <div key={rowIdx} className="keyboard-row">
@@ -336,6 +611,25 @@ export default function InteractiveKeyboard() {
                 {key.label && <span className="key-char">{key.label}</span>}
               </div>
             ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Floating Key Bubbles Layer */}
+      <div className="absolute inset-0 pointer-events-none overflow-visible z-50">
+        {bubbles.map((b) => (
+          <div
+            key={b.id}
+            className="floating-key-bubble"
+            style={
+              {
+                left: `${b.x}px`,
+                top: `${b.y}px`,
+                "--drift-x": `${b.driftX}px`,
+              } as React.CSSProperties
+            }
+          >
+            {b.char}
           </div>
         ))}
       </div>

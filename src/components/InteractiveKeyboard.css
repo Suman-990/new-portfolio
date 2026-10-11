@@ -1,8 +1,8 @@
 .interactive-keyboard-container {
   --gap: 4px;
   --key-width: 17px;
-  --rot-x: 22deg;
-  --rot-y: -6deg;
+  --rot-x: 20deg;
+  --rot-y: 0deg;
   user-select: none;
   perspective: 1000px;
 }
@@ -12,7 +12,7 @@
     --gap: 4.5px;
     --key-width: 18.5px;
     --rot-x: 20deg;
-    --rot-y: -8deg;
+    --rot-y: 0deg;
   }
 }
 
@@ -33,11 +33,18 @@
   transition: 120ms transform ease-out;
   background: hsl(0, 0%, 7%);
   border: 1.5px solid hsla(0, 0%, 30%, 0.25);
+  cursor: grab;
+  touch-action: none;
   box-shadow:
     -6px -6px 12px hsla(0, 0%, 100%, 0.02),
     -2px -2px 6px hsla(0, 0%, 100%, 0.03),
     4px 4px 10px rgba(0, 0, 0, 0.6),
     8px 8px 20px rgba(0, 0, 0, 0.7);
+}
+
+.interactive-keyboard.is-dragging {
+  transition: none;
+  cursor: grabbing;
 }
 
 .interactive-keyboard .keyboard-row {
@@ -167,3 +174,60 @@
 .interactive-keyboard .key[data-color="green"]  { --color: hsl(150, 80%, 55%); }
 .interactive-keyboard .key[data-color="blue"]   { --color: hsl(210, 85%, 60%); }
 .interactive-keyboard .key[data-color="purple"] { --color: hsl(270, 80%, 65%); }
+
+/* Floating theme key symbol (bubble float motion matching terminal/macOS theme) */
+.floating-key-bubble {
+  position: absolute;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 7px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4ade80; /* Terminal neon green */
+  pointer-events: none;
+  user-select: none;
+  z-index: 60;
+  transform: translate(-50%, -50%);
+  
+  /* Dark frosted glass tech keycap matching the portfolio theme */
+  background: rgba(15, 17, 23, 0.9);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.75),
+    0 0 12px rgba(74, 222, 128, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 0 6px rgba(74, 222, 128, 0.1);
+  backdrop-filter: blur(6px);
+  text-shadow:
+    0 0 8px rgba(74, 222, 128, 0.9),
+    0 0 16px rgba(74, 222, 128, 0.45);
+  animation: symbolFloat 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes symbolFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.75);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--drift-x, 0px) * 0.25), -16px) scale(1.05);
+  }
+  50% {
+    opacity: 0.95;
+    transform: translate(calc(-50% + var(--drift-x, 0px) * 0.6), -48px) scale(1);
+  }
+  80% {
+    opacity: 0.65;
+    transform: translate(calc(-50% + var(--drift-x, 0px) * 0.9), -75px) scale(0.96);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--drift-x, 0px)), -92px) scale(0.88);
+  }
+}
