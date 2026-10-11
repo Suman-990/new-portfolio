@@ -1,3 +1,5 @@
+import VSCodeWindow from "./VSCodeWindow";
+import InteractiveTerminal from "./InteractiveTerminal";
 import { useEffect, useRef, useState } from "react";
 import { AsciiArt } from "./ui/ascii-art";
 import "./MacBook.css"
@@ -24,7 +26,21 @@ function MacBook() {
   const screenOpenRef = useRef<HTMLDivElement | null>(null)
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const [time, setTime] = useState("");
-  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false)
+  
+  const [isShellOpen, setIsShellOpen] = useState(false)
+  const [isShellMaximized, setIsShellMaximized] = useState(false)
+  const [isShellMinimized, setIsShellMinimized] = useState(false)
+  const [isShellDragging, setIsShellDragging] = useState(false)
+  const [shellPosition, setShellPosition] = useState({ x: 120, y: 80 })
+  const shellRef = useRef<HTMLDivElement>(null)
+  
+  const [isVSCodeOpen, setIsVSCodeOpen] = useState(false)
+  const [isVSCodeMaximized, setIsVSCodeMaximized] = useState(false)
+  const [isVSCodeMinimized, setIsVSCodeMinimized] = useState(false)
+  const [isVSCodeDragging, setIsVSCodeDragging] = useState(false)
+  const [vsCodePosition, setVsCodePosition] = useState({ x: 50, y: 40 })
+  const vsCodeRef = useRef<HTMLDivElement>(null);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [isTerminalMaximized, setIsTerminalMaximized] = useState(false);
   const [position, setPosition] = useState({ x: 88, y: 164 });
@@ -180,8 +196,41 @@ function MacBook() {
                       <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-black/40 rounded-full"></div>
                     )}
                   </div>
-                  <div className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm">
-                    <img src="/javascript_transparent.png" alt="JS" className="w-6 h-6 object-contain" />
+                  <div 
+                    className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm relative group"
+                    onClick={() => {
+                      if (!isVSCodeOpen) {
+                        setIsVSCodeOpen(true);
+                        setIsVSCodeMinimized(false);
+                      } else if (isVSCodeMinimized) {
+                        setIsVSCodeMinimized(false);
+                      } else {
+                        setIsVSCodeMinimized(true);
+                      }
+                    }}
+                  >
+                    <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-7 h-7 object-contain rounded-[4px]" />
+                    {isVSCodeOpen && !isVSCodeMinimized && (
+                      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-black/40 rounded-full"></div>
+                    )}
+                  </div>
+                  <div 
+                    className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm relative group"
+                    onClick={() => {
+                      if (!isShellOpen) {
+                        setIsShellOpen(true);
+                        setIsShellMinimized(false);
+                      } else if (isShellMinimized) {
+                        setIsShellMinimized(false);
+                      } else {
+                        setIsShellMinimized(true);
+                      }
+                    }}
+                  >
+                    <img src="/terminal-icon.webp" alt="Terminal" className="w-8 h-8 object-cover rounded-[8px]" />
+                    {isShellOpen && !isShellMinimized && (
+                      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-black/40 rounded-full"></div>
+                    )}
                   </div>
                   <div className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm">
                     <img src="/nodeJS_transparent.png" alt="Node" className="w-6 h-6 object-contain" />
@@ -199,6 +248,130 @@ function MacBook() {
 
                 </div>
                 {/* Terminal Window */}
+                {isVSCodeOpen && (
+                  <div 
+                    ref={vsCodeRef}
+                    className={`absolute z-30 shadow-2xl rounded-xl ${!isVSCodeDragging ? "transition-all duration-300 ease-out" : ""} ${
+                      isVSCodeMaximized 
+                        ? "rounded-none" 
+                        : "w-[700px] h-[460px]"
+                    } ${isVSCodeMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
+                    style={{ 
+                      ...(isVSCodeMaximized ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${vsCodePosition.y}px`, left: `${vsCodePosition.x}px` })
+                    }}
+                  >
+                    <VSCodeWindow 
+                      className="!w-full !max-w-none !h-full !rounded-none !shadow-none !border-none"
+                      isDragging={isVSCodeDragging}
+                      onClose={(e: any) => { e.stopPropagation(); setIsVSCodeOpen(false); setIsVSCodeMinimized(false); }}
+                      onMinimize={(e: any) => { e.stopPropagation(); setIsVSCodeMinimized(true); }}
+                      onMaximize={(e: any) => { e.stopPropagation(); setIsVSCodeMaximized(!isVSCodeMaximized); }}
+                      onTitlePointerDown={(e: any) => {
+                        if (isVSCodeMaximized) return;
+                        e.currentTarget.setPointerCapture(e.pointerId);
+                        setIsVSCodeDragging(true);
+                      }}
+                      onTitlePointerMove={(e: any) => {
+                        if (isVSCodeDragging && !isVSCodeMaximized && desktopRef.current && vsCodeRef.current) {
+                          setVsCodePosition(p => {
+                            let newX = p.x + (e.movementX / 0.9118);
+                            let newY = p.y + (e.movementY / 0.9118);
+                            
+                            const maxX = desktopRef.current!.clientWidth - vsCodeRef.current!.clientWidth;
+                            const maxY = desktopRef.current!.clientHeight - vsCodeRef.current!.clientHeight;
+                            
+                            return {
+                              x: Math.max(0, Math.min(newX, maxX)),
+                              y: Math.max(24, Math.min(newY, maxY))
+                            };
+                          });
+                        }
+                      }}
+                      onTitlePointerUp={(e: any) => {
+                        setIsVSCodeDragging(false);
+                        e.currentTarget.releasePointerCapture(e.pointerId);
+                      }}
+                    />
+                  </div>
+                )}
+                {isShellOpen && (
+                  <div 
+                    ref={shellRef}
+                    className={`absolute z-20 shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isShellDragging ? "transition-all duration-300 ease-out" : ""} ${
+                      isShellMaximized 
+                        ? "rounded-none" 
+                        : "w-[480px] h-[360px]"
+                    } ${isShellMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
+                    style={{ 
+                      fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
+                      ...(isShellMaximized ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${shellPosition.y}px`, left: `${shellPosition.x}px` })
+                    }}
+                  >
+                    {/* Bar */}
+                    <div 
+                      className={`h-7 flex items-center px-3 relative border-b border-white/10 ${isShellMaximized ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
+                      onPointerDown={(e) => {
+                        if (isShellMaximized) return;
+                        e.currentTarget.setPointerCapture(e.pointerId);
+                        setIsShellDragging(true);
+                      }}
+                      onPointerMove={(e) => {
+                        if (isShellDragging && !isShellMaximized && desktopRef.current && shellRef.current) {
+                          setShellPosition(p => {
+                            let newX = p.x + (e.movementX / 0.9118);
+                            let newY = p.y + (e.movementY / 0.9118);
+                            
+                            const maxX = desktopRef.current!.clientWidth - shellRef.current!.clientWidth;
+                            const maxY = desktopRef.current!.clientHeight - shellRef.current!.clientHeight;
+                            
+                            return {
+                              x: Math.max(0, Math.min(newX, maxX)),
+                              y: Math.max(24, Math.min(newY, maxY))
+                            };
+                          });
+                        }
+                      }}
+                      onPointerUp={(e) => {
+                        setIsShellDragging(false);
+                        e.currentTarget.releasePointerCapture(e.pointerId);
+                      }}
+                    >
+                      <div className="flex space-x-2 absolute left-3">
+                        <div 
+                          className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] cursor-pointer hover:brightness-110"
+                          onClick={(e) => { e.stopPropagation(); setIsShellOpen(false); setIsShellMinimized(false); }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                        ></div>
+                        <div 
+                          className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] cursor-pointer hover:brightness-110"
+                          onClick={(e) => { e.stopPropagation(); setIsShellMinimized(true); }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                        ></div>
+                        <div 
+                          className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] cursor-pointer hover:brightness-110"
+                          onClick={(e) => { e.stopPropagation(); setIsShellMaximized(!isShellMaximized); }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                        ></div>
+                      </div>
+                      <div className="w-full text-center text-gray-400 text-[11px] font-sans font-semibold tracking-wide pointer-events-none">
+                        suman — -zsh — 80x24
+                      </div>
+                    </div>
+                    
+                    {/* Body */}
+                    <div 
+                      className={`bg-transparent overflow-hidden rounded-b-lg ${isShellMaximized ? "h-[calc(100%-28px)] rounded-none" : "h-[calc(100%-28px)]"}`}
+                    >
+                      <InteractiveTerminal
+                        onOpenAsciiTerminal={() => {
+                          setIsTerminalOpen(true);
+                          setIsTerminalMinimized(false);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {isTerminalOpen && (
                   <div 
                     ref={terminalRef}
@@ -265,7 +438,7 @@ function MacBook() {
                     
                     {/* Body */}
                     <div 
-                      className={`bg-black/90 overflow-hidden rounded-b-lg ${isTerminalMaximized ? "h-[calc(100%-28px)] rounded-none" : "h-[calc(100%-28px)]"}`}
+                      className={`bg-transparent overflow-hidden rounded-b-lg ${isTerminalMaximized ? "h-[calc(100%-28px)] rounded-none" : "h-[calc(100%-28px)]"}`}
                     >
                       <AsciiArt
                         src="/suman.png"
@@ -289,6 +462,7 @@ function MacBook() {
                         <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
                       </svg>
                     </div>
+                    
                   </div>
                   {/* Right items */}
                   <div className="flex items-center space-x-1">

@@ -5,6 +5,7 @@ import DriftWall from "./DriftWall"
 import Lanyard from "./Lanyard"
 import PixelSwap from "./PixelSwap"
 import VSCodeWindow from "./VSCodeWindow"
+import FlyText from "./FlyText"
 
 // Same stack as TechStrip. Files don't exist yet — drop matching logos into
 // public/logos/ (one file per src below) and these will just start showing up.
@@ -366,6 +367,8 @@ function Skills() {
               <Lanyard
                 position={[0, 0, 20]}
                 gravity={[0, -40, 0]}
+                cardScale={1.65}
+                lanyardWidth={0.8}
                 frontImage="/il_fullxfull.6691917804_k8k3.avif"
                 backImage="/gradient-background-in-black-and-red-colors-with-icon-of-spider-vector.jpg"
                 lanyardImage="/bfe6bbe3b6cc5dccfe8cd91d2b6b0353.jpg"
@@ -395,12 +398,32 @@ function Skills() {
                 heroVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
-              <p className="font-cursive text-4xl leading-snug text-paper sm:text-5xl md:text-6xl">
+              <FlyText
+                as="p"
+                className="font-cursive text-4xl leading-snug text-paper sm:text-5xl md:text-6xl"
+                windAngle={20}
+                windStrength={480}
+                scatter={90}
+                maxRotation={420}
+                stagger={0.6}
+                depth={140}
+                mode="both"
+              >
                 With great product, comes great complexities
-              </p>
-              <p className="mt-5 text-sm text-dim sm:text-base">
+              </FlyText>
+              <FlyText
+                as="p"
+                className="mt-5 text-sm text-dim sm:text-base"
+                windAngle={25}
+                windStrength={350}
+                scatter={60}
+                maxRotation={300}
+                stagger={0.5}
+                depth={100}
+                mode="both"
+              >
                 and I tackle them using these technologies.
-              </p>
+              </FlyText>
             </div>
 
             <div

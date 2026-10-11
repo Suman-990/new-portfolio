@@ -85,7 +85,18 @@ const FileIcon = ({ extension, color }: { extension: string; color: string }) =>
   }
 };
 
-export default function VSCodeWindow() {
+interface VSCodeWindowProps {
+  onClose?: (e: React.MouseEvent) => void;
+  onMinimize?: (e: React.MouseEvent) => void;
+  onMaximize?: (e: React.MouseEvent) => void;
+  onTitlePointerDown?: (e: React.PointerEvent) => void;
+  onTitlePointerMove?: (e: React.PointerEvent) => void;
+  onTitlePointerUp?: (e: React.PointerEvent) => void;
+  isDragging?: boolean;
+  className?: string;
+}
+
+export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitlePointerDown, onTitlePointerMove, onTitlePointerUp, isDragging, className = "" }: VSCodeWindowProps) {
   const [activeTab, setActiveTab] = useState(SKILL_CATEGORIES[0].varName);
   const [openTabs, setOpenTabs] = useState<string[]>([SKILL_CATEGORIES[0].varName, SKILL_CATEGORIES[1].varName]);
   const [isSrcOpen, setIsSrcOpen] = useState(true);
@@ -112,17 +123,17 @@ export default function VSCodeWindow() {
   const activeCategory = SKILL_CATEGORIES.find(c => c.varName === activeTab);
 
   return (
-    <div className="w-full max-w-5xl mx-auto flex flex-col h-[550px] bg-[#1e1e1e] rounded-xl overflow-hidden border border-white/10 shadow-2xl text-[#cccccc] font-sans">
+    <div className={`w-full max-w-5xl mx-auto flex flex-col h-[550px] bg-[#1e1e1e] rounded-xl overflow-hidden border border-white/10 shadow-2xl text-[#cccccc] font-sans ${className}`}>
       {/* Title Bar */}
-      <div className="relative h-9 flex items-center justify-between px-4 bg-[#323233] border-b border-[#181818] select-none w-full">
+      <div className={`relative h-9 flex items-center justify-between px-4 bg-[#323233] border-b border-[#181818] select-none w-full ${isDragging !== undefined ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`} onPointerDown={onTitlePointerDown} onPointerMove={onTitlePointerMove} onPointerUp={onTitlePointerUp}>
         <div className="flex space-x-2">
-          <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-          <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-          <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#ff5f56] cursor-pointer hover:brightness-110" onClick={onClose} onPointerDown={(e) => e.stopPropagation()}></div>
+          <div className="w-3 h-3 rounded-full bg-[#ffbd2e] cursor-pointer hover:brightness-110" onClick={onMinimize} onPointerDown={(e) => e.stopPropagation()}></div>
+          <div className="w-3 h-3 rounded-full bg-[#27c93f] cursor-pointer hover:brightness-110" onClick={onMaximize} onPointerDown={(e) => e.stopPropagation()}></div>
         </div>
-        <div className="text-[12px] text-gray-400 absolute left-1/2 transform -translate-x-1/2 flex items-center pointer-events-none w-full justify-center">
+        <div className="text-[14px] text-gray-400 absolute left-1/2 transform -translate-x-1/2 flex items-center pointer-events-none w-full justify-center">
           <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-4 h-4 mr-2" />
-          Suman-portfolio - Visual Studio Code
+          Suman-skills - Visual Studio Code
         </div>
         <div className="w-12"></div>
       </div>
@@ -139,18 +150,18 @@ export default function VSCodeWindow() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-56 bg-[#252526] flex flex-col border-r border-[#181818] select-none overflow-y-auto">
+        <div className="w-56 bg-[#252526] flex flex-col border-r border-[#181818] select-none overflow-y-auto custom-scrollbar">
           <div className="px-5 py-3 text-[11px] font-semibold text-gray-400 tracking-wider">
             EXPLORER
           </div>
           
-          <div className="flex flex-col text-[13px]">
+          <div className="flex flex-col text-[14px]">
             <div 
               className="flex items-center px-1 py-1 hover:bg-[#2a2d2e] cursor-pointer text-gray-300 font-bold"
               onClick={() => setIsPortfolioOpen(!isPortfolioOpen)}
             >
               {isPortfolioOpen ? <ChevronDown size={16} className="mr-1" /> : <ChevronRight size={16} className="mr-1" />}
-              SUMAN-PORTFOLIO
+              SUMAN-SKILLS
             </div>
             
             {isPortfolioOpen && (
@@ -231,7 +242,7 @@ export default function VSCodeWindow() {
                   onClick={() => setActiveTab(tabId)}
                 >
                   <FileIcon extension={category.extension} color={category.iconColor} />
-                  <span className="ml-2 text-[13px] truncate flex-1">{category.varName}.{category.extension}</span>
+                  <span className="ml-2 text-[14px] truncate flex-1">{category.varName}.{category.extension}</span>
                   <div 
                     className={`ml-2 rounded-md p-[2px] ${isActive ? 'opacity-100 hover:bg-[#333333]' : 'opacity-0 group-hover:opacity-100 hover:bg-[#444444]'}`}
                     onClick={(e) => { e.stopPropagation(); closeTab(e, tabId); }}
@@ -245,7 +256,7 @@ export default function VSCodeWindow() {
           
           {/* Breadcrumbs */}
           {activeCategory && (
-            <div className="h-6 flex items-center px-4 text-[12px] text-gray-500 bg-[#1e1e1e] border-b border-[#2d2d2d]">
+            <div className="h-6 flex items-center px-4 text-[14px] text-gray-500 bg-[#1e1e1e] border-b border-[#2d2d2d]">
               <span>src</span>
               <ChevronRight size={12} className="mx-1" />
               <span>{activeCategory.varName}.{activeCategory.extension}</span>
@@ -286,7 +297,7 @@ export default function VSCodeWindow() {
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">
                 <div className="text-center">
-                  <div className="text-6xl mb-4 font-light">Suman-portfolio</div>
+                  <div className="text-6xl mb-4 font-light">Suman-skills</div>
                   <div className="text-sm">Select a file from the explorer to view its contents</div>
                 </div>
               </div>

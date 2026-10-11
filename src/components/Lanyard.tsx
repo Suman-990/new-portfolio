@@ -59,6 +59,7 @@ interface LanyardProps {
   imageFit?: ImageFit
   lanyardImage?: string | null
   lanyardWidth?: number
+  cardScale?: number
   // While false, the whole rope+card chain is held fixed in its initial
   // (unsettled) pose instead of immediately falling under gravity — flip it
   // to true to let go, so it visibly drops/swings into its resting hang the
@@ -95,6 +96,7 @@ export default function Lanyard({
   imageFit = "cover",
   lanyardImage = null,
   lanyardWidth = 1,
+  cardScale = 2.25,
   dropTrigger = true,
   scrollReactive = false,
 }: LanyardProps) {
@@ -149,6 +151,7 @@ export default function Lanyard({
             imageFit={imageFit}
             lanyardImage={lanyardImage}
             lanyardWidth={lanyardWidth}
+            cardScale={cardScale}
             dropTrigger={dropTrigger}
             scrollReactive={scrollReactive}
           />
@@ -173,6 +176,7 @@ interface BandProps {
   imageFit?: ImageFit
   lanyardImage?: string | null
   lanyardWidth?: number
+  cardScale?: number
   dropTrigger?: boolean
   scrollReactive?: boolean
 }
@@ -201,6 +205,7 @@ function Band({
   imageFit = "cover",
   lanyardImage = null,
   lanyardWidth = 1,
+  cardScale = 2.25,
   dropTrigger = true,
   scrollReactive = false,
 }: BandProps) {
@@ -443,10 +448,10 @@ function Band({
           {...segmentProps}
           type={dragged ? "kinematicPosition" : restType}
         >
-          <CuboidCollider args={[0.8, 1.125, 0.01]} />
+          <CuboidCollider args={[0.8 * (cardScale / 2.25), 1.125 * (cardScale / 2.25), 0.01]} />
           <group
-            scale={2.25}
-            position={[0, -1.2, -0.05]}
+            scale={cardScale}
+            position={[0, -1.2 * (cardScale / 2.25), -0.05]}
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e: ThreeEvent<PointerEvent>) => {
