@@ -1,16 +1,12 @@
-import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
 import Skills from "./components/Skills"
-import TechStrip from "./components/TechStrip"
 import MacBook from "./components/MacBook"
 
 function App() {
   return (
-    <div className="mx-auto max-w-7xl px-6">
-      <Navbar />
+    <div className="mx-auto max-w-7xl px-6 pt-4 pb-16 sm:pt-6">
       <main>
         <Hero />
-        <TechStrip />
         <Skills />
         <MacBook />
       </main>

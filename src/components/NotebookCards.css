@@ -1,0 +1,282 @@
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+
+/* Container for scattered notebook pages */
+.notebook-scatter-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .notebook-scatter-container {
+    display: block;
+    height: 520px;
+    min-height: 520px;
+    padding: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .notebook-scatter-container {
+    height: 535px;
+    min-height: 535px;
+  }
+}
+
+/* Card wrappers */
+.notebook-card-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 5 / 3.7;
+  filter: drop-shadow(2px 3px 10px rgba(0, 0, 0, 0.1));
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.3s ease,
+              z-index 0s;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Default rotations & stacking on mobile */
+.notebook-card-wrapper:nth-child(1) {
+  z-index: 10;
+}
+.notebook-card-wrapper:nth-child(1) .notebook-card {
+  rotate: -1.5deg;
+}
+.notebook-card-wrapper:nth-child(1) .notebook-accent {
+  color: indianred;
+}
+
+.notebook-card-wrapper:nth-child(2) {
+  z-index: 12;
+  margin-top: -3.25rem;
+}
+.notebook-card-wrapper:nth-child(2) .notebook-card {
+  rotate: 2.2deg;
+}
+.notebook-card-wrapper:nth-child(2) .notebook-accent {
+  color: slateblue;
+}
+
+.notebook-card-wrapper:nth-child(3) {
+  z-index: 14;
+  margin-top: -3.25rem;
+}
+.notebook-card-wrapper:nth-child(3) .notebook-card {
+  rotate: 1.2deg;
+}
+.notebook-card-wrapper:nth-child(3) .notebook-accent {
+  color: seagreen;
+}
+
+/* 
+   Scattered placement on desktop (768px and up):
+   - Card 1: Top-Left (subtle -1.5deg angle, text finishes by y: 120px)
+   - Card 2: Mid-Right (+2.2deg angle, starts at y: 135px, text finishes by y: 273px)
+   - Card 3: Bottom-Left (+1.2deg angle, starts at y: 285px, safely below Card 2's text)
+*/
+@media (min-width: 768px) {
+  .notebook-card-wrapper {
+    position: absolute;
+    width: 300px;
+  }
+
+  .notebook-card-wrapper:nth-child(1) {
+    top: 10px;
+    left: 0;
+    margin-top: 0;
+  }
+
+  .notebook-card-wrapper:nth-child(2) {
+    top: 135px;
+    right: 0;
+    margin-top: 0;
+  }
+
+  .notebook-card-wrapper:nth-child(3) {
+    top: 285px;
+    left: 18px;
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .notebook-card-wrapper {
+    width: 320px;
+  }
+
+  .notebook-card-wrapper:nth-child(1) {
+    top: 10px;
+    left: 10px;
+  }
+
+  .notebook-card-wrapper:nth-child(2) {
+    top: 135px;
+    right: 10px;
+  }
+
+  .notebook-card-wrapper:nth-child(3) {
+    top: 290px;
+    left: 25px;
+  }
+}
+
+/* Hover and active states: straighten, lift, and pop to front */
+.notebook-card-wrapper:hover,
+.notebook-card-wrapper.is-active {
+  z-index: 30 !important;
+  filter: drop-shadow(4px 14px 26px rgba(0, 0, 0, 0.18));
+}
+
+.notebook-card-wrapper:hover .notebook-card,
+.notebook-card-wrapper.is-active .notebook-card {
+  rotate: 0deg;
+  translate: 0 -8px;
+}
+
+/* Card: empty notebook page design from snippet */
+.notebook-card {
+  width: 100%;
+  height: 100%;
+  padding: 15% 8% 0 16%;
+  position: relative;
+  background-color: #f1efeb;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  isolation: isolate;
+  font-family: "Special Elite", system-ui, cursive;
+
+  /* Punched binder holes on the left edge */
+  -webkit-mask:
+    linear-gradient(#000, #000) no-repeat center / 100% 100%,
+    radial-gradient(circle, #000 40%, transparent 0) repeat-y 12px 8px / 18px 36px;
+  -webkit-mask-composite: destination-out;
+  mask:
+    linear-gradient(#000, #000) no-repeat center / 100% 100%,
+    radial-gradient(circle, #000 40%, transparent 0) repeat-y 12px 8px / 18px 36px;
+  mask-composite: subtract;
+
+  --row-size: 32px;
+}
+
+/* Lined notebook paper ruling */
+.notebook-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin-top: auto;
+  margin-bottom: 8%;
+  height: 74%;
+  background-image: repeating-linear-gradient(
+    transparent 0 calc(var(--row-size) - 1px),
+    rgba(0, 0, 0, 0.12) 0 var(--row-size)
+  );
+  background-size: 100% calc(var(--row-size) * 9);
+  background-position: 60% 30%;
+  background-repeat: no-repeat;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Content layer on lines */
+.notebook-card-content {
+  position: relative;
+  z-index: 2;
+  font-family: "Special Elite", system-ui, cursive;
+  font-weight: 500;
+  color: #14130f;
+  text-wrap: pretty;
+}
+
+/* Top-right notebook tag */
+.notebook-card-tag {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: "Special Elite", monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  z-index: 2;
+}
+
+/* ----------------------------------------------------
+   Hero Image Background Notebook Page
+   ---------------------------------------------------- */
+.hero-image-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 460px;
+}
+
+.hero-notebook-page {
+  position: absolute;
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 1 / 1.12;
+  background-color: #f1efeb;
+  border-radius: 3px;
+  filter: drop-shadow(2px 6px 18px rgba(0, 0, 0, 0.11));
+  rotate: 1.5deg;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+  pointer-events: none;
+  isolation: isolate;
+  z-index: 0;
+
+  /* Punched binder holes on the left edge */
+  -webkit-mask:
+    linear-gradient(#000, #000) no-repeat center / 100% 100%,
+    radial-gradient(circle, #000 40%, transparent 0) repeat-y 12px 8px / 18px 36px;
+  -webkit-mask-composite: destination-out;
+  mask:
+    linear-gradient(#000, #000) no-repeat center / 100% 100%,
+    radial-gradient(circle, #000 40%, transparent 0) repeat-y 12px 8px / 18px 36px;
+  mask-composite: subtract;
+
+  --row-size: 32px;
+}
+
+/* Lined notebook paper ruling */
+.hero-notebook-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin-top: auto;
+  margin-bottom: 5%;
+  height: 82%;
+  background-image: repeating-linear-gradient(
+    transparent 0 calc(var(--row-size) - 1px),
+    rgba(0, 0, 0, 0.11) 0 var(--row-size)
+  );
+  background-size: 100% calc(var(--row-size) * 14);
+  background-position: 60% 30%;
+  background-repeat: no-repeat;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-notebook-page-tag {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-family: "Special Elite", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #6b6a64;
+  opacity: 0.85;
+  z-index: 2;
+}
+
+.hero-image-container:hover .hero-notebook-page {
+  rotate: 0.5deg;
+  filter: drop-shadow(4px 10px 24px rgba(0, 0, 0, 0.15));
+}
+

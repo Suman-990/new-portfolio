@@ -3,6 +3,7 @@ import InteractiveTerminal from "./InteractiveTerminal";
 import InteractiveKeyboard from "./InteractiveKeyboard";
 import { useEffect, useRef, useState } from "react";
 import { AsciiArt } from "./ui/ascii-art";
+import { FloatingDockDesktop } from "./ui/floating-dock";
 import "./MacBook.css"
 
 function clamp(value: number, min: number, max: number) {
@@ -179,77 +180,82 @@ function MacBook() {
                 className="absolute w-[94%] left-[3%] h-[88%] top-[6%] bg-cover bg-center overflow-hidden rounded-[2px]" 
                 style={{ backgroundImage: "url('/macbook wallpaper.jpg')" }}
               >
-                {/* Dock */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 h-[42px] px-2 bg-white/30 border border-white/30 rounded-2xl flex items-center space-x-2 z-10 shadow-lg">
-                  <div 
-                    className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm relative group"
-                    onClick={() => {
-                      if (!isTerminalOpen) {
-                        setIsTerminalOpen(true);
-                        setIsTerminalMinimized(false);
-                      } else if (isTerminalMinimized) {
-                        setIsTerminalMinimized(false);
-                      } else {
-                        setIsTerminalMinimized(true);
-                      }
-                    }}
-                  >
-                    <img src="/me.jpeg" alt="Me" className="w-8 h-8 object-cover rounded-[8px]" />
-                    {isTerminalOpen && !isTerminalMinimized && (
-                      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-black/40 rounded-full"></div>
-                    )}
-                  </div>
-                  <div 
-                    className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm relative group"
-                    onClick={() => {
-                      if (!isVSCodeOpen) {
-                        setIsVSCodeOpen(true);
-                        setIsVSCodeMinimized(false);
-                      } else if (isVSCodeMinimized) {
-                        setIsVSCodeMinimized(false);
-                      } else {
-                        setIsVSCodeMinimized(true);
-                      }
-                    }}
-                  >
-                    <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-7 h-7 object-contain rounded-[4px]" />
-                    {isVSCodeOpen && !isVSCodeMinimized && (
-                      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-black/40 rounded-full"></div>
-                    )}
-                  </div>
-                  <div 
-                    className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm relative group"
-                    onClick={() => {
-                      if (!isShellOpen) {
-                        setIsShellOpen(true);
-                        setIsShellMinimized(false);
-                      } else if (isShellMinimized) {
-                        setIsShellMinimized(false);
-                      } else {
-                        setIsShellMinimized(true);
-                      }
-                    }}
-                  >
-                    <img src="/terminal-icon.webp" alt="Terminal" className="w-8 h-8 object-cover rounded-[8px]" />
-                    {isShellOpen && !isShellMinimized && (
-                      <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-black/40 rounded-full"></div>
-                    )}
-                  </div>
-                  <div className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm">
-                    <img src="/nodeJS_transparent.png" alt="Node" className="w-6 h-6 object-contain" />
-                  </div>
-                  <div className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm">
-                    <img src="/docker_transparent.png" alt="Docker" className="w-6 h-6 object-contain" />
-                  </div>
-                  <div className="w-8 h-8 bg-white/90 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm">
-                    <img src="/github_transparent.png" alt="Github" className="w-6 h-6 object-contain" />
-                  </div>
-                  <div className="w-px h-7 bg-white/30 mx-1"></div>
-                  <div className="w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-300 rounded-[8px] flex items-center justify-center hover:scale-110 hover:-translate-y-2 transition-all cursor-pointer shadow-sm border border-gray-300">
-                    <div className="w-4 h-5 border-2 border-blue-400 rounded-sm bg-white/50"></div>
-                  </div>
-
-                </div>
+                {/* Dock with macOS Magnification Hover Animation */}
+                <FloatingDockDesktop
+                  items={[
+                    {
+                      title: "ASCII Portrait",
+                      icon: <img src="/me.jpeg" alt="Me" className="w-full h-full object-cover rounded-[7px]" />,
+                      active: isTerminalOpen && !isTerminalMinimized,
+                      onClick: () => {
+                        if (!isTerminalOpen) {
+                          setIsTerminalOpen(true);
+                          setIsTerminalMinimized(false);
+                        } else if (isTerminalMinimized) {
+                          setIsTerminalMinimized(false);
+                        } else {
+                          setIsTerminalMinimized(true);
+                        }
+                      },
+                    },
+                    {
+                      title: "VS Code",
+                      icon: <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-full h-full object-contain p-0.5 rounded-[4px]" />,
+                      active: isVSCodeOpen && !isVSCodeMinimized,
+                      onClick: () => {
+                        if (!isVSCodeOpen) {
+                          setIsVSCodeOpen(true);
+                          setIsVSCodeMinimized(false);
+                        } else if (isVSCodeMinimized) {
+                          setIsVSCodeMinimized(false);
+                        } else {
+                          setIsVSCodeMinimized(true);
+                        }
+                      },
+                    },
+                    {
+                      title: "Terminal",
+                      icon: <img src="/terminal-icon.webp" alt="Terminal" className="w-full h-full object-cover rounded-[7px]" />,
+                      active: isShellOpen && !isShellMinimized,
+                      onClick: () => {
+                        if (!isShellOpen) {
+                          setIsShellOpen(true);
+                          setIsShellMinimized(false);
+                        } else if (isShellMinimized) {
+                          setIsShellMinimized(false);
+                        } else {
+                          setIsShellMinimized(true);
+                        }
+                      },
+                    },
+                    {
+                      title: "Node.js",
+                      icon: <img src="/nodeJS_transparent.png" alt="Node" className="w-full h-full object-contain p-0.5" />,
+                    },
+                    {
+                      title: "Docker",
+                      icon: <img src="/docker_transparent.png" alt="Docker" className="w-full h-full object-contain p-0.5" />,
+                    },
+                    {
+                      title: "GitHub",
+                      icon: <img src="/github_transparent.png" alt="Github" className="w-full h-full object-contain p-0.5" />,
+                      href: "https://github.com/Suman-990",
+                    },
+                    {
+                      title: "divider",
+                      isDivider: true,
+                      icon: null,
+                    },
+                    {
+                      title: "Finder",
+                      icon: <img src="/finder_icon.jpeg" alt="Finder" className="w-full h-full object-cover rounded-[7px]" />,
+                    },
+                  ]}
+                  baseSize={32}
+                  magnifiedSize={52}
+                  distanceLimit={110}
+                  className="absolute bottom-2 left-1/2 -translate-x-1/2 h-[44px] z-10 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-2.5 pb-1.5 gap-2 overflow-visible items-end"
+                />
                 {/* Terminal Window */}
                 {isVSCodeOpen && (
                   <div 
