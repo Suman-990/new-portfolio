@@ -229,8 +229,9 @@ function MacBook() {
                       },
                     },
                     {
-                      title: "Node.js",
-                      icon: <img src="/nodeJS_transparent.png" alt="Node" className="w-full h-full object-contain p-0.5" />,
+                      title: "LeetCode",
+                      icon: <img src="/leetcode.webp" alt="LeetCode" className="w-full h-full object-contain p-0.5" />,
+                      href: "https://leetcode.com/u/Suman_990/",
                     },
                     {
                       title: "Docker",

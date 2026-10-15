@@ -1,5 +1,6 @@
 import { PinContainer } from "@/components/ui/3d-pin";
 import { Timeline } from "@/components/ui/timeline";
+import { Trophy, Medal } from "lucide-react";
 
 export function TimelineDemo() {
   const projects = [
@@ -233,7 +234,8 @@ export function TimelineDemo() {
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-10 pb-10 border-b border-white/10">
               <div className="flex-1 space-y-3">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-0.5 rounded-full">
-                  <span>🏆 Competitive Programming</span>
+                  <Trophy className="w-3.5 h-3.5 shrink-0" />
+                  <span>Competitive Programming</span>
                 </div>
                 <h5 className="text-lg sm:text-xl font-bold text-paper tracking-tight">
                   Top 0.02% Global Ranking on LeetCode
@@ -275,7 +277,8 @@ export function TimelineDemo() {
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-10">
               <div className="flex-1 space-y-3">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-3 py-0.5 rounded-full">
-                  <span>🥇 Hackathon Winner</span>
+                  <Medal className="w-3.5 h-3.5 shrink-0" />
+                  <span>Hackathon Winner</span>
                 </div>
                 <h5 className="text-lg sm:text-xl font-bold text-paper tracking-tight">
                   1st Place — TechSprint Hackathon
@@ -319,7 +322,7 @@ export function TimelineDemo() {
   ];
 
   return (
-    <div className="dark relative w-screen overflow-clip bg-onyx ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] -mb-16 pb-16">
+    <div className="dark relative w-screen overflow-clip bg-onyx ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] pb-12">
       <Timeline data={data} />
     </div>
   );

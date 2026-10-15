@@ -1,0 +1,329 @@
+/* ----------------------------------
+   RETRO ARCADE BLOCK CHART STYLES
+   Monthly Heatmap Piles
+---------------------------------- */
+
+:root {
+  --night: #0a0a08;
+  --ink: #f5f4ef;
+  --muted: #858994;
+  --grid: rgba(255, 255, 255, 0.08);
+
+  --cyan: #45d9e8;
+  --yellow: #f4d94e;
+  --pink: #ef5d9a;
+  --violet: #9277ff;
+  --orange: #f3904d;
+  --emerald: #39d353;
+
+  --cell: clamp(10px, 1.8vw, 20px);
+  --gap: 3px;
+}
+
+.blocklog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ----------------------------------
+   HEADER
+---------------------------------- */
+
+.chart-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 18px;
+  min-width: 0;
+  border-bottom: 1px solid var(--grid);
+}
+
+.chart-kicker {
+  grid-column: 1 / -1;
+  margin: 0 0 -6px;
+  color: var(--cyan);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  font-family: var(--font-mono, monospace);
+  text-transform: uppercase;
+}
+
+.chart-title {
+  min-width: 0;
+  margin: 0;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(1.8rem, 4.5vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+
+.chart-subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(0.72rem, 1.1vw, 0.82rem);
+  line-height: 1.5;
+  font-family: var(--font-mono, monospace);
+}
+
+/* ----------------------------------
+   CHART BOARD (Comfortable height, no cropping)
+---------------------------------- */
+
+.block-chart {
+  position: relative;
+  min-width: 0;
+  height: 335px;
+  overflow: hidden;
+  padding-top: 22px;
+}
+
+.grid-lines {
+  position: absolute;
+  inset: 22px 0 64px;
+  background: repeating-linear-gradient(
+    to top,
+    var(--grid) 0,
+    var(--grid) 1px,
+    transparent 1px,
+    transparent 8.333%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.bars {
+  position: absolute;
+  inset: 22px 0 0;
+  display: grid;
+  grid-template-columns: repeat(var(--col-count, 12), minmax(0, 1fr));
+  gap: clamp(4px, 1.2vw, 16px);
+  width: 100%;
+  min-width: 0;
+}
+
+/* ----------------------------------
+   BAR COLUMNS
+---------------------------------- */
+
+.bar-column {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 64px;
+  width: 100%;
+  min-width: 0;
+}
+
+.stack-wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  color: inherit;
+}
+
+.stack-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.bar-column:hover .block-cell {
+  filter: brightness(1.28) drop-shadow(0 0 6px var(--bar-color));
+}
+
+.bar-column:hover .bar-value {
+  text-shadow: 0 0 10px var(--bar-color);
+  transform: translateY(-2px);
+}
+
+.zero-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--cell) * 4 + var(--gap) * 3);
+  height: calc(var(--cell) * 1.5);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.5rem, 0.8vw, 0.65rem);
+  color: rgba(255, 255, 255, 0.2);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  margin-bottom: 2px;
+}
+
+/* ----------------------------------
+   BLOCK STACK
+---------------------------------- */
+
+.stack {
+  position: absolute;
+  right: 50%;
+  bottom: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  gap: var(--gap);
+  width: max-content;
+  max-width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transform: translateX(50%);
+}
+
+.block-row {
+  position: static;
+  flex: 0 0 var(--cell);
+  display: grid;
+  grid-template-columns: repeat(4, var(--cell));
+  gap: var(--gap);
+  width: max-content;
+  height: var(--cell);
+  animation: block-drop 640ms cubic-bezier(0.18, 0.76, 0.24, 1.18) both;
+  animation-delay: var(--delay, 0ms);
+}
+
+.block-cell {
+  display: block;
+  width: var(--cell);
+  height: var(--cell);
+  background: var(--bar-color);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.32),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.24);
+  transition: filter 150ms ease;
+}
+
+.block-cell.empty {
+  visibility: hidden;
+}
+
+/* ----------------------------------
+   VALUES AND LABELS
+---------------------------------- */
+
+.bar-meta {
+  position: relative;
+  min-width: 0;
+  padding: 10px 2px 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.bar-value {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--bar-color);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.72rem, 1.5vw, 1.05rem);
+  transition: transform 150ms ease, text-shadow 150ms ease;
+}
+
+.bar-label {
+  display: block;
+  min-width: 0;
+  color: var(--muted);
+  font-size: clamp(0.55rem, 0.9vw, 0.68rem);
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+  font-family: var(--font-mono, monospace);
+}
+
+/* ----------------------------------
+   FOOTER
+---------------------------------- */
+
+.chart-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--grid);
+  color: var(--muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono, monospace);
+}
+
+.chart-footer button {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: inherit;
+  letter-spacing: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.chart-footer button:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ----------------------------------
+   ANIMATION
+---------------------------------- */
+
+@keyframes block-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50vh) rotate(3deg);
+  }
+  78% {
+    opacity: 1;
+    transform: translateY(2px) rotate(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+/* ----------------------------------
+   RESPONSIVENESS
+---------------------------------- */
+
+@media (max-width: 760px) {
+  :root {
+    --cell: clamp(8px, 1.8vw, 13px);
+    --gap: 2px;
+  }
+
+  .chart-heading {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+
+  .chart-title {
+    font-size: clamp(1.6rem, 7vw, 2.4rem);
+  }
+
+  .block-chart {
+    height: 285px;
+  }
+
+  .chart-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

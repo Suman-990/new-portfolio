@@ -2,6 +2,7 @@ import Hero from "./components/Hero"
 import Skills from "./components/Skills"
 import MacBook from "./components/MacBook"
 import { TimelineDemo } from "./components/TimelineDemo"
+import RecentActivity from "./components/RecentActivity"
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Skills />
         <MacBook />
         <TimelineDemo />
+        <RecentActivity />
       </main>
     </div>
   )
