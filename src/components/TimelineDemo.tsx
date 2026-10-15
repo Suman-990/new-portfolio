@@ -78,12 +78,110 @@ export function TimelineDemo() {
       title: "Experience",
       content: (
         <div>
-          <h4 className="mb-4 text-base sm:text-xl font-semibold tracking-tight text-paper">
+          <h4 className="mb-2 text-base sm:text-xl font-semibold tracking-tight text-paper">
             Work Experience & Internships
           </h4>
-          <p className="text-xs sm:text-sm font-normal text-dim max-w-xl">
+          <p className="mb-6 text-xs sm:text-sm font-normal text-dim max-w-xl">
             Professional software engineering roles, full-stack contributions, and production deployments.
           </p>
+
+          <div className="space-y-6 pt-2 max-w-4xl">
+            {/* emissio */}
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-5 sm:p-6 transition-all duration-300 hover:border-white/20">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3.5">
+                  <img
+                    src="/emissio_in_logo.jpeg"
+                    alt="emissio logo"
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-contain bg-white/5 p-1 border border-white/10 shrink-0"
+                  />
+                  <div>
+                    <h5 className="font-bold text-lg sm:text-xl text-paper tracking-tight flex items-center gap-2">
+                      emissio
+                      <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Present
+                      </span>
+                    </h5>
+                    <p className="text-xs sm:text-sm font-medium text-dim mt-0.5">
+                      Software Engineer
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-xs sm:text-sm font-mono text-dim/80 sm:text-right shrink-0">
+                  October 2026 – Present
+                </div>
+              </div>
+
+              <ul className="space-y-2 text-xs sm:text-sm text-neutral-300 pl-1">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-cyan-400 text-xs mt-1 shrink-0">▹</span>
+                  <span className="leading-relaxed">
+                    Architected and deployed high-performance microservices and REST APIs, optimizing system throughput and request latency.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-cyan-400 text-xs mt-1 shrink-0">▹</span>
+                  <span className="leading-relaxed">
+                    Engineered responsive, data-intensive web interfaces with React, TypeScript, and modern component architectures.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-cyan-400 text-xs mt-1 shrink-0">▹</span>
+                  <span className="leading-relaxed">
+                    Built automated CI/CD deployment workflows and containerized backend services using Docker for zero-downtime releases.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Mentorque */}
+            <div className="rounded-2xl border border-white/10 bg-black/40 p-5 sm:p-6 transition-all duration-300 hover:border-white/20">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3.5">
+                  <img
+                    src="/mentorquedu_logo.jpeg"
+                    alt="Mentorque logo"
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-contain bg-white/5 p-1 border border-white/10 shrink-0"
+                  />
+                  <div>
+                    <h5 className="font-bold text-lg sm:text-xl text-paper tracking-tight">
+                      Mentorque
+                    </h5>
+                    <p className="text-xs sm:text-sm font-medium text-dim mt-0.5">
+                      Full Stack Developer Intern
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-xs sm:text-sm font-mono text-dim/80 sm:text-right shrink-0">
+                  July 2026 – September 2026
+                </div>
+              </div>
+
+              <ul className="space-y-2 text-xs sm:text-sm text-neutral-300 pl-1">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-cyan-400 text-xs mt-1 shrink-0">▹</span>
+                  <span className="leading-relaxed">
+                    Resolved multiple production issues across frontend and backend services, including the Mentorque Chrome extension, improving platform stability and user experience.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-cyan-400 text-xs mt-1 shrink-0">▹</span>
+                  <span className="leading-relaxed">
+                    Implemented a client-side PDF parser, reducing document processing time from 6–7 seconds to ~0.5 seconds.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-cyan-400 text-xs mt-1 shrink-0">▹</span>
+                  <span className="leading-relaxed">
+                    Integrated OmniScout’s asynchronous automated job aggregation system into the Mentorque platform and developed three dedicated dashboards for monitoring and managing the feature.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       ),
     },
