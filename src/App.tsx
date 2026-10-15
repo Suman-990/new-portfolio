@@ -1,6 +1,7 @@
 import Hero from "./components/Hero"
 import Skills from "./components/Skills"
 import MacBook from "./components/MacBook"
+import { TimelineDemo } from "./components/TimelineDemo"
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
         <Hero />
         <Skills />
         <MacBook />
+        <TimelineDemo />
       </main>
     </div>
   )
