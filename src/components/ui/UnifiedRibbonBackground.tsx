@@ -24,7 +24,7 @@ function RibbonBlock({ top, height, angle, isFirst, isLast }: RibbonBlockProps) 
         });
       },
       {
-        rootMargin: "600px 0px", // Pre-mount before scroll arrives
+        rootMargin: "150px 0px", // Unmount distant canvases so only 1-2 active WebGL contexts run
       }
     );
 
@@ -81,6 +81,7 @@ function RibbonBlock({ top, height, angle, isFirst, isLast }: RibbonBlockProps) 
           mouseStrength={0.5}
           pulseOnClick
           paused={false}
+          dpr={1}
         />
       )}
     </div>

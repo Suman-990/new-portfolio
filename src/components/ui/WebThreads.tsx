@@ -648,7 +648,6 @@ export default function WebThreads({
       state.seen = s;
       if (state.quiet > 3) return;
 
-      resize();
       render(reduced);
     };
 
@@ -666,6 +665,8 @@ export default function WebThreads({
     };
 
     const onMove = event => {
+      const s = settingsRef.current;
+      if (!s.mouseInteraction || !state.visible) return;
       const point = local(event);
       state.inside = point.inside;
       if (point.inside) state.pointer = [point.x, point.y];

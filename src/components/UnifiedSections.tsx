@@ -36,6 +36,7 @@ export default function UnifiedSections({ children }: { children: ReactNode }) {
     if (!container) return;
 
     let rafId = 0;
+    let lastT = -1;
 
     const updateScreenFade = () => {
       rafId = 0;
@@ -48,6 +49,10 @@ export default function UnifiedSections({ children }: { children: ReactNode }) {
       const fadeEnd = viewportH * 0.15;
       const rawProgress = 1 - clamp((rect.top - fadeEnd) / (fadeStart - fadeEnd), 0, 1);
       const t = smoothstep(rawProgress);
+
+      // Skip redundant DOM style writes once saturated at 1 or 0
+      if (Math.abs(t - lastT) < 0.001) return;
+      lastT = t;
 
       // Smoothly interpolate body background color: #f5f4ef (245, 244, 239) -> #0a0a08 (10, 10, 8)
       const r = Math.round(245 + (10 - 245) * t);
