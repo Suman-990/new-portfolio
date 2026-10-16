@@ -234,8 +234,9 @@ function MacBook() {
                       href: "https://leetcode.com/u/Suman_990/",
                     },
                     {
-                      title: "Docker",
-                      icon: <img src="/docker_transparent.png" alt="Docker" className="w-full h-full object-contain p-0.5" />,
+                      title: "LinkedIn",
+                      icon: <img src="/LinkedIn_icon.svg.webp" alt="LinkedIn" className="w-full h-full object-contain p-0.5 rounded-[6px]" />,
+                      href: "https://www.linkedin.com/in/suman990",
                     },
                     {
                       title: "GitHub",
