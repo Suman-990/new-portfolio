@@ -123,7 +123,7 @@ export default function RecentActivity() {
   return (
     <section
       id="activity"
-      className="relative w-full py-14 sm:py-16 pb-20 text-paper font-mono bg-transparent"
+      className="relative w-full pt-16 sm:pt-20 pb-20 text-paper font-mono bg-transparent"
     >
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8">
         <main className="blocklog">

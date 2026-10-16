@@ -395,8 +395,21 @@ export function TimelineDemo() {
   ];
 
   return (
-    <div className="dark relative w-full pb-12 bg-transparent">
+    <div className="dark relative w-full pb-16 sm:pb-24 bg-transparent">
       <Timeline data={data} />
+
+      {/* Structured Section Bridge between Timeline and Activity */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-12 sm:pt-16">
+        <div className="relative flex items-center justify-between border-t border-white/10 pt-4">
+          <div className="flex items-center gap-2 text-[11px] font-mono text-dim tracking-widest uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span>Milestones Concluded</span>
+          </div>
+          <div className="text-[11px] font-mono text-dim/60 tracking-widest uppercase">
+            03 // Activity Logs
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

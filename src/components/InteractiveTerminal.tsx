@@ -21,24 +21,25 @@ export default function InteractiveTerminal({ onOpenAsciiTerminal }: Interactive
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Focus input on mount and on click
+  // Focus input on mount without scrolling the page
   useEffect(() => {
-    inputRef.current?.focus();
+    inputRef.current?.focus({ preventScroll: true });
   }, []);
 
-  // Auto-scroll to bottom whenever history updates
+  // Auto-scroll terminal container internally whenever history updates (never scroll the outer page)
   useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [history]);
 
   const handleContainerClick = () => {
-    inputRef.current?.focus();
+    inputRef.current?.focus({ preventScroll: true });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       const trimmed = input.trim();
       const newEntryId = `${Date.now()}-${Math.random()}`;
 

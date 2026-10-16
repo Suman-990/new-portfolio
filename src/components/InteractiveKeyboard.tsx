@@ -132,16 +132,16 @@ function typeKeyIntoInput(code: string, isCaps: boolean) {
   if (!targetInput || (targetInput.tagName !== "INPUT" && targetInput.tagName !== "TEXTAREA")) {
     const terminalInput = document.querySelector<HTMLInputElement>('input[data-terminal-input="true"]');
     if (terminalInput) {
-      terminalInput.focus();
+      terminalInput.focus({ preventScroll: true });
       targetInput = terminalInput;
     }
   }
 
   if (!targetInput) return;
 
-  // Make sure input is focused
+  // Make sure input is focused without scrolling page
   if (document.activeElement !== targetInput) {
-    targetInput.focus();
+    targetInput.focus({ preventScroll: true });
   }
 
   if (code === "Enter") {

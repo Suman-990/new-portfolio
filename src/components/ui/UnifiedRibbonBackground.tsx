@@ -113,8 +113,8 @@ function prand(i: number, offset = 0) {
 export default function UnifiedRibbonBackground({ totalHeight }: { totalHeight: number }) {
   // Dynamically compute organic, randomized blocks with varied heights and thread counts
   const blocks = useMemo(() => {
-    // Varied pattern of 1-3 strings per alternation
-    const threadPattern = [2, 3, 1, 3, 2, 1, 2, 3, 1, 3];
+    // Varied pattern alternating between 2 and 3 strings per alternation (no solo 1-string ribbons)
+    const threadPattern = [2, 3, 2, 3, 2, 3, 3, 2, 2, 3];
     const generated: Array<{
       top: number;
       height: number;
@@ -134,8 +134,9 @@ export default function UnifiedRibbonBackground({ totalHeight }: { totalHeight: 
     const targetHeight = Math.max(totalHeight, 4000);
 
     while (currentTop < targetHeight + 500) {
-      // 1 to 3 threads per alternation
-      const threadCount = threadPattern[i % threadPattern.length];
+      // Alternates between 2 and 3 threads (any 1-thread fallback promoted to 2)
+      const rawCount = threadPattern[i % threadPattern.length];
+      const threadCount = rawCount <= 1 ? 2 : rawCount;
 
       // Make a few ribbons significantly taller in height (~45% of blocks)
       const isTall = i % 3 === 1 || prand(i, 2) > 0.55;
@@ -156,9 +157,9 @@ export default function UnifiedRibbonBackground({ totalHeight }: { totalHeight: 
       // Gentle speed variation
       const speed = Number((0.09 + prand(i, 8) * 0.03).toFixed(3));
 
-      // Tailor thickness and spread according to thread count
-      const spread = threadCount === 1 ? 0.14 : threadCount === 2 ? 0.17 : 0.2;
-      const thickness = threadCount === 1 ? 1.45 : threadCount === 2 ? 1.3 : 1.2;
+      // Tailor thickness and spread according to thread count (2 or 3)
+      const spread = threadCount === 2 ? 0.17 : 0.2;
+      const thickness = threadCount === 2 ? 1.3 : 1.2;
 
       generated.push({
         top: currentTop,

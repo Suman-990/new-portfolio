@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useState } from "react";
 import { ShieldCheck, ExternalLink, GripVertical } from "lucide-react";
 import Shredder, { type ShredderItem } from "./ui/Shredder";
@@ -85,9 +84,9 @@ export default function Contact() {
         </header>
 
         {/* Two-Column Grid: Dotted World Map (Left) + Shredder Profiles (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start relative z-20">
           {/* Left Column: 3D Dotted World Map (No card wrapper, seamless on background) */}
-          <div className="lg:col-span-7 flex items-center justify-center w-full">
+          <div className="lg:col-span-7 flex flex-col justify-start w-full relative z-20 pt-1">
             <WorldMap
               locationText="I am here"
               lat={22.8}
@@ -97,7 +96,7 @@ export default function Contact() {
           </div>
 
           {/* Right Column: Shredder Interactive Profiles */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center w-full">
+          <div className="lg:col-span-5 flex flex-col items-center justify-start w-full">
             {/* Header: Verified Profiles */}
             <div className="w-full max-w-[360px] mb-4 flex items-center gap-2 px-1">
               <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
