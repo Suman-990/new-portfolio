@@ -3,6 +3,7 @@ import Skills from "./components/Skills"
 import MacBook from "./components/MacBook"
 import { TimelineDemo } from "./components/TimelineDemo"
 import RecentActivity from "./components/RecentActivity"
+import Contact from "./components/Contact"
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <MacBook />
         <TimelineDemo />
         <RecentActivity />
+        <Contact />
       </main>
     </div>
   )

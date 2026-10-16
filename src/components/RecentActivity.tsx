@@ -1,14 +1,41 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   GitCommitHorizontal,
   Flame,
   Zap,
   Calendar,
   Trophy,
-  RotateCcw,
-  ExternalLink,
 } from "lucide-react";
+import GooeyNav, { type GooeyNavItem } from "./ui/GooeyNav";
 import "./RecentActivity.css";
+
+const PLATFORM_ITEMS: GooeyNavItem[] = [
+  {
+    label: "GitHub",
+    icon: (
+      <img
+        src="/github_transparent.png"
+        alt="GitHub Logo"
+        className="w-4 h-4 object-contain rounded-full shrink-0"
+      />
+    ),
+  },
+  {
+    label: "LeetCode",
+    icon: (
+      <img
+        src="/leetcode.webp"
+        alt="LeetCode Logo"
+        className="w-4 h-4 object-contain shrink-0 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+      />
+    ),
+  },
+];
+
+const RANGE_ITEMS: GooeyNavItem[] = [
+  { label: "6 Months" },
+  { label: "12 Months" },
+];
 
 interface MonthActivity {
   month: string;
@@ -81,7 +108,6 @@ function calculateStackHeight(count: number, maxCount: number): number {
 export default function RecentActivity() {
   const [platform, setPlatform] = useState<"github" | "leetcode">("github");
   const [viewRange, setViewRange] = useState<"12M" | "6M">("12M");
-  const [renderKey, setRenderKey] = useState(0);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
 
   const rawData = platform === "github" ? GITHUB_12_MONTHS : LEETCODE_12_MONTHS;
@@ -94,11 +120,6 @@ export default function RecentActivity() {
     displayValue: item.count,
   }));
 
-  // Replay initial falling cascade animation
-  const handleReplay = useCallback(() => {
-    setRenderKey((k) => k + 1);
-  }, []);
-
   return (
     <section
       id="activity"
@@ -108,93 +129,52 @@ export default function RecentActivity() {
       }}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-8">
-        <main className="blocklog" key={renderKey}>
+        <main className="blocklog">
           {/* Header */}
           <header className="chart-heading pb-4">
-            <p className="chart-kicker">ENGINEERING TELEMETRY / ACTIVITY LOG</p>
-
             <div className="min-w-0">
               <h2 className="chart-title">ACTIVITY.</h2>
-              <p className="chart-subtitle mt-2">
-                Monthly activity heatmap rendered in retro arcade block stacks. Each pile corresponds to one month of production commits and algorithmic problem solving.
-              </p>
             </div>
 
             {/* Controls: Platform & View Range */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-2 sm:pt-0">
+            <div className="flex flex-wrap items-center gap-3 pt-2 sm:pt-0">
               {/* Platform Switcher */}
-              <div className="flex rounded-lg bg-white/5 p-1 border border-white/10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlatform("github");
-                    handleReplay();
-                  }}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono font-bold tracking-wider transition-all duration-200 cursor-pointer ${
-                    platform === "github"
-                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 shadow-[0_0_12px_rgba(69,217,232,0.3)]"
-                      : "text-dim hover:text-paper"
-                  }`}
-                >
-                  <img
-                    src="/github_transparent.png"
-                    alt="GitHub Logo"
-                    className="w-4 h-4 object-contain rounded-full shrink-0"
-                  />
-                  <span>GITHUB</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPlatform("leetcode");
-                    handleReplay();
-                  }}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono font-bold tracking-wider transition-all duration-200 cursor-pointer ${
-                    platform === "leetcode"
-                      ? "bg-yellow-500/20 text-yellow-300 border border-yellow-400/50 shadow-[0_0_12px_rgba(244,217,78,0.3)]"
-                      : "text-dim hover:text-paper"
-                  }`}
-                >
-                  <img
-                    src="/leetcode.webp"
-                    alt="LeetCode Logo"
-                    className="w-4 h-4 object-contain shrink-0 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
-                  />
-                  <span>LEETCODE</span>
-                </button>
-              </div>
+              <GooeyNav
+                items={PLATFORM_ITEMS}
+                activeIndex={platform === "github" ? 0 : 1}
+                onChange={(index) => {
+                  setPlatform(index === 0 ? "github" : "leetcode");
+                }}
+                size="sm"
+                theme="dark"
+                color={platform === "github" ? "#0ea5e9" : "#eab308"}
+                activeTextColor="#0a0a08"
+                particleCount={14}
+                spread={48}
+                animationTime={500}
+                timeVariance={200}
+                gooeyness={0.5}
+                wobble={0.4}
+              />
 
               {/* View Range Toggle */}
-              <div className="flex rounded-lg bg-white/5 p-1 border border-white/10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewRange("12M");
-                    handleReplay();
-                  }}
-                  className={`px-2.5 py-1.5 rounded-md text-[11px] font-mono tracking-wider transition-all duration-200 cursor-pointer ${
-                    viewRange === "12M"
-                      ? "bg-white/15 text-paper font-bold"
-                      : "text-dim hover:text-paper"
-                  }`}
-                >
-                  12 MONTHS
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewRange("6M");
-                    handleReplay();
-                  }}
-                  className={`px-2.5 py-1.5 rounded-md text-[11px] font-mono tracking-wider transition-all duration-200 cursor-pointer ${
-                    viewRange === "6M"
-                      ? "bg-white/15 text-paper font-bold"
-                      : "text-dim hover:text-paper"
-                  }`}
-                >
-                  RECENT 6M
-                </button>
-              </div>
+              <GooeyNav
+                items={RANGE_ITEMS}
+                activeIndex={viewRange === "6M" ? 0 : 1}
+                onChange={(index) => {
+                  setViewRange(index === 0 ? "6M" : "12M");
+                }}
+                size="sm"
+                theme="dark"
+                color="#f4f4f5"
+                activeTextColor="#0a0a08"
+                particleCount={12}
+                spread={40}
+                animationTime={450}
+                timeVariance={180}
+                gooeyness={0.5}
+                wobble={0.4}
+              />
             </div>
           </header>
 
@@ -257,6 +237,7 @@ export default function RecentActivity() {
           {/* Chart Section with horizontal scroll wrapper for mobile */}
           <div className="overflow-x-auto overflow-y-hidden pt-2 -mx-4 px-4 sm:mx-0 sm:px-0">
             <section
+              key={`${platform}-${viewRange}`}
               className="block-chart"
               style={{
                 minWidth: chartData.length > 6 ? "720px" : "auto",
@@ -339,40 +320,6 @@ export default function RecentActivity() {
               </div>
             </section>
           </div>
-
-          {/* Footer Controls */}
-          <footer className="chart-footer mt-2">
-            <div className="flex flex-wrap items-center gap-3">
-              <span>
-                {platform === "github"
-                  ? "ONE PILE = ONE MONTH • SCALED TO HEATMAP DENSITY"
-                  : "ONE PILE = ONE MONTH • 886 SUBMISSIONS • 305 ACTIVE DAYS"}
-              </span>
-              <a
-                href={
-                  platform === "github"
-                    ? "https://github.com/Suman-990"
-                    : "https://leetcode.com/u/Suman_990/"
-                }
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 underline underline-offset-2 ml-1"
-              >
-                <span>View Live Profile</span>
-                <ExternalLink className="w-3 h-3 shrink-0" />
-              </a>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleReplay}
-              title="Re-run the initial falling block cascade animation"
-              className="flex items-center gap-1.5 cursor-pointer"
-            >
-              <RotateCcw className="w-3 h-3 text-current shrink-0" />
-              <span>REPLAY CASCADE</span>
-            </button>
-          </footer>
         </main>
       </div>
     </section>
