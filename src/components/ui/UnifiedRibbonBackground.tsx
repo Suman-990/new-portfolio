@@ -34,7 +34,7 @@ function RibbonBlock({ top, height, angle, isFirst, isLast }: RibbonBlockProps) 
 
   // Soft gradient mask so overlapping adjacent blocks blend like a continuous woven lattice
   const maskGradient = isFirst
-    ? "linear-gradient(to bottom, black 70%, transparent 100%)"
+    ? "linear-gradient(to bottom, transparent 0%, transparent 18%, rgba(0, 0, 0, 0.4) 38%, black 65%, black 85%, transparent 100%)"
     : isLast
     ? "linear-gradient(to bottom, transparent 0%, black 30%)"
     : "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)";

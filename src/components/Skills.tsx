@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 
 import TechTree from "./TechTree"
 import Lanyard from "./Lanyard"
-import PixelSwap from "./PixelSwap"
 import VSCodeWindow from "./VSCodeWindow"
 import FlyText from "./FlyText"
 
@@ -82,19 +81,6 @@ function SkillCard({ category }: { category: SkillCategory }) {
   )
 }
 
-// PixelSwap's own default `duration` — kept unmodified, we don't pass a
-// custom one below. Used only to start the hero row's entrance a bit ahead
-// of the dissolve's actual finish, rather than waiting for it exactly.
-const BACKGROUND_DISSOLVE_MS = 1400
-const HERO_EARLY_BY_MS = 450
-// The hero row (punchline + spiral) fades/rises over this long once
-// `heroVisible` flips — the card's own drop waits for that to actually
-// finish, not just start, before it begins.
-const HERO_ENTRANCE_MS = 700
-// How long after the hero row's entrance finishes the card waits before it
-// starts dropping in.
-const CARD_DROP_DELAY_MS = 300
-
 function Skills() {
   const sectionRef = useRef<HTMLElement>(null)
   const [reduceMotion] = useState(
@@ -102,65 +88,35 @@ function Skills() {
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   )
-  // Once revealed, stays revealed — this is a one-way theme change, not
-  // something that should undo itself if the user scrolls back up.
-  const [revealed, setRevealed] = useState(false)
-  // Drives the hero row (punchline + spiral). Fires on a timer a bit before
-  // the dissolve is actually done — see HERO_EARLY_BY_MS — so the content
-  // arrives while the background is still finishing its last stretch,
-  // instead of the row visibly sitting and waiting for a "done" signal.
-  const [heroVisible, setHeroVisible] = useState(false)
-  // Drives the card grid below. Unlike the hero row, this one *does* wait
-  // for PixelSwap's own onComplete — true completion, not the early timer —
-  // since by the time a reader scrolls this far there's no reason for it to
-  // rush; it should just wait until the theme has actually finished settling.
-  const [backgroundDone, setBackgroundDone] = useState(false)
 
+  const [heroVisible, setHeroVisible] = useState(false)
+  const [cardVisible, setCardVisible] = useState(false)
+  const [sectionInView, setSectionInView] = useState(false)
+
+  // Section entrance: triggers hero text and TechTree smoothly when entering view
   useEffect(() => {
     const section = sectionRef.current
-    if (!section || revealed) return
+    if (!section || heroVisible) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setRevealed(true)
+        if (entry.isIntersecting) setHeroVisible(true)
       },
-      // Fires once the section's top has crossed well into the viewport,
-      // rather than waiting for the whole (now full-height) section to show.
-      { threshold: 0, rootMargin: "0px 0px -35% 0px" },
+      { threshold: 0.1, rootMargin: "0px 0px -10% 0px" },
     )
     observer.observe(section)
     return () => observer.disconnect()
-  }, [revealed])
+  }, [heroVisible])
 
-  useEffect(() => {
-    if (!revealed || heroVisible) return
-    // Always via setTimeout — even a 0ms one for reduced motion — rather
-    // than calling setState directly in the effect body, which triggers a
-    // synchronous cascading render.
-    const delay = reduceMotion ? 0 : Math.max(0, BACKGROUND_DISSOLVE_MS - HERO_EARLY_BY_MS)
-    const timer = window.setTimeout(() => setHeroVisible(true), delay)
-    return () => window.clearTimeout(timer)
-  }, [revealed, heroVisible, reduceMotion])
-
-  // The lanyard card drops in on its own, after the hero row it sits above
-  // has actually finished its own fade/rise — not at the same time as it —
-  // so it reads as a separate, deliberate entrance rather than one more
-  // piece of the same reveal.
-  const [cardVisible, setCardVisible] = useState(false)
-
+  // Lanyard card drops in cleanly after hero text entrance starts
   useEffect(() => {
     if (!heroVisible || cardVisible) return
-    const delay = reduceMotion ? 0 : HERO_ENTRANCE_MS + CARD_DROP_DELAY_MS
+    const delay = reduceMotion ? 0 : 300
     const timer = window.setTimeout(() => setCardVisible(true), delay)
     return () => window.clearTimeout(timer)
   }, [heroVisible, cardVisible, reduceMotion])
 
-  // Unlike `revealed` above (which fires once and stays true), this tracks
-  // whether the section is *currently* in the viewport, continuously — it
-  // gates the card's scroll-reactive sway, which should only respond to
-  // scrolling while the card itself is actually on screen.
-  const [sectionInView, setSectionInView] = useState(false)
-
+  // Track if section is in view for interactive lanyard physics sway
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
@@ -171,28 +127,23 @@ function Skills() {
     return () => observer.disconnect()
   }, [])
 
-  // The card grid gets its own on-view entrance (terminal-dark §11: fade +
-  // 12px rise, 400ms, once) — separate from the hero row, since it sits
-  // below a full-viewport block and is scrolled to well after that entrance
-  // has already finished. Gated on `backgroundDone` too (see above), so a
-  // reader who scrolls fast never sees it appear before the background has.
+  // The card grid gets its entrance when scrolled to
   const cardsRef = useRef<HTMLDivElement>(null)
-  const [cardsInView, setCardsInView] = useState(false)
-  const cardsVisible = cardsInView && backgroundDone
+  const [cardsVisible, setCardsVisible] = useState(false)
 
   useEffect(() => {
     const el = cardsRef.current
-    if (!el || cardsInView) return
+    if (!el || cardsVisible) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setCardsInView(true)
+        if (entry.isIntersecting) setCardsVisible(true)
       },
       { threshold: 0.15 },
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [cardsInView])
+  }, [cardsVisible])
 
   // The lanyard's drag-room box (below) needs to be wide enough that
   // dragging the card doesn't clip at its edge before reaching the
@@ -235,28 +186,6 @@ function Skills() {
       aria-label="Skills"
       className="relative w-full min-h-[100dvh] overflow-hidden"
     >
-      {/* Background: a pure color-to-color dissolve, nothing else. PixelSwap
-          clones its whole layer once per grid tile (~200 times) to build the
-          transition. That's cheap for two flat divs, but it was previously
-          cloning the *entire* Skills content — text plus a live, independently
-          -animating spiral — 200 times over, which is both what caused the
-          lag and why the transition looked broken (a mosaic of frozen spiral
-          snapshots instead of a clean color wipe). Keeping this layer to flat
-          color means the content below is never touched by that mechanism,
-          however complex it gets. */}
-      <div className="absolute inset-0">
-        <PixelSwap
-          active={revealed}
-          trigger="none"
-          firstContent={<div className="h-full w-full bg-paper" />}
-          secondContent={<div className="h-full w-full bg-transparent" />}
-          onComplete={(to) => {
-            if (to) setBackgroundDone(true)
-          }}
-          aspectRatio="auto"
-          className="h-full"
-        />
-      </div>
 
       {/* The lanyard card: an overlay (z-20, above the content's z-10)
           aligned to the text column's own width/position — same outer
