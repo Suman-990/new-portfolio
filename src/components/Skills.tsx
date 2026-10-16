@@ -276,8 +276,8 @@ function Skills() {
             background dissolve actually completes (see HERO_EARLY_BY_MS) —
             deliberately early, so the content arrives while the background
             is still settling rather than after a visible pause. */}
-        <div className="flex min-h-[100dvh] w-full items-center px-6 md:px-14">
-          <div className="mx-auto grid w-full max-w-7xl gap-12 md:grid-cols-2 md:items-center md:gap-8">
+        <div className="flex min-h-[100dvh] w-full items-center px-4 sm:px-6 md:px-14 py-12 md:py-0">
+          <div className="mx-auto grid w-full max-w-7xl gap-8 sm:gap-12 md:grid-cols-2 md:items-center md:gap-8">
             <div
               className={`flex flex-col justify-center transition-all duration-700 ease-out ${
                 heroVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
@@ -285,7 +285,7 @@ function Skills() {
             >
               <FlyText
                 as="p"
-                className="font-cursive text-4xl leading-snug text-paper sm:text-5xl md:text-6xl"
+                className="font-cursive text-3xl sm:text-5xl md:text-6xl leading-snug text-paper"
                 windAngle={20}
                 windStrength={480}
                 scatter={90}
@@ -298,7 +298,7 @@ function Skills() {
               </FlyText>
               <FlyText
                 as="p"
-                className="mt-5 text-sm text-dim sm:text-base"
+                className="mt-4 sm:mt-5 text-xs sm:text-sm md:text-base text-dim"
                 windAngle={25}
                 windStrength={350}
                 scatter={60}
@@ -312,7 +312,7 @@ function Skills() {
             </div>
 
             <div
-              className={`relative z-30 h-[400px] w-full transition-all delay-150 duration-700 ease-out sm:h-[460px] md:h-[520px] flex items-center justify-center ${
+              className={`relative z-30 w-full aspect-[900/520] max-w-[900px] mx-auto transition-all delay-150 duration-700 ease-out flex items-center justify-center ${
                 heroVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
               }`}
             >
@@ -331,7 +331,7 @@ function Skills() {
             declarations above), since there's no reason for it to rush. */}
         <div
           ref={cardsRef}
-          className={`px-6 pb-24 pt-16 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] md:px-14 md:pb-32 md:pt-20 relative z-30 ${
+          className={`px-4 sm:px-6 pb-20 pt-14 transition-all duration-[400ms] ease-[cubic-bezier(0.16,1,0.3,1)] md:px-14 md:pb-32 md:pt-20 relative z-30 ${
             cardsVisible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
           }`}
         >

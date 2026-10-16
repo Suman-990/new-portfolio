@@ -176,17 +176,19 @@ export default function RecentActivity() {
           </header>
 
           {/* Key Metrics / Profile Summary Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-white/10 text-xs text-dim">
-            <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 py-2.5 sm:py-3 border-b border-white/10 text-[11px] sm:text-xs text-dim">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
               {platform === "github" ? (
                 <>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-bold">
                     <GitCommitHorizontal className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                    <span>275 Contributions (Last 12 Months)</span>
+                    <span className="hidden sm:inline">275 Contributions (Last 12 Months)</span>
+                    <span className="sm:hidden">275 Contributions</span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 font-bold">
                     <Flame className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
-                    <span>Peak: 83 in September 2026</span>
+                    <span className="hidden sm:inline">Peak: 83 in September 2026</span>
+                    <span className="sm:hidden">Peak: 83 (Sep 2026)</span>
                   </span>
                   <span className="text-[11px] text-muted hidden md:inline">
                     GitHub @Suman-990
@@ -194,19 +196,20 @@ export default function RecentActivity() {
                 </>
               ) : (
                 <>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 font-bold">
                     <Zap className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
-                    <span>886 Submissions (Past 1 Year)</span>
+                    <span className="hidden sm:inline">886 Submissions (Past 1 Year)</span>
+                    <span className="sm:hidden">886 Submissions</span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-bold">
                     <Flame className="w-3.5 h-3.5 text-orange-400 shrink-0" />
                     <span>74-Day Max Streak</span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-bold">
                     <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span>305 Active Days</span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold">
                     <Trophy className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                     <span>837 Solved (Beats 99.8%)</span>
                   </span>
@@ -232,7 +235,12 @@ export default function RecentActivity() {
           </div>
 
           {/* Chart Section with horizontal scroll wrapper for mobile */}
-          <div className="overflow-x-auto overflow-y-hidden pt-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {chartData.length > 6 && (
+            <div className="sm:hidden text-[10px] text-neutral-400/80 flex items-center justify-end gap-1 pt-2 font-mono">
+              <span>← Swipe chart to view all months →</span>
+            </div>
+          )}
+          <div className="overflow-x-auto overflow-y-hidden pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 custom-scrollbar">
             <section
               key={`${platform}-${viewRange}`}
               className="block-chart"

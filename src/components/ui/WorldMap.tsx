@@ -36,7 +36,7 @@ export function WorldMap({
 
   return (
     <div
-      className={`relative z-20 w-full flex items-center justify-center select-none [isolation:isolate] ${className}`}
+      className={`relative z-20 w-full flex items-center justify-center select-none [isolation:isolate] pt-4 sm:pt-0 ${className}`}
       style={{ perspective: "1000px" }}
     >
       {/* 3D Tilted Map Plane */}

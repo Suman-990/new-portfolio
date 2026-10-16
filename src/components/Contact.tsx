@@ -70,11 +70,11 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative w-full py-20 pb-28 text-paper bg-transparent"
+      className="relative w-full py-14 sm:py-20 pb-20 sm:pb-28 text-paper bg-transparent"
     >
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8">
         {/* Minimal Section Heading (No status pill) */}
-        <header className="mb-8 border-b border-white/10 pb-5">
+        <header className="mb-6 sm:mb-8 border-b border-white/10 pb-4 sm:pb-5">
           <p className="text-[11px] font-mono tracking-widest text-cyan-400 uppercase mb-1">
             GLOBAL REACH / CONNECT
           </p>
@@ -86,7 +86,7 @@ export default function Contact() {
         {/* Two-Column Grid: Dotted World Map (Left) + Shredder Profiles (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start relative z-20">
           {/* Left Column: 3D Dotted World Map (No card wrapper, seamless on background) */}
-          <div className="lg:col-span-7 flex flex-col justify-start w-full relative z-20 pt-1">
+          <div className="lg:col-span-7 flex flex-col justify-start w-full relative z-20 pt-2 sm:pt-1">
             <WorldMap
               locationText="I am here"
               lat={22.8}
@@ -106,7 +106,7 @@ export default function Contact() {
             </div>
 
             {/* Shredder Component with click-to-redirect and falling from top animation */}
-            <div className="relative flex justify-center w-full">
+            <div className="relative flex justify-center w-full max-w-[360px] mx-auto">
               <Shredder
                 items={profiles}
                 onReorder={(reordered) => setProfiles(reordered)}

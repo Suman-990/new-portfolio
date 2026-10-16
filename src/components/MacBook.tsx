@@ -48,6 +48,14 @@ function MacBook() {
   const [position, setPosition] = useState({ x: 88, y: 164 });
   const [isDragging, setIsDragging] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(typeof window !== "undefined" && window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
 
   useEffect(() => {
@@ -166,9 +174,9 @@ function MacBook() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-24 bg-transparent"
+      className="relative w-full py-14 sm:py-20 xl:py-24 bg-transparent"
     >
-      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 lg:px-8 flex flex-col xl:flex-row items-center xl:items-start justify-center xl:justify-between gap-12 xl:gap-8">
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-3 sm:px-6 lg:px-8 flex flex-col xl:flex-row items-center xl:items-start justify-center xl:justify-between gap-10 xl:gap-8">
         {/* Left Side: MacBook (Full size, no downscaling) */}
         <div className="shrink-0 w-full max-w-[860px] xl:w-[860px]">
           <div className="macbook">
@@ -253,40 +261,40 @@ function MacBook() {
                       icon: <img src="/finder_icon.jpeg" alt="Finder" className="w-full h-full object-cover rounded-[7px]" />,
                     },
                   ]}
-                  baseSize={32}
-                  magnifiedSize={52}
-                  distanceLimit={110}
-                  className="absolute bottom-2 left-1/2 -translate-x-1/2 h-[44px] z-10 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-2.5 pb-1.5 gap-2 overflow-visible items-end"
+                  baseSize={isMobile ? 24 : 32}
+                  magnifiedSize={isMobile ? 36 : 52}
+                  distanceLimit={isMobile ? 60 : 110}
+                  className="absolute bottom-1.5 sm:bottom-2 left-1/2 -translate-x-1/2 h-[38px] sm:h-[44px] z-10 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-2 sm:px-2.5 pb-1 sm:pb-1.5 gap-1.5 sm:gap-2 overflow-visible items-end"
                 />
                 {/* Terminal Window */}
                 {isVSCodeOpen && (
                   <div 
                     ref={vsCodeRef}
                     className={`absolute z-30 shadow-2xl rounded-xl ${!isVSCodeDragging ? "transition-all duration-300 ease-out" : ""} ${
-                      isVSCodeMaximized 
+                      isVSCodeMaximized || isMobile
                         ? "rounded-none" 
                         : "w-[700px] h-[460px]"
                     } ${isVSCodeMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
                     style={{ 
-                      ...(isVSCodeMaximized ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${vsCodePosition.y}px`, left: `${vsCodePosition.x}px` })
+                      ...(isVSCodeMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${vsCodePosition.y}px`, left: `${vsCodePosition.x}px` })
                     }}
                   >
                     <VSCodeWindow 
                       className="!w-full !max-w-none !h-full !rounded-none !shadow-none !border-none"
                       isDragging={isVSCodeDragging}
-                      onClose={(e: any) => { e.stopPropagation(); setIsVSCodeOpen(false); setIsVSCodeMinimized(false); }}
-                      onMinimize={(e: any) => { e.stopPropagation(); setIsVSCodeMinimized(true); }}
-                      onMaximize={(e: any) => { e.stopPropagation(); setIsVSCodeMaximized(!isVSCodeMaximized); }}
-                      onTitlePointerDown={(e: any) => {
-                        if (isVSCodeMaximized) return;
+                      onClose={(e: React.MouseEvent) => { e.stopPropagation(); setIsVSCodeOpen(false); setIsVSCodeMinimized(false); }}
+                      onMinimize={(e: React.MouseEvent) => { e.stopPropagation(); setIsVSCodeMinimized(true); }}
+                      onMaximize={(e: React.MouseEvent) => { e.stopPropagation(); setIsVSCodeMaximized(!isVSCodeMaximized); }}
+                      onTitlePointerDown={(e: React.PointerEvent) => {
+                        if (isVSCodeMaximized || isMobile) return;
                         e.currentTarget.setPointerCapture(e.pointerId);
                         setIsVSCodeDragging(true);
                       }}
-                      onTitlePointerMove={(e: any) => {
-                        if (isVSCodeDragging && !isVSCodeMaximized && desktopRef.current && vsCodeRef.current) {
+                      onTitlePointerMove={(e: React.PointerEvent) => {
+                        if (isVSCodeDragging && !isVSCodeMaximized && !isMobile && desktopRef.current && vsCodeRef.current) {
                           setVsCodePosition(p => {
-                            let newX = p.x + (e.movementX / 0.9118);
-                            let newY = p.y + (e.movementY / 0.9118);
+                            const newX = p.x + (e.movementX / 0.9118);
+                            const newY = p.y + (e.movementY / 0.9118);
                             
                             const maxX = desktopRef.current!.clientWidth - vsCodeRef.current!.clientWidth;
                             const maxY = desktopRef.current!.clientHeight - vsCodeRef.current!.clientHeight;
@@ -298,7 +306,7 @@ function MacBook() {
                           });
                         }
                       }}
-                      onTitlePointerUp={(e: any) => {
+                      onTitlePointerUp={(e: React.PointerEvent) => {
                         setIsVSCodeDragging(false);
                         e.currentTarget.releasePointerCapture(e.pointerId);
                       }}
@@ -309,28 +317,28 @@ function MacBook() {
                   <div 
                     ref={shellRef}
                     className={`absolute z-20 shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isShellDragging ? "transition-all duration-300 ease-out" : ""} ${
-                      isShellMaximized 
+                      isShellMaximized || isMobile
                         ? "rounded-none" 
                         : "w-[480px] h-[360px]"
                     } ${isShellMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
                     style={{ 
                       fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-                      ...(isShellMaximized ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${shellPosition.y}px`, left: `${shellPosition.x}px` })
+                      ...(isShellMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${shellPosition.y}px`, left: `${shellPosition.x}px` })
                     }}
                   >
                     {/* Bar */}
                     <div 
-                      className={`h-7 flex items-center px-3 relative border-b border-white/10 ${isShellMaximized ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
+                      className={`h-7 flex items-center px-3 relative border-b border-white/10 ${isShellMaximized || isMobile ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
                       onPointerDown={(e) => {
-                        if (isShellMaximized) return;
+                        if (isShellMaximized || isMobile) return;
                         e.currentTarget.setPointerCapture(e.pointerId);
                         setIsShellDragging(true);
                       }}
                       onPointerMove={(e) => {
-                        if (isShellDragging && !isShellMaximized && desktopRef.current && shellRef.current) {
+                        if (isShellDragging && !isShellMaximized && !isMobile && desktopRef.current && shellRef.current) {
                           setShellPosition(p => {
-                            let newX = p.x + (e.movementX / 0.9118);
-                            let newY = p.y + (e.movementY / 0.9118);
+                            const newX = p.x + (e.movementX / 0.9118);
+                            const newY = p.y + (e.movementY / 0.9118);
                             
                             const maxX = desktopRef.current!.clientWidth - shellRef.current!.clientWidth;
                             const maxY = desktopRef.current!.clientHeight - shellRef.current!.clientHeight;
@@ -387,28 +395,28 @@ function MacBook() {
                   <div 
                     ref={terminalRef}
                     className={`absolute z-20 shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isDragging ? "transition-all duration-300 ease-out" : ""} ${
-                      isTerminalMaximized 
+                      isTerminalMaximized || isMobile
                         ? "rounded-none" 
                         : "w-[480px] h-[360px]"
                     } ${isTerminalMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
                     style={{ 
                       fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-                      ...(isTerminalMaximized ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${position.y}px`, left: `${position.x}px` })
+                      ...(isTerminalMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${position.y}px`, left: `${position.x}px` })
                     }}
                   >
                     {/* Bar */}
                     <div 
-                      className={`h-7 flex items-center px-3 relative border-b border-white/10 ${isTerminalMaximized ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
+                      className={`h-7 flex items-center px-3 relative border-b border-white/10 ${isTerminalMaximized || isMobile ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
                       onPointerDown={(e) => {
-                        if (isTerminalMaximized) return;
+                        if (isTerminalMaximized || isMobile) return;
                         e.currentTarget.setPointerCapture(e.pointerId);
                         setIsDragging(true);
                       }}
                       onPointerMove={(e) => {
-                        if (isDragging && !isTerminalMaximized && desktopRef.current && terminalRef.current) {
+                        if (isDragging && !isTerminalMaximized && !isMobile && desktopRef.current && terminalRef.current) {
                           setPosition(p => {
-                            let newX = p.x + (e.movementX / 0.9118);
-                            let newY = p.y + (e.movementY / 0.9118);
+                            const newX = p.x + (e.movementX / 0.9118);
+                            const newY = p.y + (e.movementY / 0.9118);
                             
                             const maxX = desktopRef.current!.clientWidth - terminalRef.current!.clientWidth;
                             const maxY = desktopRef.current!.clientHeight - terminalRef.current!.clientHeight;
@@ -518,7 +526,7 @@ function MacBook() {
         </div>
 
         {/* Interactive 3D Keyboard */}
-        <div className="pt-14 sm:pt-20 xl:pt-28 w-full flex justify-center xl:justify-start overflow-visible">
+        <div className="pt-8 sm:pt-16 xl:pt-28 w-full flex justify-center xl:justify-start overflow-visible">
           <InteractiveKeyboard />
         </div>
       </div>

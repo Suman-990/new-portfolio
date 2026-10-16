@@ -285,8 +285,8 @@ export default function TechTree({ isVisible = true, className = "" }: TechTreeP
             <div className="absolute -inset-2 rounded-full border border-sky-400/20 border-t-sky-400/70 animate-spin [animation-duration:10s] pointer-events-none" />
 
             {/* 3D clay hub body */}
-            <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#242936] to-[#0f1117] border border-sky-500/30 shadow-[0_12px_28px_rgba(0,0,0,0.8),inset_1.5px_1.5px_3px_rgba(255,255,255,0.2),inset_-1.5px_-1.5px_4px_rgba(0,0,0,0.9),0_0_24px_rgba(56,189,248,0.25)] transition-transform duration-300 group-hover:scale-110">
-              <Cpu className="w-7 h-7 sm:w-8 sm:h-8 text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
+            <div className="relative flex h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#242936] to-[#0f1117] border border-sky-500/30 shadow-[0_12px_28px_rgba(0,0,0,0.8),inset_1.5px_1.5px_3px_rgba(255,255,255,0.2),inset_-1.5px_-1.5px_4px_rgba(0,0,0,0.9),0_0_24px_rgba(56,189,248,0.25)] transition-transform duration-300 group-hover:scale-110">
+              <Cpu className="w-5 h-5 sm:w-7 sm:h-7 md:w-8 md:h-8 text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.8)]" />
             </div>
 
             {/* Tooltip */}
@@ -314,14 +314,14 @@ export default function TechTree({ isVisible = true, className = "" }: TechTreeP
               onMouseLeave={() => setHoveredIndex(null)}
             >
               <div
-                className={`tech-tree__node-card w-11 h-11 sm:w-12 sm:h-12 md:w-[52px] md:h-[52px] ${
+                className={`tech-tree__node-card w-8 h-8 sm:w-11 sm:h-11 md:w-[52px] md:h-[52px] rounded-lg sm:rounded-xl md:rounded-[14px] ${
                   isHovered ? "border-sky-400/80 shadow-[0_16px_32px_rgba(0,0,0,0.85),0_0_22px_rgba(56,189,248,0.4),inset_1px_1px_3px_rgba(255,255,255,0.25)]" : ""
                 }`}
               >
                 <img
                   src={node.image}
                   alt={node.name}
-                  className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 object-contain filter drop-shadow select-none pointer-events-none transition-transform duration-300 group-hover:scale-110"
+                  className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 object-contain filter drop-shadow select-none pointer-events-none transition-transform duration-300 group-hover:scale-110"
                   draggable={false}
                 />
 

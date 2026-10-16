@@ -57,6 +57,21 @@
   position: absolute;
 }
 
+@media (max-width: 640px) {
+  .tech-tree__circles {
+    width: 200px;
+    height: 200px;
+  }
+  .tech-tree__circles::before {
+    width: 140px;
+    height: 140px;
+  }
+  .tech-tree__circles::after {
+    width: 80px;
+    height: 80px;
+  }
+}
+
 /* 3D Clay Nodes */
 .tech-tree__node-card {
   position: relative;

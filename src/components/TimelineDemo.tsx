@@ -52,8 +52,8 @@ export function TimelineDemo() {
                   href={project.href}
                   containerClassName="w-full flex items-center justify-center"
                 >
-                  <div className="flex flex-col tracking-tight text-slate-100/50 w-[19rem] sm:w-[22rem] md:w-[20rem] lg:w-[22rem] xl:w-[23rem] h-[16rem] sm:h-[17.5rem]">
-                    <div className="flex flex-col px-4 pt-3.5 pb-2.5">
+                  <div className="flex flex-col tracking-tight text-slate-100/50 w-[min(19rem,calc(100vw-5rem))] sm:w-[22rem] md:w-[20rem] lg:w-[22rem] xl:w-[23rem] h-[16rem] sm:h-[17.5rem]">
+                    <div className="flex flex-col px-3.5 sm:px-4 pt-3 sm:pt-3.5 pb-2 sm:pb-2.5">
                       <h5 className="font-bold text-base sm:text-lg text-paper tracking-wide">
                         {project.title}
                       </h5>
@@ -106,7 +106,7 @@ export function TimelineDemo() {
               blueOffset={20}
               className="w-full text-left transition-all duration-300 hover:scale-[1.01] hover:border-white/30"
             >
-              <div className="w-full p-6 sm:p-7 space-y-4 text-left">
+              <div className="w-full p-4 sm:p-7 space-y-3 sm:space-y-4 text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3.5">
                     <img
@@ -191,7 +191,7 @@ export function TimelineDemo() {
               blueOffset={20}
               className="w-full text-left transition-all duration-300 hover:scale-[1.01] hover:border-white/30"
             >
-              <div className="w-full p-6 sm:p-7 space-y-4 text-left">
+              <div className="w-full p-4 sm:p-7 space-y-3 sm:space-y-4 text-left">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-center gap-3.5">
                     <img
@@ -262,7 +262,7 @@ export function TimelineDemo() {
           <h4 className="mb-2 text-base sm:text-xl font-semibold tracking-tight text-paper">
             Competitions & Recognition
           </h4>
-          <p className="mb-8 text-xs sm:text-sm font-normal text-dim max-w-xl">
+          <p className="mb-6 sm:mb-8 text-xs sm:text-sm font-normal text-dim max-w-xl">
             Competitive programming rankings, hackathon wins, and technical milestones.
           </p>
 
@@ -285,7 +285,7 @@ export function TimelineDemo() {
               blueOffset={20}
               className="w-full text-left transition-all duration-300 hover:scale-[1.01] hover:border-white/30"
             >
-              <div className="w-full p-6 sm:p-7 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-10 text-left">
+              <div className="w-full p-4 sm:p-7 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 sm:gap-6 lg:gap-10 text-left">
                 <div className="flex-1 space-y-3">
                   <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-0.5 rounded-full">
                     <Trophy className="w-3.5 h-3.5 shrink-0" />
@@ -346,7 +346,7 @@ export function TimelineDemo() {
               blueOffset={20}
               className="w-full text-left transition-all duration-300 hover:scale-[1.01] hover:border-white/30"
             >
-              <div className="w-full p-6 sm:p-7 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-10 text-left">
+              <div className="w-full p-4 sm:p-7 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 sm:gap-6 lg:gap-10 text-left">
                 <div className="flex-1 space-y-3">
                   <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-3 py-0.5 rounded-full">
                     <Medal className="w-3.5 h-3.5 shrink-0" />

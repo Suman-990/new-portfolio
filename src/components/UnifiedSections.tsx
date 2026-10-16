@@ -86,7 +86,7 @@ export default function UnifiedSections({ children }: { children: ReactNode }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-screen overflow-hidden bg-onyx ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
+      className="relative w-screen max-w-[100vw] overflow-hidden bg-onyx ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
     >
       {/* Top Fade Border: Smoothly transitions from the white paper background into matte black */}
       <div

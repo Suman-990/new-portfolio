@@ -125,22 +125,22 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
   return (
     <div className={`w-full max-w-5xl mx-auto flex flex-col h-[550px] bg-[#1e1e1e] rounded-xl overflow-hidden border border-white/10 shadow-2xl text-[#cccccc] font-sans ${className}`}>
       {/* Title Bar */}
-      <div className={`relative h-9 flex items-center justify-between px-4 bg-[#323233] border-b border-[#181818] select-none w-full ${isDragging !== undefined ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`} onPointerDown={onTitlePointerDown} onPointerMove={onTitlePointerMove} onPointerUp={onTitlePointerUp}>
-        <div className="flex space-x-2">
+      <div className={`relative h-9 flex items-center justify-between px-3 sm:px-4 bg-[#323233] border-b border-[#181818] select-none w-full ${isDragging !== undefined ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}`} onPointerDown={onTitlePointerDown} onPointerMove={onTitlePointerMove} onPointerUp={onTitlePointerUp}>
+        <div className="flex space-x-2 shrink-0 z-10">
           <div className="w-3 h-3 rounded-full bg-[#ff5f56] cursor-pointer hover:brightness-110" onClick={onClose} onPointerDown={(e) => e.stopPropagation()}></div>
           <div className="w-3 h-3 rounded-full bg-[#ffbd2e] cursor-pointer hover:brightness-110" onClick={onMinimize} onPointerDown={(e) => e.stopPropagation()}></div>
           <div className="w-3 h-3 rounded-full bg-[#27c93f] cursor-pointer hover:brightness-110" onClick={onMaximize} onPointerDown={(e) => e.stopPropagation()}></div>
         </div>
-        <div className="text-[14px] text-gray-400 absolute left-1/2 transform -translate-x-1/2 flex items-center pointer-events-none w-full justify-center">
-          <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-4 h-4 mr-2" />
-          Suman-skills - Visual Studio Code
+        <div className="text-[11px] sm:text-[14px] text-gray-400 absolute left-1/2 transform -translate-x-1/2 flex items-center pointer-events-none w-full justify-center px-12 truncate">
+          <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 shrink-0" />
+          <span className="truncate">Suman-skills - Visual Studio Code</span>
         </div>
-        <div className="w-12"></div>
+        <div className="w-10 sm:w-12 shrink-0"></div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Activity Bar */}
-        <div className="w-12 bg-[#333333] flex flex-col items-center py-4 space-y-6 border-r border-[#181818]">
+        <div className="hidden sm:flex w-12 bg-[#333333] flex-col items-center py-4 space-y-6 border-r border-[#181818] shrink-0">
           <FileCode size={24} className="text-white cursor-pointer opacity-100" />
           <Search size={24} className="text-gray-400 hover:text-white cursor-pointer opacity-60 transition-opacity" />
           <GitBranch size={24} className="text-gray-400 hover:text-white cursor-pointer opacity-60 transition-opacity" />
@@ -150,12 +150,12 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
         </div>
 
         {/* Sidebar */}
-        <div className="w-56 bg-[#252526] flex flex-col border-r border-[#181818] select-none overflow-y-auto custom-scrollbar">
-          <div className="px-5 py-3 text-[11px] font-semibold text-gray-400 tracking-wider">
+        <div className="w-32 sm:w-56 bg-[#252526] flex flex-col border-r border-[#181818] select-none overflow-y-auto custom-scrollbar shrink-0">
+          <div className="px-3 sm:px-5 py-2 sm:py-3 text-[10px] sm:text-[11px] font-semibold text-gray-400 tracking-wider">
             EXPLORER
           </div>
           
-          <div className="flex flex-col text-[14px]">
+          <div className="flex flex-col text-[12px] sm:text-[14px]">
             <div 
               className="flex items-center px-1 py-1 hover:bg-[#2a2d2e] cursor-pointer text-gray-300 font-bold"
               onClick={() => setIsPortfolioOpen(!isPortfolioOpen)}
@@ -238,16 +238,16 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
               return (
                 <div 
                   key={tabId}
-                  className={`flex items-center min-w-[120px] max-w-[200px] h-full px-3 cursor-pointer border-r border-[#1e1e1e] group ${isActive ? 'bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc]' : 'bg-[#2d2d2d] text-gray-400 hover:bg-[#2d2d2d]/80 border-t-2 border-t-transparent'}`}
+                  className={`flex items-center min-w-[85px] sm:min-w-[120px] max-w-[150px] sm:max-w-[200px] h-full px-2 sm:px-3 cursor-pointer border-r border-[#1e1e1e] group ${isActive ? 'bg-[#1e1e1e] text-white border-t-2 border-t-[#007acc]' : 'bg-[#2d2d2d] text-gray-400 hover:bg-[#2d2d2d]/80 border-t-2 border-t-transparent'}`}
                   onClick={() => setActiveTab(tabId)}
                 >
                   <FileIcon extension={category.extension} color={category.iconColor} />
-                  <span className="ml-2 text-[14px] truncate flex-1">{category.varName}.{category.extension}</span>
+                  <span className="ml-1.5 sm:ml-2 text-[11px] sm:text-[14px] truncate flex-1">{category.varName}.{category.extension}</span>
                   <div 
-                    className={`ml-2 rounded-md p-[2px] ${isActive ? 'opacity-100 hover:bg-[#333333]' : 'opacity-0 group-hover:opacity-100 hover:bg-[#444444]'}`}
+                    className={`ml-1.5 sm:ml-2 rounded-md p-[2px] ${isActive ? 'opacity-100 hover:bg-[#333333]' : 'opacity-0 group-hover:opacity-100 hover:bg-[#444444]'}`}
                     onClick={(e) => { e.stopPropagation(); closeTab(e, tabId); }}
                   >
-                    <X size={14} />
+                    <X size={12} className="sm:w-3.5 sm:h-3.5" />
                   </div>
                 </div>
               );
@@ -256,7 +256,7 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
           
           {/* Breadcrumbs */}
           {activeCategory && (
-            <div className="h-6 flex items-center px-4 text-[14px] text-gray-500 bg-[#1e1e1e] border-b border-[#2d2d2d]">
+            <div className="h-5 sm:h-6 flex items-center px-2 sm:px-4 text-[11px] sm:text-[13px] text-gray-500 bg-[#1e1e1e] border-b border-[#2d2d2d]">
               <span>src</span>
               <ChevronRight size={12} className="mx-1" />
               <span>{activeCategory.varName}.{activeCategory.extension}</span>
@@ -264,15 +264,15 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
           )}
 
           {/* Editor Content */}
-          <div className="flex-1 overflow-auto p-4 font-mono text-[14px] leading-relaxed custom-scrollbar relative bg-[#1e1e1e]">
+          <div className="flex-1 overflow-auto p-2 sm:p-4 font-mono text-[11px] sm:text-[14px] leading-relaxed custom-scrollbar relative bg-[#1e1e1e]">
             {activeCategory ? (
               <div className="flex">
-                <div className="flex flex-col text-[#858585] select-none text-right pr-4 border-r border-[#404040] mr-4 min-w-[30px]">
+                <div className="flex flex-col text-[#858585] select-none text-right pr-2 sm:pr-4 border-r border-[#404040] mr-2 sm:mr-4 min-w-[22px] sm:min-w-[30px]">
                   {Array.from({length: activeCategory.items.length + 4}).map((_, i) => (
                     <div key={i}>{i + 1}</div>
                   ))}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 overflow-x-auto">
                   <pre className="font-mono m-0">
                     <code>
                       <span className="text-[#6a9955]">{`// ${activeCategory.label}`}</span>
@@ -297,8 +297,8 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
             ) : (
               <div className="flex items-center justify-center h-full text-[#858585]">
                 <div className="text-center">
-                  <div className="text-6xl mb-4 font-light">Suman-skills</div>
-                  <div className="text-sm">Select a file from the explorer to view its contents</div>
+                  <div className="text-3xl sm:text-6xl mb-2 sm:mb-4 font-light">Suman-skills</div>
+                  <div className="text-xs sm:text-sm">Select a file from the explorer to view its contents</div>
                 </div>
               </div>
             )}
@@ -307,21 +307,24 @@ export default function VSCodeWindow({ onClose, onMinimize, onMaximize, onTitleP
       </div>
       
       {/* Status Bar */}
-      <div className="h-6 bg-[#007acc] text-white flex items-center px-3 text-[11px] justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="h-5 sm:h-6 bg-[#007acc] text-white flex items-center px-2 sm:px-3 text-[10px] sm:text-[11px] justify-between select-none">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <div className="flex items-center cursor-pointer hover:bg-white/20 px-1 rounded">
-            <GitBranch size={12} className="mr-1" /> main
+            <GitBranch size={11} className="mr-1" /> main
           </div>
           <div className="flex items-center cursor-pointer hover:bg-white/20 px-1 rounded">
-            <div className="w-2 h-2 rounded-full bg-white mr-1"></div> 0  <div className="w-2 h-2 bg-white ml-2 mr-1 transform rotate-45"></div> 0
+            <div className="w-1.5 h-1.5 rounded-full bg-white mr-1"></div> 0  <div className="w-1.5 h-1.5 bg-white ml-1.5 mr-1 transform rotate-45"></div> 0
           </div>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="hidden sm:flex items-center space-x-4">
           <div className="cursor-pointer hover:bg-white/20 px-1 rounded">Ln 1, Col 1</div>
           <div className="cursor-pointer hover:bg-white/20 px-1 rounded">Spaces: 2</div>
           <div className="cursor-pointer hover:bg-white/20 px-1 rounded">UTF-8</div>
           <div className="cursor-pointer hover:bg-white/20 px-1 rounded">LF</div>
           <div className="cursor-pointer hover:bg-white/20 px-1 rounded">{activeCategory?.extension === 'tsx' ? 'TypeScript React' : activeCategory?.extension === 'ts' ? 'TypeScript' : 'JSON'}</div>
+        </div>
+        <div className="sm:hidden text-[10px] text-white/90">
+          {activeCategory?.extension === 'tsx' ? 'TSX' : activeCategory?.extension === 'ts' ? 'TS' : 'JSON'}
         </div>
       </div>
     </div>

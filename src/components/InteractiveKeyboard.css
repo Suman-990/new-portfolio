@@ -7,6 +7,14 @@
   perspective: 1000px;
 }
 
+@media (max-width: 640px) {
+  .interactive-keyboard-container {
+    --gap: clamp(2px, 0.8vw, 3.5px);
+    --key-width: clamp(11px, 3.2vw, 15px);
+    --rot-x: 16deg;
+  }
+}
+
 @media (min-width: 1280px) {
   .interactive-keyboard-container {
     --gap: 4.5px;
