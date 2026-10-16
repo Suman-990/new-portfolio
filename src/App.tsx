@@ -4,17 +4,20 @@ import MacBook from "./components/MacBook"
 import { TimelineDemo } from "./components/TimelineDemo"
 import RecentActivity from "./components/RecentActivity"
 import Contact from "./components/Contact"
+import UnifiedSections from "./components/UnifiedSections"
 
 function App() {
   return (
     <div className="mx-auto max-w-7xl px-6 pt-4 pb-16 sm:pt-6">
       <main>
         <Hero />
-        <Skills />
-        <MacBook />
-        <TimelineDemo />
-        <RecentActivity />
-        <Contact />
+        <UnifiedSections>
+          <Skills />
+          <MacBook />
+          <TimelineDemo />
+          <RecentActivity />
+          <Contact />
+        </UnifiedSections>
       </main>
     </div>
   )

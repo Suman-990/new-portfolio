@@ -166,9 +166,9 @@ function MacBook() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-screen overflow-hidden bg-onyx py-24 ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
+      className="relative w-full py-24 bg-transparent"
     >
-      <div className="mx-auto w-full max-w-[1440px] px-6 lg:px-8 flex flex-col xl:flex-row items-center xl:items-start justify-center xl:justify-between gap-12 xl:gap-8">
+      <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 lg:px-8 flex flex-col xl:flex-row items-center xl:items-start justify-center xl:justify-between gap-12 xl:gap-8">
         {/* Left Side: MacBook (Full size, no downscaling) */}
         <div className="shrink-0 w-full max-w-[860px] xl:w-[860px]">
           <div className="macbook">

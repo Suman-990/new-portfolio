@@ -233,7 +233,7 @@ function Skills() {
       id="skills"
       ref={sectionRef}
       aria-label="Skills"
-      className="relative mt-10 min-h-[100dvh] w-screen overflow-hidden ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
+      className="relative w-full min-h-[100dvh] overflow-hidden"
     >
       {/* Background: a pure color-to-color dissolve, nothing else. PixelSwap
           clones its whole layer once per grid tile (~200 times) to build the
@@ -249,7 +249,7 @@ function Skills() {
           active={revealed}
           trigger="none"
           firstContent={<div className="h-full w-full bg-paper" />}
-          secondContent={<div className="h-full w-full bg-onyx" />}
+          secondContent={<div className="h-full w-full bg-transparent" />}
           onComplete={(to) => {
             if (to) setBackgroundDone(true)
           }}

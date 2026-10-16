@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useState } from "react";
-import { ExternalLink, GripVertical, ShieldCheck } from "lucide-react";
+import { ShieldCheck, ExternalLink, GripVertical } from "lucide-react";
 import Shredder, { type ShredderItem } from "./ui/Shredder";
 import { WorldMap } from "./ui/WorldMap";
 
@@ -71,13 +71,9 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative w-screen overflow-hidden bg-onyx py-20 ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] -mb-16 pb-28 text-paper"
-      style={{
-        backgroundImage:
-          "radial-gradient(circle at 50% 0%, rgba(69, 217, 232, 0.04), transparent 40%), radial-gradient(circle at 80% 80%, rgba(244, 217, 78, 0.03), transparent 45%)",
-      }}
+      className="relative w-full py-20 pb-28 text-paper bg-transparent"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8">
         {/* Minimal Section Heading (No status pill) */}
         <header className="mb-8 border-b border-white/10 pb-5">
           <p className="text-[11px] font-mono tracking-widest text-cyan-400 uppercase mb-1">

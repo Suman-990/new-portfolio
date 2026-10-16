@@ -322,7 +322,7 @@ export function TimelineDemo() {
   ];
 
   return (
-    <div className="dark relative w-screen overflow-clip bg-onyx ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] pb-12">
+    <div className="dark relative w-full pb-12 bg-transparent">
       <Timeline data={data} />
     </div>
   );

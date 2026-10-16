@@ -123,12 +123,9 @@ export default function RecentActivity() {
   return (
     <section
       id="activity"
-      className="relative w-screen overflow-hidden bg-onyx py-14 sm:py-16 ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] -mb-16 pb-20 text-paper font-mono"
-      style={{
-        backgroundImage: "radial-gradient(circle at 50% 100%, rgba(69, 217, 232, 0.08), transparent 45%)",
-      }}
+      className="relative w-full py-14 sm:py-16 pb-20 text-paper font-mono bg-transparent"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8">
         <main className="blocklog">
           {/* Header */}
           <header className="chart-heading pb-4">
