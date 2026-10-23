@@ -188,7 +188,7 @@ void main() {
     float twist = uDepth * smoothstep(0.0, 0.07, abs(spot - hubAt(spot)));
     float depth = 0.5 + 0.5 * cos(t.z);
     float front = mix(1.0, 0.3 + 0.7 * depth, twist);
-    float width = uThickness * mix(1.0, 0.55 + 0.7 * depth, twist) * (1.0 + 0.3 * focus * presence);
+    float width = uThickness * mix(1.0, 0.55 + 0.7 * depth, twist) * (1.0 + 0.12 * focus * presence);
 
     float d;
     if (tip) {
@@ -231,9 +231,9 @@ void main() {
 
     float sheen = pow(0.5 + 0.5 * sin(abs(x - hub) * 11.0 + uClock * 1.4), 10.0);
     float lift = focus * presence;
-    g *= (1.0 - settle * (1.0 - focus)) * (1.0 + lift * (0.9 + 1.4 * sheen * onLine));
+    g *= (1.0 - settle * (1.0 - focus)) * (1.0 + lift * (0.22 + 0.28 * sheen * onLine));
 
-    vec3 tint = mix(palette(ci), uCore, 0.3 * lift);
+    vec3 tint = mix(palette(ci), uCore, 0.12 * lift);
     color += g * tint;
     energy += g;
     float stroke = smoothstep(0.45, 1.3, g);
@@ -524,6 +524,7 @@ export default function WebThreads({
       visible: false,
       introAt: -1,
       pointer: [0.5, 0.5],
+      smoothPointer: [0.5, 0.5],
       inside: false,
       presence: 0,
       settle: 0,
@@ -551,33 +552,32 @@ export default function WebThreads({
 
     const updateFocus = (s, dt, reduced) => {
       const wanted = s.mouseInteraction && state.inside;
-      if (wanted) {
-        const aspect = state.width / Math.max(state.height, 1);
-        const [cx, cy] = toThreadSpace(state.pointer, aspect, s.angle);
-        let best = -1;
-        let bestDistance = Infinity;
-        for (let index = 0; index < s.count; index++) {
+      const ptrEase = 1 - Math.exp(-dt / 0.16);
+      state.smoothPointer[0] += (state.pointer[0] - state.smoothPointer[0]) * ptrEase;
+      state.smoothPointer[1] += (state.pointer[1] - state.smoothPointer[1]) * ptrEase;
+
+      const aspect = state.width / Math.max(state.height, 1);
+      const [cx, cy] = toThreadSpace(state.smoothPointer, aspect, s.angle);
+      const reach = 0.13;
+      const ease = 1 - Math.exp(-dt / 0.42);
+      let strongest = 0;
+
+      for (let index = 0; index < MAX_THREADS; index++) {
+        let goal = 0;
+        if (wanted && index < s.count) {
           const distance = Math.abs(threadY(s, cx, index, state.phase, reduced ? 0 : state.clock) - cy);
-          const reach = index === state.target ? 0.11 : 0.085;
-          if (distance < reach && distance < bestDistance) {
-            best = index;
-            bestDistance = distance;
+          if (distance < reach) {
+            const raw = 1 - distance / reach;
+            goal = raw * raw * (3 - 2 * raw);
           }
         }
-        state.target = best;
-      } else {
-        state.target = -1;
-      }
-      const ease = 1 - Math.exp(-dt / 0.22);
-      let strongest = 0;
-      for (let index = 0; index < MAX_THREADS; index++) {
-        const goal = index === state.target ? 1 : 0;
         focus[index] += (goal - focus[index]) * ease;
         strongest = Math.max(strongest, focus[index]);
       }
-      state.presence += ((wanted ? 1 : 0) - state.presence) * (1 - Math.exp(-dt / 0.3));
-      const settleGoal = s.mouseStrength * 0.65 * strongest * state.presence;
-      state.settle += (settleGoal - state.settle) * (1 - Math.exp(-dt / 0.3));
+
+      state.presence += ((wanted ? 1 : 0) - state.presence) * (1 - Math.exp(-dt / 0.4));
+      const settleGoal = s.mouseStrength * 0.4 * strongest * state.presence;
+      state.settle += (settleGoal - state.settle) * (1 - Math.exp(-dt / 0.4));
       return strongest > 0.002 || state.presence > 0.002 || state.settle > 0.002;
     };
 
