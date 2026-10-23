@@ -81,12 +81,12 @@ function RibbonBlock({
           pinch={0.5}
           nodes={1}
           angle={angle}
-          glow={0.031}
+          glow={0.022}
           falloff={0.48}
           thickness={thickness}
           brightness={0.72}
           opacity={0.55}
-          blur={20}
+          blur={25}
           depth={0}
           pulses={0}
           mirror

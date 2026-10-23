@@ -14,7 +14,7 @@ export default function RibbonBackground({
   className = "",
   opacity = 0.55,
   speed = 0.11,
-  blur = 20,
+  blur = 25,
   thickness = 4.8,
 }: RibbonBackgroundProps) {
   return (
@@ -36,7 +36,7 @@ export default function RibbonBackground({
         pinch={0.5}
         nodes={1}
         angle={angle}
-        glow={0.031}
+        glow={0.022}
         falloff={0.48}
         thickness={thickness}
         brightness={0.72}
