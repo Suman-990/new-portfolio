@@ -70,7 +70,7 @@ function RibbonBlock({
       {isVisible && (
         <WebThreads
           colors={["#5227FF", "#002fff"]}
-          coreColor="#1453ff"
+          coreColor="#1d4ed8"
           threadCount={threadCount}
           spread={spread}
           lightMode={false}
@@ -81,18 +81,18 @@ function RibbonBlock({
           pinch={0.5}
           nodes={1}
           angle={angle}
-          glow={0.024}
+          glow={0.031}
           falloff={0.48}
           thickness={thickness}
-          brightness={0.6}
-          opacity={0.38}
-          blur={28}
+          brightness={0.72}
+          opacity={0.55}
+          blur={20}
           depth={0}
           pulses={0}
           mirror
           shimmer={false}
           fade={0}
-          grain={0.04}
+          grain={0.03}
           intro={false}
           mouseInteraction
           mouseStrength={0.3}
@@ -155,8 +155,8 @@ export default function UnifiedRibbonBackground({ totalHeight }: { totalHeight: 
       // Subtle horizontal center jitter (0.47 - 0.53)
       const position = Number((0.47 + prand(i, 7) * 0.06).toFixed(2));
 
-      // Slow, majestic speed for drifting light bands
-      const speed = Number((0.038 + prand(i, 8) * 0.015).toFixed(3));
+      // Visible, graceful speed for drifting light bands
+      const speed = Number((0.095 + prand(i, 8) * 0.035).toFixed(3));
 
       // Tailor thickness and spread for wide blue bands of light (2 or 3)
       const spread = threadCount === 2 ? 0.22 : 0.25;

@@ -12,9 +12,9 @@ export interface RibbonBackgroundProps {
 export default function RibbonBackground({
   angle = -34,
   className = "",
-  opacity = 0.38,
-  speed = 0.045,
-  blur = 28,
+  opacity = 0.55,
+  speed = 0.11,
+  blur = 20,
   thickness = 4.8,
 }: RibbonBackgroundProps) {
   return (
@@ -25,7 +25,7 @@ export default function RibbonBackground({
     >
       <WebThreads
         colors={["#5227FF", "#002fff"]}
-        coreColor="#1453ff"
+        coreColor="#1d4ed8"
         threadCount={3}
         spread={0.24}
         lightMode={false}
@@ -36,10 +36,10 @@ export default function RibbonBackground({
         pinch={0.5}
         nodes={1}
         angle={angle}
-        glow={0.024}
+        glow={0.031}
         falloff={0.48}
         thickness={thickness}
-        brightness={0.6}
+        brightness={0.72}
         opacity={1}
         blur={blur}
         depth={0}
