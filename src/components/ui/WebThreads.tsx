@@ -38,6 +38,7 @@ export interface WebThreadsProps {
   dpr?: number;
   className?: string;
   style?: React.CSSProperties;
+  blur?: number;
 }
 const ROOT = 'web-threads-container';
 const CANVAS = 'web-threads-canvas';
@@ -364,11 +365,12 @@ export default function WebThreads({
   intro = true,
   mouseInteraction = true,
   mouseStrength = 0.5,
-  pulseOnClick = true,
+  pulseOnClick = false,
   paused = false,
   dpr = 2,
   className = '',
-  style = undefined
+  style = undefined,
+  blur = 0
 }) {
   const containerRef = useRef(null);
   const colorKey = colors.join('|');
@@ -413,7 +415,8 @@ export default function WebThreads({
     mouseStrength: clamp(mouseStrength, 0, 1),
     pulseOnClick,
     paused,
-    dpr: Math.max(0.5, dpr)
+    dpr: Math.max(0.5, dpr),
+    blur: Math.max(0, blur)
   };
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -423,6 +426,11 @@ export default function WebThreads({
     if (!container) return undefined;
     const canvas = document.createElement('canvas');
     canvas.className = CANVAS;
+    if (settingsRef.current.blur > 0) {
+      canvas.style.filter = `blur(${settingsRef.current.blur}px)`;
+      canvas.style.transform = 'scale(1.08)';
+      canvas.style.transformOrigin = 'center center';
+    }
     container.appendChild(canvas);
     const gl = canvas.getContext('webgl2', {
       alpha: true,
@@ -522,7 +530,8 @@ export default function WebThreads({
       target: -1,
       surges: [],
       quiet: 0,
-      seen: null
+      seen: null,
+      currentBlur: -1
     };
 
     const resize = () => {
@@ -646,6 +655,14 @@ export default function WebThreads({
       if (state.seen !== s || transient || !still) state.quiet = 0;
       else state.quiet += 1;
       state.seen = s;
+
+      if (state.currentBlur !== s.blur) {
+        state.currentBlur = s.blur;
+        canvas.style.filter = s.blur > 0 ? `blur(${s.blur}px)` : '';
+        canvas.style.transform = s.blur > 0 ? 'scale(1.08)' : '';
+        canvas.style.transformOrigin = 'center center';
+      }
+
       if (state.quiet > 3) return;
 
       render(reduced);

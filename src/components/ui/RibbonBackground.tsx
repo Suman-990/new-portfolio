@@ -5,13 +5,17 @@ export interface RibbonBackgroundProps {
   className?: string;
   opacity?: number;
   speed?: number;
+  blur?: number;
+  thickness?: number;
 }
 
 export default function RibbonBackground({
   angle = -34,
   className = "",
-  opacity = 0.85,
-  speed = 0.1,
+  opacity = 0.38,
+  speed = 0.045,
+  blur = 28,
+  thickness = 4.8,
 }: RibbonBackgroundProps) {
   return (
     <div
@@ -23,30 +27,31 @@ export default function RibbonBackground({
         colors={["#5227FF", "#002fff"]}
         coreColor="#1453ff"
         threadCount={3}
-        spread={0.18}
+        spread={0.24}
         lightMode={false}
         speed={speed}
-        frequency={5}
+        frequency={4.5}
         taper={1.3}
         position={0.5}
         pinch={0.5}
         nodes={1}
         angle={angle}
-        glow={0.02}
-        falloff={0.6}
-        thickness={1.3}
-        brightness={0.65}
+        glow={0.024}
+        falloff={0.48}
+        thickness={thickness}
+        brightness={0.6}
         opacity={1}
+        blur={blur}
         depth={0}
         pulses={0}
         mirror
         shimmer={false}
         fade={0}
-        grain={0.065}
+        grain={0.04}
         intro={false}
         mouseInteraction
-        mouseStrength={0.5}
-        pulseOnClick
+        mouseStrength={0.3}
+        pulseOnClick={false}
         paused={false}
       />
     </div>
