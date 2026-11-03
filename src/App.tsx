@@ -8,16 +8,18 @@ import UnifiedSections from "./components/UnifiedSections"
 
 function App() {
   return (
-    <div className="mx-auto max-w-7xl px-6 pt-4 pb-16 sm:pt-6">
-      <main>
+    <div className="min-h-screen w-full bg-[#07080c] text-neutral-100 overflow-x-hidden">
+      <main className="w-full">
         <Hero />
-        <UnifiedSections>
-          <Skills />
-          <MacBook />
-          <TimelineDemo />
-          <RecentActivity />
-          <Contact />
-        </UnifiedSections>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-16">
+          <UnifiedSections>
+            <Skills />
+            <MacBook />
+            <TimelineDemo />
+            <RecentActivity />
+            <Contact />
+          </UnifiedSections>
+        </div>
       </main>
     </div>
   )
