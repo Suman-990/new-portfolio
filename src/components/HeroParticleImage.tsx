@@ -24,50 +24,55 @@ export default function HeroParticleImage({
   src,
   alt = "Hero Character",
   className = "",
-  particleSize = 3,
-  interactionRadius = 68,
+  particleSize = 7.5, // 7.5 on 959px buffer scales to ~3px in CSS
+  interactionRadius = 150,
   isLoaded = true,
 }: HeroParticleImageProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [isSampled, setIsSampled] = useState(false)
   const particlesRef = useRef<Particle[]>([])
+  const imageRef = useRef<HTMLImageElement | null>(null)
   const animFrameRef = useRef<number | null>(null)
-  const isStartedRef = useRef(false)
 
-  // Mouse tracking in canvas coordinate space
+  // Entrance & High-Res Image Alpha state
+  const isStartedRef = useRef(false)
+  const imgAlphaRef = useRef(0)
+  const entranceProgressRef = useRef(0)
+
+  // Mouse hover tracking in 959x1312 coordinate space
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({
     x: -9999,
     y: -9999,
     active: false,
   })
+  const currentHoleRadiusRef = useRef(0)
 
-  // Fixed internal rendering resolution for pixel sampling
-  // Aspect ratio is 959x1312 ≈ 0.7309
-  const CANVAS_WIDTH = 420
-  const CANVAS_HEIGHT = 575
+  // Native high-res image dimensions (959 x 1312)
+  const WIDTH = 959
+  const HEIGHT = 1312
 
   // Sample image into particles
   const initParticles = useCallback((img: HTMLImageElement) => {
+    imageRef.current = img
+
     const offscreen = document.createElement("canvas")
-    offscreen.width = CANVAS_WIDTH
-    offscreen.height = CANVAS_HEIGHT
+    offscreen.width = WIDTH
+    offscreen.height = HEIGHT
     const offCtx = offscreen.getContext("2d", { willReadFrequently: true })
     if (!offCtx) return
 
-    // Draw full image scaled to offscreen canvas
-    offCtx.drawImage(img, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-    const imgData = offCtx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    offCtx.drawImage(img, 0, 0, WIDTH, HEIGHT)
+    const imgData = offCtx.getImageData(0, 0, WIDTH, HEIGHT)
     const data = imgData.data
 
     const particles: Particle[] = []
     const step = particleSize
 
-    for (let y = 0; y < CANVAS_HEIGHT; y += step) {
-      for (let x = 0; x < CANVAS_WIDTH; x += step) {
-        const index = (Math.floor(y) * CANVAS_WIDTH + Math.floor(x)) * 4
+    for (let y = 0; y < HEIGHT; y += step) {
+      for (let x = 0; x < WIDTH; x += step) {
+        const index = (Math.floor(y) * WIDTH + Math.floor(x)) * 4
         const alpha = data[index + 3]
 
-        // Keep non-transparent pixels
         if (alpha > 40) {
           const r = data[index]
           const g = data[index + 1]
@@ -76,9 +81,8 @@ export default function HeroParticleImage({
           const color = `rgba(${r},${g},${b},${a})`
 
           // Initial scattered position for the appearing assembly animation
-          // Particles explode outward from random angles
           const angle = Math.random() * Math.PI * 2
-          const distance = 120 + Math.random() * 320
+          const distance = 250 + Math.random() * 650
           const initialX = x + Math.cos(angle) * distance
           const initialY = y + Math.sin(angle) * distance
 
@@ -128,7 +132,7 @@ export default function HeroParticleImage({
     }
   }, [isLoaded])
 
-  // Animation Loop: Assembly + Hover interaction
+  // Render loop: Hybrid High-Definition Image + Interactive Particle Physics
   useEffect(() => {
     if (!isSampled) return
 
@@ -143,45 +147,107 @@ export default function HeroParticleImage({
     const radiusSq = radius * radius
 
     const render = () => {
-      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+      ctx.clearRect(0, 0, WIDTH, HEIGHT)
 
       const mouse = mouseRef.current
       const isStarted = isStartedRef.current
+      const img = imageRef.current
 
-      for (let i = 0; i < total; i++) {
-        const p = particles[i]
+      // 1. Advance entrance progress and transition to crisp HD image
+      if (isStarted) {
+        entranceProgressRef.current = Math.min(entranceProgressRef.current + 0.018, 1)
+        if (entranceProgressRef.current > 0.45) {
+          // As particles lock into home, ramp up high-res image opacity
+          imgAlphaRef.current = Math.min(imgAlphaRef.current + 0.045, 1)
+        }
+      }
 
-        if (isStarted) {
-          // 1. Move particle by velocity
-          p.x += p.vx
-          p.y += p.vy
+      // Smooth iris easing for hover cutout
+      const targetHoleRadius = mouse.active ? radius : 0
+      currentHoleRadiusRef.current += (targetHoleRadius - currentHoleRadiusRef.current) * 0.16
+      const currentHole = currentHoleRadiusRef.current
 
-          // 2. Spring pull towards home target (sx, sy)
-          // Uses smooth exponential easing back to home
-          p.vx = (p.sx - p.x) / 9.5
-          p.vy = (p.sy - p.y) / 9.5
+      // 2. DRAW HIGH-RES CRISP IMAGE (When visible)
+      if (img && imgAlphaRef.current > 0) {
+        ctx.save()
+        ctx.globalAlpha = imgAlphaRef.current
+        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingQuality = "high"
+        ctx.drawImage(img, 0, 0, WIDTH, HEIGHT)
 
-          // 3. Mouse repulsion force when active
-          if (mouse.active) {
-            const dx = mouse.x - p.x
-            const dy = mouse.y - p.y
-            const distSq = dx * dx + dy * dy
+        // If mouse is hovering: cut out a soft radial hole in the crisp image
+        // revealing the dynamic interactive particles underneath!
+        if (currentHole > 4) {
+          ctx.globalCompositeOperation = "destination-out"
+          const gradient = ctx.createRadialGradient(
+            mouse.x,
+            mouse.y,
+            currentHole * 0.25,
+            mouse.x,
+            mouse.y,
+            currentHole
+          )
+          gradient.addColorStop(0, "rgba(0, 0, 0, 1)")
+          gradient.addColorStop(0.75, "rgba(0, 0, 0, 0.85)")
+          gradient.addColorStop(1, "rgba(0, 0, 0, 0)")
 
-            if (distSq < radiusSq && distSq > 0) {
-              const dist = Math.sqrt(distSq)
-              const angle = Math.atan2(dy, dx)
-              const force = (1 - dist / radius) * 28
-
-              // Push particle away from the mouse cursor
-              p.vx -= force * Math.cos(angle)
-              p.vy -= force * Math.sin(angle)
-            }
-          }
+          ctx.fillStyle = gradient
+          ctx.beginPath()
+          ctx.arc(mouse.x, mouse.y, currentHole, 0, Math.PI * 2)
+          ctx.fill()
         }
 
-        // Render particle
-        ctx.fillStyle = p.c
-        ctx.fillRect(p.x, p.y, p.size, p.size)
+        ctx.restore()
+      }
+
+      // 3. UPDATE & RENDER PARTICLES
+      // When crisp image is 100% visible and no hover is happening, particles rest silently (0 draw overhead)
+      const isSettled = imgAlphaRef.current >= 1
+      const isInteracting = mouse.active || currentHole > 4
+
+      // We render particles if:
+      // a) We are in the appearing entrance sequence (!isSettled)
+      // b) The user is hovering/interacting (isInteracting)
+      if (!isSettled || isInteracting) {
+        for (let i = 0; i < total; i++) {
+          const p = particles[i]
+
+          if (isStarted) {
+            // Spring pull towards home target (sx, sy)
+            p.x += p.vx
+            p.y += p.vy
+
+            p.vx = (p.sx - p.x) / 9.5
+            p.vy = (p.sy - p.y) / 9.5
+
+            // Mouse repulsion force when hover is active
+            if (mouse.active) {
+              const dx = mouse.x - p.x
+              const dy = mouse.y - p.y
+              const distSq = dx * dx + dy * dy
+
+              if (distSq < radiusSq && distSq > 0) {
+                const dist = Math.sqrt(distSq)
+                const angle = Math.atan2(dy, dx)
+                const force = (1 - dist / radius) * 55
+
+                // Repel away from cursor
+                p.vx -= force * Math.cos(angle)
+                p.vy -= force * Math.sin(angle)
+              }
+            }
+          }
+
+          // Optimization: When crisp image is mostly visible, only draw particles
+          // that are displaced or within the hover zone so performance stays at 120 FPS
+          if (isSettled) {
+            const dispSq = (p.x - p.sx) * (p.x - p.sx) + (p.y - p.sy) * (p.y - p.sy)
+            if (dispSq < 1.2) continue // Skip stationary particles (crisp image handles them!)
+          }
+
+          ctx.fillStyle = p.c
+          ctx.fillRect(p.x, p.y, p.size, p.size)
+        }
       }
 
       animFrameRef.current = requestAnimationFrame(render)
@@ -196,18 +262,18 @@ export default function HeroParticleImage({
     }
   }, [isSampled, interactionRadius])
 
-  // Pointer position tracking relative to canvas buffer
+  // Map pointer coordinates to 959x1312 canvas coordinate space
   const updatePointer = useCallback((clientX: number, clientY: number) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const rect = canvas.getBoundingClientRect()
 
-    const x = (clientX - rect.left) * (CANVAS_WIDTH / rect.width)
-    const y = (clientY - rect.top) * (CANVAS_HEIGHT / rect.height)
+    const x = (clientX - rect.left) * (WIDTH / rect.width)
+    const y = (clientY - rect.top) * (HEIGHT / rect.height)
 
     mouseRef.current = { x, y, active: true }
 
-    // Instant impulse on mouse move for extra responsiveness
+    // Immediate reactive impulse to nearby particles
     const particles = particlesRef.current
     const radius = interactionRadius
     const radiusSq = radius * radius
@@ -221,12 +287,12 @@ export default function HeroParticleImage({
       if (distSq < radiusSq && distSq > 0) {
         const dist = Math.sqrt(distSq)
         const angle = Math.atan2(dy, dx)
-        const force = (1 - dist / radius) * 35
+        const force = (1 - dist / radius) * 60
         p.vx -= force * Math.cos(angle)
         p.vy -= force * Math.sin(angle)
       }
     }
-  }, [interactionRadius])
+  }, [])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     updatePointer(e.clientX, e.clientY)
@@ -253,11 +319,11 @@ export default function HeroParticleImage({
     const canvas = canvasRef.current
     if (!canvas) return
     const rect = canvas.getBoundingClientRect()
-    const clickX = (e.clientX - rect.left) * (CANVAS_WIDTH / rect.width)
-    const clickY = (e.clientY - rect.top) * (CANVAS_HEIGHT / rect.height)
+    const clickX = (e.clientX - rect.left) * (WIDTH / rect.width)
+    const clickY = (e.clientY - rect.top) * (HEIGHT / rect.height)
 
     const particles = particlesRef.current
-    const shockRadius = 130
+    const shockRadius = 260
 
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i]
@@ -266,7 +332,7 @@ export default function HeroParticleImage({
       const dist = Math.sqrt(dx * dx + dy * dy)
 
       if (dist < shockRadius && dist > 0) {
-        const force = (1 - dist / shockRadius) * 45
+        const force = (1 - dist / shockRadius) * 80
         const angle = Math.atan2(dy, dx)
         p.vx -= force * Math.cos(angle)
         p.vy -= force * Math.sin(angle)
@@ -276,11 +342,15 @@ export default function HeroParticleImage({
 
   return (
     <div className={`relative flex items-end justify-center ${className}`}>
-      {/* Particle Canvas */}
+      {/*
+        Full Retina Canvas:
+        Internal buffer is 959x1312 (100% pixel matching the native high-res image).
+        CSS controls responsive display scaling.
+      */}
       <canvas
         ref={canvasRef}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
+        width={WIDTH}
+        height={HEIGHT}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         onTouchMove={handleTouchMove}

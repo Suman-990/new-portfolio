@@ -196,8 +196,8 @@ export default function Hero() {
               alt="Suman Mahanty Hero Character"
               className={`relative z-10 w-full flex items-end justify-center ${getStaggerClasses()}`}
               isLoaded={isLoaded}
-              particleSize={3}
-              interactionRadius={72}
+              particleSize={7.5}
+              interactionRadius={150}
             />
           </div>
 
