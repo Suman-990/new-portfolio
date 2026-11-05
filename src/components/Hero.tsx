@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react"
 import { ArrowDown, MapPin, Download, ArrowUpRight } from "lucide-react"
 import HeroParticleImage from "./HeroParticleImage"
+import HeroTypingName from "./ui/HeroTypingName"
+import AnimatedCounter from "./ui/AnimatedCounter"
+import TypingStat from "./ui/TypingStat"
 
 export default function Hero() {
   const [isLoaded, setIsLoaded] = useState(() => {
@@ -20,13 +23,6 @@ export default function Hero() {
 
   const scrollToWork = () => {
     const el = document.getElementById("skills") || document.getElementById("projects")
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" })
-    }
-  }
-
-  const scrollToTimeline = () => {
-    const el = document.getElementById("timeline") || document.getElementById("skills")
     if (el) {
       el.scrollIntoView({ behavior: "smooth" })
     }
@@ -114,13 +110,14 @@ export default function Hero() {
               Hello, I&apos;m
             </p>
 
-            {/* Giant Monolithic Name (Stagger #6: 800ms) */}
-            <h1
+            {/* Giant Monolithic Name with Typing Animation (Stagger #6: 800ms) */}
+            <HeroTypingName
+              name="SUMAN"
+              isStarted={isLoaded}
+              delayMs={820}
               className={`text-5xl sm:text-6xl md:text-7xl lg:text-7xl xl:text-8xl font-black tracking-tight text-white uppercase leading-[0.88] select-none ${getStaggerClasses()}`}
               style={getStaggerStyle(800)}
-            >
-              SUMAN<span className="text-blue-500">.</span>
-            </h1>
+            />
 
             {/* Sub-headline / Roles in Electric Blue (Stagger #7: 920ms) */}
             <div
@@ -220,41 +217,58 @@ export default function Hero() {
 
               {/* Stats Stack with divider lines */}
               <div className="space-y-4 border-t border-white/10 pt-4">
-                {/* Stat 1: Major Projects (Stagger #12: 1480ms) */}
+                {/* Stat 1: Professional Experience (Stagger #12: 1480ms) */}
                 <div
-                  className={`flex items-baseline justify-between gap-4 pb-3 border-b border-white/10 ${getStaggerClasses()}`}
+                  className={`flex items-baseline justify-between gap-4 pb-3 border-b border-white/10 group/stat cursor-pointer ${getStaggerClasses()}`}
                   style={getStaggerStyle(1480)}
                 >
                   <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-blue-500 font-mono tracking-tight">
-                    3+
+                    <AnimatedCounter
+                      target={3}
+                      suffix="+"
+                      duration={750}
+                      delayMs={1480}
+                      isTriggered={isLoaded}
+                    />
                   </span>
-                  <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-400 text-right">
-                    Major Projects Shipped
+                  <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-400 text-right group-hover/stat:text-neutral-300 transition-colors">
+                    Months of Professional Experience
                   </span>
                 </div>
 
                 {/* Stat 2: DSA Problems (Stagger #13: 1580ms) */}
                 <div
-                  className={`flex items-baseline justify-between gap-4 pb-3 border-b border-white/10 ${getStaggerClasses()}`}
+                  className={`flex items-baseline justify-between gap-4 pb-3 border-b border-white/10 group/stat cursor-pointer ${getStaggerClasses()}`}
                   style={getStaggerStyle(1580)}
                 >
                   <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-blue-500 font-mono tracking-tight">
-                    800+
+                    <AnimatedCounter
+                      target={800}
+                      suffix="+"
+                      duration={1300}
+                      delayMs={1580}
+                      isTriggered={isLoaded}
+                    />
                   </span>
-                  <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-400 text-right">
+                  <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-400 text-right group-hover/stat:text-neutral-300 transition-colors">
                     DSA Problems Solved
                   </span>
                 </div>
 
                 {/* Stat 3: TechSprint Hackathon (Stagger #14: 1680ms) */}
                 <div
-                  onClick={scrollToTimeline}
+                  onClick={() => window.open("https://www.instagram.com/p/DV8u--vD53-/?utm_source=ig_web_copy_link&rpxt=MzRlODBiNWFlZA==&srtk=MzRlODBiNWFlZA==", "_blank")}
                   className={`flex items-baseline justify-between gap-4 pb-3 border-b border-white/10 cursor-pointer group/stat ${getStaggerClasses()}`}
                   style={getStaggerStyle(1680)}
                   title="View Hackathon Achievement"
                 >
                   <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-blue-500 font-mono tracking-tight group-hover/stat:text-blue-400 transition-colors">
-                    1st
+                    <TypingStat
+                      text="1st"
+                      delayMs={1680}
+                      typingSpeed={150}
+                      isTriggered={isLoaded}
+                    />
                   </span>
                   <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-neutral-400 text-right flex items-center gap-1 group-hover/stat:text-blue-300 transition-colors">
                     <span>TechSprint Winner</span>
