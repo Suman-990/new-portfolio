@@ -1,0 +1,176 @@
+@import url("https://fonts.googleapis.com/css?family=IBM%20Plex%20Sans:500|IBM%20Plex%20Sans:300");
+
+:root {
+  --m: 4rem;
+}
+
+/* ─── Footer: clean, modern static footer at the bottom of the page ──────── */
+.juxta-footer {
+  position: relative;
+  width: 100%;
+  background: #040509;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4.5rem 1.5rem 3.5rem;
+  box-sizing: border-box;
+
+  font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  color: #d5d5d5;
+}
+
+.juxta-footer-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  box-sizing: border-box;
+}
+
+/* ─── Columns ────────────────────────────────────────────────────────────── */
+.juxta-footer .col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 1.5rem 1.75rem;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.juxta-footer .col1 {
+  width: 38%;
+  padding-left: 0;
+}
+
+.juxta-footer .col1 h3 {
+  font-weight: 500;
+  font-size: 1.85rem;
+  margin: 0 0 0.35rem 0;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.juxta-footer .col1 .tagline {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.juxta-footer .signature-wrap {
+  width: 100%;
+  max-width: 260px;
+  margin: 0.25rem 0 0.75rem -0.5rem;
+}
+
+/* Dark card columns (col2 / col3) */
+.juxta-footer .col2,
+.juxta-footer .col3 {
+  width: 28%;
+  background-color: #101216;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.juxta-footer .col2:hover,
+.juxta-footer .col3:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65),
+    0 0 18px rgba(56, 189, 248, 0.08);
+}
+
+.juxta-footer .col-title {
+  font-size: 0.76rem;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #38bdf8;
+  margin: 0 0 0.75rem 0;
+}
+
+.juxta-footer .col p {
+  margin: 0.4rem 0;
+  font-size: 0.92rem;
+  color: #b0b0b0;
+  line-height: 1.45;
+}
+
+.juxta-footer .col a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.juxta-footer .col a:hover {
+  color: #38bdf8;
+  transform: translateX(3px);
+}
+
+.juxta-footer .social {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Social icon squares */
+.juxta-footer .link {
+  width: 42px;
+  height: 42px;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.juxta-footer .link:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+.juxta-footer .link img {
+  height: 20px;
+  width: 20px;
+  object-fit: contain;
+}
+
+.juxta-footer .copyright {
+  color: #818181;
+  font-size: 0.78rem;
+  margin: 0.5rem 0 0 0;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media screen and (max-width: 900px) {
+  .juxta-footer-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.75rem;
+  }
+  .juxta-footer .col1 {
+    width: 100%;
+    padding-left: 0.5rem;
+  }
+  .juxta-footer .col2,
+  .juxta-footer .col3 {
+    width: 100%;
+  }
+}

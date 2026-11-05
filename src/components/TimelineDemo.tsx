@@ -328,7 +328,7 @@ export function TimelineDemo() {
   ];
 
   return (
-    <div className="dark relative w-full pb-16 sm:pb-24 bg-transparent">
+    <div id="timeline" className="dark relative w-full pb-16 sm:pb-24 bg-transparent">
       <Timeline data={data} />
 
       {/* Structured Section Bridge between Timeline and Activity */}

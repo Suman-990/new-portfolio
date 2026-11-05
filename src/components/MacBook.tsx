@@ -173,6 +173,7 @@ function MacBook() {
 
   return (
     <section
+      id="projects"
       ref={sectionRef}
       className="relative w-full py-14 sm:py-20 xl:py-24 bg-transparent"
     >

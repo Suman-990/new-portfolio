@@ -52,7 +52,7 @@ function RibbonBlock({
   const maskGradient = isFirst
     ? "linear-gradient(to bottom, transparent 0%, transparent 18%, rgba(0, 0, 0, 0.4) 38%, black 65%, black 85%, transparent 100%)"
     : isLast
-    ? "linear-gradient(to bottom, transparent 0%, black 25%)"
+    ? "linear-gradient(to bottom, transparent 0%, black 20%, black 60%, transparent 100%)"
     : "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)";
 
   return (

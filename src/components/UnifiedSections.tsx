@@ -23,7 +23,7 @@ export default function UnifiedSections({ children }: { children: ReactNode }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-screen max-w-[100vw] overflow-hidden bg-onyx ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
+      className="relative w-screen max-w-[100vw] overflow-hidden bg-[#07080c] ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]"
     >
       {/* Subtle top seam glow connecting hero to unified sections */}
       <div
@@ -42,6 +42,16 @@ export default function UnifiedSections({ children }: { children: ReactNode }) {
       <div className="relative z-10 w-full">
         {children}
       </div>
+
+      {/* Subtle bottom seam gradient fading unified ribbon background smoothly into Contact */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[240px] z-[2]"
+        style={{
+          background:
+            "linear-gradient(to bottom, transparent 0%, rgba(7, 8, 12, 0.4) 40%, rgba(7, 8, 12, 0.85) 75%, #07080c 100%)",
+        }}
+        aria-hidden="true"
+      />
     </div>
   );
 }
