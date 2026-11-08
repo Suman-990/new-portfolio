@@ -42,7 +42,7 @@ function MacBook() {
   const [focusedWindow, setFocusedWindow] = useState<WindowId>("finder");
 
   // Finder Window State
-  const [isFinderOpen, setIsFinderOpen] = useState(true);
+  const [isFinderOpen, setIsFinderOpen] = useState(false);
   const [isFinderMaximized, setIsFinderMaximized] = useState(false);
   const [isFinderMinimized, setIsFinderMinimized] = useState(false);
   const [isFinderDragging, setIsFinderDragging] = useState(false);
@@ -356,12 +356,57 @@ function MacBook() {
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
+  const isElementScrollable = (target: HTMLElement | null, desktop: HTMLElement | null): boolean => {
+    let el = target;
+    while (el && el !== desktop) {
+      if (el.tagName === "IFRAME") {
+        return true;
+      }
+
+      const style = window.getComputedStyle(el);
+      const isScrollableY =
+        (style.overflowY === "auto" || style.overflowY === "scroll") &&
+        el.scrollHeight > el.clientHeight + 2;
+      const isScrollableX =
+        (style.overflowX === "auto" || style.overflowX === "scroll") &&
+        el.scrollWidth > el.clientWidth + 2;
+
+      if (isScrollableY || isScrollableX) {
+        return true;
+      }
+
+      el = el.parentElement;
+    }
+    return false;
+  };
+
+  const handleDesktopWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (isElementScrollable(e.target as HTMLElement, desktopRef.current)) {
+      e.stopPropagation();
+    }
+  };
+
+  useEffect(() => {
+    const desktop = desktopRef.current;
+    if (!desktop) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (isElementScrollable(e.target as HTMLElement, desktop)) {
+        e.stopPropagation();
+      }
+    };
+
+    desktop.addEventListener("wheel", onWheel, { passive: true });
+    return () => {
+      desktop.removeEventListener("wheel", onWheel);
+    };
+  }, [isFinderOpen, isShellOpen, isPreviewOpen, isVSCodeOpen, isFocusedMode]);
+
   const renderDesktopContent = (isFocused: boolean) => {
     return (
       <div
         ref={desktopRef}
-        data-lenis-prevent="true"
-        onWheel={(e) => e.stopPropagation()}
+        onWheel={handleDesktopWheel}
         className={
           isFocused
             ? "relative w-full h-full bg-cover bg-center overflow-hidden rounded-2xl select-none"
@@ -559,8 +604,6 @@ function MacBook() {
         {isVSCodeOpen && (
           <div 
             ref={vsCodeRef}
-            data-lenis-prevent="true"
-            onWheel={(e) => e.stopPropagation()}
             onClick={() => setFocusedWindow("vscode")}
             className={`absolute shadow-2xl rounded-xl ${!isVSCodeDragging ? "transition-all duration-300 ease-out" : ""} ${
               isVSCodeMaximized || isMobile
@@ -589,8 +632,6 @@ function MacBook() {
         {isShellOpen && (
           <div 
             ref={shellRef}
-            data-lenis-prevent="true"
-            onWheel={(e) => e.stopPropagation()}
             onClick={() => setFocusedWindow("shell")}
             className={`absolute shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isShellDragging ? "transition-all duration-300 ease-out" : ""} ${
               isShellMaximized || isMobile
@@ -781,7 +822,6 @@ function MacBook() {
                   }
                 }}
                 className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 lg:p-8 overflow-hidden select-none"
-                data-lenis-prevent="true"
                 onWheel={(e) => e.stopPropagation()}
               >
                 {/* Full-Screen Retina Display Frame with authentic 16:10 MacBook ratio */}

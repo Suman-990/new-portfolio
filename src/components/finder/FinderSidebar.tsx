@@ -44,8 +44,6 @@ export default function FinderSidebar({
 
   return (
     <aside
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       className="w-[145px] sm:w-[170px] bg-[#f0f1f5]/95 backdrop-blur-2xl border-r border-black/10 flex flex-col justify-between py-2.5 px-2 select-none shrink-0 overflow-y-auto"
     >
       <div className="space-y-4">

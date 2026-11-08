@@ -24,8 +24,6 @@ export default function IconGridView({
 
   return (
     <div
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       className="flex-1 p-4 overflow-y-auto select-none bg-white"
       onClick={() => {
         // Deselect when clicking on empty canvas

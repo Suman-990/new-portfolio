@@ -196,8 +196,6 @@ export default function FinderWindow({
   return (
     <div
       onClick={onFocus}
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       style={{
         zIndex,
         ...(isMaximized
@@ -244,7 +242,7 @@ export default function FinderWindow({
         />
 
         {/* Dynamic Viewport */}
-        <div data-lenis-prevent="true" className="flex-1 flex flex-col overflow-hidden bg-white">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           {viewMode === "icons" && (
             <IconGridView
               items={displayedItems}

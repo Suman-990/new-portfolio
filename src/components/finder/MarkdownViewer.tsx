@@ -57,8 +57,6 @@ export default function MarkdownViewer({ content }: MarkdownViewerProps) {
 
   return (
     <div
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       className="w-full h-full overflow-y-auto p-4 sm:p-6 bg-[#f8f9fb]"
     >
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md border border-black/10 p-6 sm:p-8 space-y-3.5 text-neutral-800 font-sans leading-relaxed text-xs sm:text-[13px]">

@@ -24,13 +24,10 @@ export default function ColumnView({
 
   return (
     <div
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       className="flex-1 flex overflow-x-auto select-none font-sans text-xs divide-x divide-black/10 bg-white"
     >
       {/* Column 1: Current Folder Items */}
       <div
-        data-lenis-prevent="true"
         className="w-[180px] sm:w-[220px] shrink-0 p-1.5 overflow-y-auto space-y-0.5 bg-white"
       >
         {items.map((item) => {
@@ -66,7 +63,6 @@ export default function ColumnView({
       {/* Column 2: If folder selected, show its contents */}
       {selectedItem && selectedItem.type === "folder" && (
         <div
-          data-lenis-prevent="true"
           className="w-[180px] sm:w-[220px] shrink-0 p-1.5 overflow-y-auto space-y-0.5 bg-[#f9fafb]"
         >
           {folderChildren.length > 0 ? (
@@ -102,7 +98,6 @@ export default function ColumnView({
       {/* Column 3: Inspector / Preview Details Pane */}
       {selectedItem && (
         <div
-          data-lenis-prevent="true"
           className="flex-1 min-w-[200px] p-4 flex flex-col items-center justify-between overflow-y-auto bg-[#f4f5f8] border-l border-black/10 text-neutral-800"
         >
           <div className="w-full flex flex-col items-center space-y-3 pt-2">

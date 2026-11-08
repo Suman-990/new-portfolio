@@ -56,8 +56,6 @@ export default function DocumentPreviewWindow({
   return (
     <div
       onClick={onFocus}
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       style={{
         zIndex,
         ...(isMaximized
@@ -197,8 +195,6 @@ export default function DocumentPreviewWindow({
         {/* PDF VIEWER */}
         {item.type === "pdf" && item.content && (
           <div
-            data-lenis-prevent="true"
-            onWheel={(e) => e.stopPropagation()}
             className="w-full h-full relative bg-[#e5e7eb] overflow-auto flex justify-center p-2"
           >
             <div
@@ -221,8 +217,6 @@ export default function DocumentPreviewWindow({
         {/* IMAGE VIEWER */}
         {item.type === "image" && item.content && (
           <div
-            data-lenis-prevent="true"
-            onWheel={(e) => e.stopPropagation()}
             className="w-full h-full overflow-auto flex items-center justify-center p-4 bg-[#f0f1f5]"
           >
             <img

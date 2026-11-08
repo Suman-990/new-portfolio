@@ -29,8 +29,6 @@ export default function QuickLookModal({
 
   return (
     <div
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-xs select-none animate-in fade-in zoom-in-95 duration-150"
       onClick={onClose}
     >

@@ -47,8 +47,6 @@ export default function ListView({
 
   return (
     <div
-      data-lenis-prevent="true"
-      onWheel={(e) => e.stopPropagation()}
       className="flex-1 overflow-y-auto select-none font-sans text-xs bg-white"
     >
       <table className="w-full text-left border-collapse">
