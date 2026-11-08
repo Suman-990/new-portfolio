@@ -32,7 +32,7 @@ function MacBook() {
   const screenCloseRef = useRef<HTMLDivElement | null>(null);
   const screenOpenRef = useRef<HTMLDivElement | null>(null);
   const desktopRef = useRef<HTMLDivElement | null>(null);
-  const [time, setTime] = useState("");
+  const [dateTime, setDateTime] = useState({ date: "", time: "" });
 
   // Focused Mode State (fullscreen theater mode for MacBook screen)
   const [isFocusedMode, setIsFocusedMode] = useState(false);
@@ -109,7 +109,10 @@ function MacBook() {
       const ampm = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       hours = hours ? hours : 12;
-      setTime(`${dayName} ${monthName} ${date} ${hours}:${minutes} ${ampm}`);
+      setDateTime({
+        date: `${dayName} ${monthName} ${date}`,
+        time: `${hours}:${minutes} ${ampm}`,
+      });
     };
     updateTime();
     const timer = setInterval(updateTime, 1000);
@@ -242,8 +245,8 @@ function MacBook() {
     if (Math.abs(deltaY) > 4) {
       hasMovedRef.current = true;
     }
-    // ~260px drag distance for complete 0 <-> 1 range
-    const sensitivity = 260;
+    // ~140px on mobile, ~250px on desktop drag distance for complete 0 <-> 1 range
+    const sensitivity = isMobile ? 140 : 250;
     const newProgress = clamp(dragStartProgressRef.current - deltaY / sensitivity, 0, 1);
     currentProgressRef.current = newProgress;
     applyProgress(newProgress);
@@ -642,10 +645,12 @@ function MacBook() {
               href: "https://github.com/Suman-990",
             },
           ]}
-          baseSize={isFocused ? 38 : (isMobile ? 24 : 32)}
-          magnifiedSize={isFocused ? 58 : (isMobile ? 36 : 52)}
-          distanceLimit={isFocused ? 140 : (isMobile ? 60 : 110)}
-          className={`absolute ${isFocused ? "bottom-3" : "bottom-1.5 sm:bottom-2"} left-1/2 -translate-x-1/2 ${isFocused ? "h-[50px]" : "h-[38px] sm:h-[44px]"} z-40 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-2 sm:px-3 pb-1 sm:pb-1.5 gap-1.5 sm:gap-2.5 overflow-visible items-end`}
+          baseSize={isFocused ? (isMobile ? 26 : 38) : (isMobile ? 20 : 32)}
+          magnifiedSize={isFocused ? (isMobile ? 36 : 58) : (isMobile ? 28 : 52)}
+          distanceLimit={isFocused ? (isMobile ? 70 : 140) : (isMobile ? 45 : 110)}
+          className={`absolute ${isFocused ? "bottom-2 sm:bottom-3" : "bottom-1 sm:bottom-2"} left-1/2 -translate-x-1/2 ${
+            isFocused ? "h-[42px] sm:h-[50px]" : "h-[32px] sm:h-[44px]"
+          } z-40 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-1.5 sm:px-3 pb-1 sm:pb-1.5 gap-1 sm:gap-2.5 overflow-visible items-end max-w-[96%]`}
         />
 
         {/* macOS Finder Window */}
@@ -718,7 +723,7 @@ function MacBook() {
             } ${isVSCodeMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
             style={{ 
               zIndex: getZIndex("vscode"),
-              ...(isVSCodeMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${vsCodePosition.y}px`, left: `${vsCodePosition.x}px` })
+              ...(isVSCodeMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: isFocused ? 'calc(100% - 24px - 46px)' : 'calc(100% - 24px - 36px)' } : { top: `${vsCodePosition.y}px`, left: `${vsCodePosition.x}px` })
             }}
           >
             <VSCodeWindow 
@@ -747,7 +752,7 @@ function MacBook() {
             style={{ 
               zIndex: getZIndex("shell"),
               fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-              ...(isShellMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${shellPosition.y}px`, left: `${shellPosition.x}px` })
+              ...(isShellMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: isFocused ? 'calc(100% - 24px - 46px)' : 'calc(100% - 24px - 36px)' } : { top: `${shellPosition.y}px`, left: `${shellPosition.x}px` })
             }}
           >
             {/* Bar */}
@@ -794,16 +799,16 @@ function MacBook() {
         )}
 
         {/* macOS Navbar */}
-        <div className="w-full h-6 bg-[#1a1a1a]/60 backdrop-blur-md flex items-center justify-between px-3 text-white text-[11px] font-medium font-sans border-b border-white/10 shadow-sm relative z-40">
+        <div className="w-full h-6 bg-[#1a1a1a]/60 backdrop-blur-md flex items-center justify-between px-2 sm:px-3 text-white text-[10.5px] sm:text-[11px] font-medium font-sans border-b border-white/10 shadow-sm relative z-40">
           {/* Left items */}
-          <div className="flex items-center space-x-2">
-            <div className="cursor-pointer hover:bg-white/20 h-full px-2 flex items-center justify-center transition-colors">
-              <svg viewBox="0 0 384 512" width="11" height="11" fill="currentColor" className="mb-[1px]">
+          <div className="flex items-center space-x-1 sm:space-x-2 truncate">
+            <div className="cursor-pointer hover:bg-white/20 h-full px-1.5 sm:px-2 flex items-center justify-center transition-colors shrink-0">
+              <svg viewBox="0 0 384 512" width="10" height="10" fill="currentColor" className="mb-[1px]">
                 <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
               </svg>
             </div>
 
-            <span className="font-bold text-[11.5px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors">
+            <span className="font-bold text-[11px] sm:text-[11.5px] px-1 sm:px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors shrink-0">
               {focusedWindow === "finder"
                 ? "Finder"
                 : focusedWindow === "preview"
@@ -823,21 +828,22 @@ function MacBook() {
             </div>
           </div>
           {/* Right items */}
-          <div className="flex items-center space-x-1">
-            <div className="cursor-pointer hover:bg-white/20 px-2 py-0.5 rounded flex items-center hidden sm:flex">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect><line x1="22" y1="11" x2="22" y2="13"></line></svg>
+          <div className="flex items-center space-x-1 shrink-0">
+            <div className="cursor-pointer hover:bg-white/20 px-1 sm:px-1.5 py-0.5 rounded flex items-center hidden sm:flex">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect><line x1="22" y1="11" x2="22" y2="13"></line></svg>
             </div>
-            <div className="cursor-pointer hover:bg-white/20 px-2 py-0.5 rounded flex items-center">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            <div className="cursor-pointer hover:bg-white/20 px-1 sm:px-1.5 py-0.5 rounded flex items-center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
             </div>
-            <div className="cursor-pointer hover:bg-white/20 px-2 py-0.5 rounded flex items-center hidden sm:flex">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div className="cursor-pointer hover:bg-white/20 px-1 sm:px-1.5 py-0.5 rounded flex items-center hidden sm:flex">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </div>
-            <div className="cursor-pointer hover:bg-white/20 px-2 py-0.5 rounded flex items-center hidden sm:flex">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <div className="cursor-pointer hover:bg-white/20 px-1 sm:px-1.5 py-0.5 rounded flex items-center hidden sm:flex">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             </div>
-            <div className="cursor-pointer hover:bg-white/20 px-2 py-0.5 rounded whitespace-nowrap">
-              {time}
+            <div className="cursor-pointer hover:bg-white/20 px-1 sm:px-2 py-0.5 rounded whitespace-nowrap text-[10px] sm:text-[11px]">
+              <span className="hidden xs:inline">{dateTime.date} </span>
+              <span>{dateTime.time}</span>
             </div>
           </div>
         </div>
@@ -926,7 +932,7 @@ function MacBook() {
           </div>
 
           {/* Interactive 3D Keyboard */}
-          <div className="pt-8 sm:pt-16 xl:pt-28 w-full flex justify-center xl:justify-start overflow-visible">
+          <div className="pt-8 sm:pt-16 xl:pt-28 w-full flex justify-center xl:justify-start overflow-x-auto sm:overflow-visible no-scrollbar py-2">
             <InteractiveKeyboard />
           </div>
         </div>
@@ -959,8 +965,9 @@ function MacBook() {
                   transition={{ type: "spring", stiffness: 300, damping: 28 }}
                   className="relative rounded-2xl overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.95)] border border-white/20 flex flex-col bg-cover bg-center select-none"
                   style={{
-                    aspectRatio: "16 / 10",
-                    width: "min(96vw, calc(92vh * 16 / 10), 1480px)",
+                    aspectRatio: isMobile ? undefined : "16 / 10",
+                    width: isMobile ? "96vw" : "min(96vw, calc(92vh * 16 / 10), 1480px)",
+                    height: isMobile ? "86vh" : undefined,
                     maxHeight: "92vh",
                     backgroundImage: "url('/macbook wallpaper.jpg')",
                   }}

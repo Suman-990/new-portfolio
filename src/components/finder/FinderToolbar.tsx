@@ -10,6 +10,7 @@ import {
   Search,
   X,
   Share2,
+  PanelLeft,
 } from "lucide-react";
 import type { FinderViewMode } from "./types";
 
@@ -28,6 +29,8 @@ interface FinderToolbarProps {
   onMinimize: (e: MouseEvent) => void;
   onMaximize: (e: MouseEvent) => void;
   isMaximized: boolean;
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
   onTitlePointerDown?: (e: PointerEvent) => void;
   onTitlePointerMove?: (e: PointerEvent) => void;
   onTitlePointerUp?: (e: PointerEvent) => void;
@@ -48,6 +51,8 @@ export default function FinderToolbar({
   onMinimize,
   onMaximize,
   isMaximized,
+  isSidebarOpen = true,
+  onToggleSidebar,
   onTitlePointerDown,
   onTitlePointerMove,
   onTitlePointerUp,
@@ -56,7 +61,7 @@ export default function FinderToolbar({
 
   return (
     <div
-      className={`h-[44px] bg-[#edeef1]/95 backdrop-blur-xl border-b border-black/10 px-3 flex items-center justify-between select-none ${
+      className={`h-[40px] sm:h-[44px] bg-[#edeef1]/95 backdrop-blur-xl border-b border-black/10 px-2 sm:px-3 flex items-center justify-between select-none ${
         isMaximized ? "cursor-default" : "cursor-grab active:cursor-grabbing"
       }`}
       onPointerDown={onTitlePointerDown}
@@ -64,10 +69,10 @@ export default function FinderToolbar({
       onPointerUp={onTitlePointerUp}
     >
       {/* Left Section: Traffic Lights & Navigation */}
-      <div className="flex items-center space-x-3.5">
+      <div className="flex items-center space-x-1.5 sm:space-x-3 shrink-0">
         {/* Traffic Lights */}
         <div
-          className="flex items-center space-x-2 relative group"
+          className="flex items-center space-x-1.5 sm:space-x-2 relative group"
           onMouseEnter={() => setTrafficHovered(true)}
           onMouseLeave={() => setTrafficHovered(false)}
         >
@@ -120,8 +125,28 @@ export default function FinderToolbar({
           </button>
         </div>
 
+        {/* Sidebar Toggle Button (macOS native style) */}
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSidebar();
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            className={`p-1 rounded transition-colors cursor-pointer ${
+              isSidebarOpen
+                ? "text-[#007aff] bg-black/[0.06]"
+                : "text-neutral-600 hover:text-neutral-900 hover:bg-black/[0.04]"
+            }`}
+            title={isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}
+          >
+            <PanelLeft size={13} />
+          </button>
+        )}
+
         {/* Back / Forward History */}
-        <div className="flex items-center space-x-1 pl-1">
+        <div className="flex items-center space-x-0.5 sm:space-x-1">
           <button
             type="button"
             disabled={!canGoBack}
@@ -137,7 +162,7 @@ export default function FinderToolbar({
             }`}
             title="Back"
           >
-            <ChevronLeft size={15} />
+            <ChevronLeft size={14} />
           </button>
 
           <button
@@ -155,20 +180,20 @@ export default function FinderToolbar({
             }`}
             title="Forward"
           >
-            <ChevronRight size={15} />
+            <ChevronRight size={14} />
           </button>
         </div>
 
         {/* Current Folder Title */}
-        <div className="flex items-center space-x-1.5 pl-1">
-          <span className="text-[12.5px] font-semibold text-neutral-800 tracking-tight">
+        <div className="flex items-center space-x-1 pl-0.5">
+          <span className="text-[11.5px] sm:text-[12.5px] font-semibold text-neutral-800 tracking-tight truncate max-w-[70px] xs:max-w-[120px] sm:max-w-none">
             {title}
           </span>
         </div>
       </div>
 
       {/* Center Section: View Mode Switcher */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1 sm:space-x-2 shrink-0">
         <div
           className="flex items-center bg-black/[0.06] border border-black/[0.08] p-0.5 rounded-lg"
           onPointerDown={(e) => e.stopPropagation()}
@@ -176,40 +201,40 @@ export default function FinderToolbar({
           <button
             type="button"
             onClick={() => onViewModeChange("icons")}
-            className={`px-2 py-1 rounded-md text-[11px] font-medium flex items-center space-x-1 transition-all ${
+            className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[11px] font-medium flex items-center space-x-1 transition-all ${
               viewMode === "icons"
                 ? "bg-white text-neutral-900 shadow-sm font-semibold"
                 : "text-neutral-600 hover:text-neutral-900"
             }`}
             title="Icon Grid View"
           >
-            <LayoutGrid size={13} />
+            <LayoutGrid size={12} />
           </button>
 
           <button
             type="button"
             onClick={() => onViewModeChange("list")}
-            className={`px-2 py-1 rounded-md text-[11px] font-medium flex items-center space-x-1 transition-all ${
+            className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md text-[11px] font-medium flex items-center space-x-1 transition-all ${
               viewMode === "list"
                 ? "bg-white text-neutral-900 shadow-sm font-semibold"
                 : "text-neutral-600 hover:text-neutral-900"
             }`}
             title="List View"
           >
-            <List size={13} />
+            <List size={12} />
           </button>
 
           <button
             type="button"
             onClick={() => onViewModeChange("columns")}
-            className={`px-2 py-1 rounded-md text-[11px] font-medium flex items-center space-x-1 transition-all ${
+            className={`hidden sm:flex px-2 py-1 rounded-md text-[11px] font-medium items-center space-x-1 transition-all ${
               viewMode === "columns"
                 ? "bg-white text-neutral-900 shadow-sm font-semibold"
                 : "text-neutral-600 hover:text-neutral-900"
             }`}
             title="Miller Column View"
           >
-            <Columns3 size={13} />
+            <Columns3 size={12} />
           </button>
         </div>
 
@@ -221,34 +246,34 @@ export default function FinderToolbar({
             onQuickLook();
           }}
           onPointerDown={(e) => e.stopPropagation()}
-          className="p-1.5 rounded-lg text-neutral-600 hover:text-neutral-900 bg-white/80 hover:bg-white border border-black/10 shadow-sm transition-colors cursor-pointer"
+          className="p-1 sm:p-1.5 rounded-lg text-neutral-600 hover:text-neutral-900 bg-white/80 hover:bg-white border border-black/10 shadow-sm transition-colors cursor-pointer"
           title="Quick Look (Spacebar)"
         >
-          <Eye size={13} />
+          <Eye size={12} />
         </button>
       </div>
 
       {/* Right Section: Search & Share */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1.5 shrink-0">
         <div
           className="relative flex items-center"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <Search size={12} className="absolute left-2 text-neutral-400 pointer-events-none" />
+          <Search size={11} className="absolute left-1.5 sm:left-2 text-neutral-400 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search"
-            className="w-24 sm:w-36 pl-6 pr-6 py-0.5 text-[11px] bg-white text-neutral-900 placeholder-neutral-400 rounded-md border border-black/15 shadow-sm focus:outline-none focus:border-[#007aff] focus:w-44 transition-all"
+            className="w-14 xs:w-20 sm:w-36 pl-5 sm:pl-6 pr-4 sm:pr-6 py-0.5 text-[10px] sm:text-[11px] bg-white text-neutral-900 placeholder-neutral-400 rounded-md border border-black/15 shadow-sm focus:outline-none focus:border-[#007aff] focus:w-24 xs:focus:w-28 sm:focus:w-44 transition-all"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => onSearchChange("")}
-              className="absolute right-1.5 text-neutral-400 hover:text-neutral-700 cursor-pointer"
+              className="absolute right-1 text-neutral-400 hover:text-neutral-700 cursor-pointer"
             >
-              <X size={10} />
+              <X size={9} />
             </button>
           )}
         </div>

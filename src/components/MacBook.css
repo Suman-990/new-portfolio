@@ -156,7 +156,8 @@
     width: 100%;
   }
   .macbook .screen {
-    height: clamp(260px, 64vw, 580px);
+    width: 100%;
+    height: clamp(215px, 62.5vw, 540px);
   }
   .macbook .screen-close {
     width: 100%;
@@ -170,7 +171,38 @@
   .macbook .screen-open::before {
     width: 6px;
     height: 6px;
-    top: 6px;
+    top: 5px;
     margin-left: -3px;
+  }
+}
+
+@media (max-width: 640px) {
+  .macbook .screen {
+    height: clamp(195px, 61.5vw, 360px);
+  }
+  .macbook .screen-open {
+    border-radius: 12px 12px 4px 4px;
+    border-width: 1.5px;
+  }
+  .macbook .screen-open::before {
+    width: 5px;
+    height: 5px;
+    top: 4px;
+    margin-left: -2.5px;
+  }
+  .macbook .screen-close {
+    height: 10px;
+    margin-bottom: 1px;
+    border-radius: 90px/6px;
+  }
+  .macbook .body {
+    height: 18px;
+    border-radius: 20px/6px;
+  }
+  .macbook .body::before {
+    width: 70px;
+    margin-left: -35px;
+    height: 7px;
+    border-radius: 0 0 6px 6px;
   }
 }

@@ -76,6 +76,19 @@ export default function FinderWindow({
   const [history, setHistory] = useState<string[]>(["documents"]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [isQuickLookOpen, setIsQuickLookOpen] = useState(false);
+  const [isMobileScreen, setIsMobileScreen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const check = () => {
+      const mobile = typeof window !== "undefined" && window.innerWidth < 640;
+      setIsMobileScreen(mobile);
+      if (mobile) setIsSidebarOpen(false);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Filter items based on active folder, tag, or search query
   const displayedItems = useMemo(() => {
@@ -199,7 +212,7 @@ export default function FinderWindow({
       style={{
         zIndex,
         ...(isMaximized
-          ? { top: "24px", left: 0, width: "100%", height: "calc(100% - 24px)" }
+          ? { top: "24px", left: 0, width: "100%", height: "calc(100% - 24px - 36px)" }
           : { top: `${position.y}px`, left: `${position.x}px` }),
       }}
       className={`absolute shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] rounded-xl border border-black/15 bg-white flex flex-col overflow-hidden select-none ${
@@ -228,18 +241,40 @@ export default function FinderWindow({
         onMinimize={onMinimize}
         onMaximize={onMaximize}
         isMaximized={isMaximized}
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
         onTitlePointerDown={onTitlePointerDown}
         onTitlePointerMove={onTitlePointerMove}
         onTitlePointerUp={onTitlePointerUp}
       />
 
       {/* Main Container: Sidebar + Viewport */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Sidebar */}
-        <FinderSidebar
-          activeFolderId={activeFolderId}
-          onSelectFolder={(folderId) => navigateToFolder(folderId)}
-        />
+        {isSidebarOpen && (
+          isMobileScreen ? (
+            <div className="absolute inset-0 z-30 flex">
+              <div
+                className="absolute inset-0 bg-black/25 backdrop-blur-xs"
+                onClick={() => setIsSidebarOpen(false)}
+              />
+              <div className="relative z-10 w-[180px] h-full shadow-2xl">
+                <FinderSidebar
+                  activeFolderId={activeFolderId}
+                  onSelectFolder={(folderId) => {
+                    navigateToFolder(folderId);
+                    setIsSidebarOpen(false);
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <FinderSidebar
+              activeFolderId={activeFolderId}
+              onSelectFolder={(folderId) => navigateToFolder(folderId)}
+            />
+          )
+        )}
 
         {/* Dynamic Viewport */}
         <div className="flex-1 flex flex-col overflow-hidden bg-white">

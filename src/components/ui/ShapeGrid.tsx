@@ -804,6 +804,8 @@ export default function ShapeGrid({
     const onDown = (event: PointerEvent) => {
       const s = settingsRef.current;
       if (!s.clickCascade) return;
+      // Disable on-click cascade animation on touch devices / mobile touch screens
+      if (event.pointerType === 'touch') return;
       const point = pointFrom(event);
       if (!point) return;
       state.cascades.push({

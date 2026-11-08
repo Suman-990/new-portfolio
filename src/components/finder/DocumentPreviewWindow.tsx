@@ -59,7 +59,7 @@ export default function DocumentPreviewWindow({
       style={{
         zIndex,
         ...(isMaximized
-          ? { top: "24px", left: 0, width: "100%", height: "calc(100% - 24px)" }
+          ? { top: "24px", left: 0, width: "100%", height: "calc(100% - 24px - 36px)" }
           : { top: `${position.y}px`, left: `${position.x}px` }),
       }}
       className={`absolute shadow-[0_25px_70px_rgba(0,0,0,0.35)] rounded-xl border border-black/15 bg-white flex flex-col overflow-hidden select-none ${
@@ -124,11 +124,11 @@ export default function DocumentPreviewWindow({
         </div>
 
         {/* Center: Document Title & Page Count */}
-        <div className="flex items-center space-x-1.5 truncate max-w-[280px]">
-          <span className="text-[12px] font-semibold text-neutral-800 truncate">
+        <div className="flex items-center space-x-1 truncate max-w-[95px] xs:max-w-[140px] sm:max-w-[280px]">
+          <span className="text-[11.5px] sm:text-[12px] font-semibold text-neutral-800 truncate">
             {item.name}
           </span>
-          <span className="text-[10px] text-neutral-500 font-normal">
+          <span className="text-[10px] text-neutral-500 font-normal hidden xs:inline">
             — Preview
           </span>
         </div>
@@ -140,7 +140,7 @@ export default function DocumentPreviewWindow({
         >
           {/* Zoom controls for PDF & Images */}
           {(item.type === "pdf" || item.type === "image") && (
-            <div className="flex items-center bg-black/[0.05] rounded-md border border-black/[0.08] px-1 py-0.5 space-x-1 text-neutral-700">
+            <div className="hidden sm:flex items-center bg-black/[0.05] rounded-md border border-black/[0.08] px-1 py-0.5 space-x-1 text-neutral-700">
               <button
                 type="button"
                 onClick={() => setZoomLevel((z) => Math.max(50, z - 15))}

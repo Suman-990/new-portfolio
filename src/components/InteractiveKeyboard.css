@@ -15,6 +15,14 @@
   }
 }
 
+@media (max-width: 420px) {
+  .interactive-keyboard-container {
+    --gap: clamp(1.5px, 0.6vw, 2.5px);
+    --key-width: clamp(9px, 2.8vw, 12px);
+    --rot-x: 14deg;
+  }
+}
+
 @media (min-width: 1280px) {
   .interactive-keyboard-container {
     --gap: 4.5px;

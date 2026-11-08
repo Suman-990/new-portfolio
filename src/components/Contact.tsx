@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { WorldMap } from "./ui/WorldMap";
 import OrbitImages, { type OrbitImageItem } from "./ui/OrbitImages";
 import ShapeGrid from "./ui/ShapeGrid";
@@ -72,6 +73,20 @@ const PROFILES: ContactProfile[] = [
 ];
 
 export default function Contact() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(
+        typeof window !== "undefined" &&
+          (window.innerWidth < 768 || window.matchMedia("(pointer: coarse)").matches)
+      );
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
     <section
       id="contact"
@@ -105,7 +120,7 @@ export default function Contact() {
           glow={0.35}
           twinkle={0}
           fade={1}
-          clickCascade
+          clickCascade={!isMobile}
           intro
         />
       </div>

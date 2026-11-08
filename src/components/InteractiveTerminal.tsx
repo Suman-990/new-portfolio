@@ -212,9 +212,12 @@ export default function InteractiveTerminal({
       {history.map((entry) => (
         <div key={entry.id} className="space-y-1">
           <div className="flex items-center">
-            <span className="text-green-400 font-semibold mr-2 shrink-0">suman@MacBook-Pro</span>
-            <span className="text-blue-400 font-semibold mr-2 shrink-0">~</span>
-            <span className="text-gray-400 shrink-0 mr-2">%</span>
+            <span className="text-green-400 font-semibold mr-1.5 sm:mr-2 shrink-0">
+              <span className="hidden sm:inline">suman@MacBook-Pro</span>
+              <span className="sm:hidden">suman</span>
+            </span>
+            <span className="text-blue-400 font-semibold mr-1.5 sm:mr-2 shrink-0">~</span>
+            <span className="text-gray-400 shrink-0 mr-1.5 sm:mr-2">%</span>
             <span className="text-white break-all">{entry.command}</span>
           </div>
           {entry.output && <div>{entry.output}</div>}
@@ -223,9 +226,12 @@ export default function InteractiveTerminal({
 
       {/* Current Prompt Line */}
       <div className="flex items-center">
-        <span className="text-green-400 font-semibold mr-2 shrink-0 select-none">suman@MacBook-Pro</span>
-        <span className="text-blue-400 font-semibold mr-2 shrink-0 select-none">~</span>
-        <span className="text-gray-400 shrink-0 mr-2 select-none">%</span>
+        <span className="text-green-400 font-semibold mr-1.5 sm:mr-2 shrink-0 select-none">
+          <span className="hidden sm:inline">suman@MacBook-Pro</span>
+          <span className="sm:hidden">suman</span>
+        </span>
+        <span className="text-blue-400 font-semibold mr-1.5 sm:mr-2 shrink-0 select-none">~</span>
+        <span className="text-gray-400 shrink-0 mr-1.5 sm:mr-2 select-none">%</span>
         <input
           ref={inputRef}
           data-terminal-input="true"
@@ -233,7 +239,7 @@ export default function InteractiveTerminal({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[12px] caret-white"
+          className="flex-1 bg-transparent text-white outline-none border-none p-0 font-mono text-[11px] sm:text-[12px] caret-white"
           spellCheck={false}
           autoComplete="off"
           autoCorrect="off"

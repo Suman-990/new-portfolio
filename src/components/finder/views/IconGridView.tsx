@@ -38,7 +38,11 @@ export default function IconGridView({
               key={item.id}
               onClick={(e) => {
                 e.stopPropagation();
-                onSelectItem(item);
+                if (isSelected) {
+                  onOpenItem(item);
+                } else {
+                  onSelectItem(item);
+                }
               }}
               onDoubleClick={(e) => {
                 e.stopPropagation();
