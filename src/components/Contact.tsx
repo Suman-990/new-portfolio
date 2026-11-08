@@ -31,7 +31,7 @@ const PROFILES: ContactProfile[] = [
     handle: "@Suman-990",
     url: "https://github.com/Suman-990",
     src: "/github.svg",
-    accent: "#38bdf8",
+    accent: "#3b82f6",
     bg: "#18181b",
     description: "Open Source Codebases & Repos",
     iconPadding: "18%",
@@ -75,7 +75,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative w-full py-14 sm:py-20 pb-20 sm:pb-28 text-paper bg-transparent overflow-hidden"
+      className="relative w-full min-h-[92vh] lg:min-h-screen flex flex-col justify-between py-12 sm:py-16 pb-10 sm:pb-14 text-paper bg-transparent overflow-hidden"
     >
       {/* Dynamic Interactive ShapeGrid Background (Blended smoothly with website theme) */}
       <div
@@ -90,9 +90,9 @@ export default function Contact() {
         <ShapeGrid
           shape="square"
           direction="diagonal"
-          lineColor="rgba(56, 189, 248, 0.08)"
-          hoverColor="#38bdf8"
-          hoverFillColor="rgba(14, 165, 233, 0.12)"
+          lineColor="rgba(37, 99, 235, 0.08)"
+          hoverColor="#3b82f6"
+          hoverFillColor="rgba(37, 99, 235, 0.16)"
           fillOpacity={0.15}
           cellSize={42}
           speed={0.35}
@@ -110,17 +110,17 @@ export default function Contact() {
         />
       </div>
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pointer-events-none">
+      <div className="relative z-10 max-w-[1400px] w-full mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pointer-events-none flex-1 flex flex-col justify-between">
         {/* Section Heading */}
         <motion.header
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, margin: "-50px" }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-6 sm:mb-10 pointer-events-auto"
+          className="mb-4 sm:mb-8 pointer-events-auto"
         >
-          <p className="text-xs sm:text-sm font-mono tracking-wider text-cyan-400 uppercase mb-1.5 flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(56,189,248,0.8)]" />
+          <p className="text-xs sm:text-sm font-mono tracking-wider text-blue-500 uppercase mb-1.5 flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(37,99,235,0.8)]" />
             Have an interesting idea ? Let&apos;s talk about it
           </p>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-mono">
@@ -165,7 +165,7 @@ export default function Contact() {
                 itemSize={70}
                 depth={0.55}
                 showPath={true}
-                pathColor="rgba(56, 189, 248, 0.22)"
+                pathColor="rgba(37, 99, 235, 0.28)"
                 pathDash={4}
                 pathWidth={1.5}
                 hoverScale={1.16}
@@ -178,18 +178,37 @@ export default function Contact() {
 
               {/* Visually appealing 'Socials' indicator */}
               <div className="w-full flex flex-col items-center justify-center mt-3 sm:mt-5 select-none pointer-events-auto">
-                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-cyan-500/30 backdrop-blur-md shadow-[0_0_20px_rgba(56,189,248,0.12)]">
+                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-neutral-900/80 border border-blue-500/30 backdrop-blur-md shadow-[0_0_20px_rgba(37,99,235,0.18)]">
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400 shadow-[0_0_8px_rgba(56,189,248,0.9)]" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.9)]" />
                   </span>
-                  <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-blue-400">
+                  <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-blue-500">
                     Socials
                   </span>
                 </div>
               </div>
             </div>
           </motion.div>
+        </div>
+
+        {/* Animated Bouncing Arrow Indicator at the bottom of Contact */}
+        <div className="w-full flex justify-center mt-6 sm:mt-10 pb-2 select-none pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => {
+              if (window.__lenis) {
+                const footerEl = document.querySelector("#footer") as HTMLElement | null;
+                const scrollDist = footerEl ? footerEl.offsetHeight + 180 : 550;
+                window.__lenis.scrollTo(window.__lenis.scroll + scrollDist, {
+                  duration: 1.25,
+                  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                });
+              }
+            }}
+            className="arrow bounce focus:outline-none"
+            aria-label="Scroll down to reveal footer"
+          />
         </div>
       </div>
     </section>

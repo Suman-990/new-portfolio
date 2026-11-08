@@ -7,6 +7,7 @@ import Contact from "./components/Contact"
 import UnifiedSections from "./components/UnifiedSections"
 import Footer from "./components/Footer"
 import SmoothScroll from "./components/SmoothScroll"
+import FooterReveal from "./components/FooterReveal"
 
 function App() {
   return (
@@ -22,8 +23,10 @@ function App() {
               <RecentActivity />
             </UnifiedSections>
           </div>
-          <Contact />
-          <Footer />
+          <FooterReveal
+            contact={<Contact />}
+            footer={<Footer />}
+          />
         </main>
       </div>
     </SmoothScroll>

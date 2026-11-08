@@ -1,23 +1,26 @@
 import SignatureAnimation from "./ui/SignatureAnimation";
 import { motion } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
 import "./Footer.css";
 
 export default function Footer() {
   return (
     <footer id="footer" className="juxta-footer">
+      {/* Sleek Drawer Grab Handle Accent */}
+      <div className="footer-handle-bar select-none pointer-events-none">
+        <div className="footer-handle-pill" />
+      </div>
+
       <div className="juxta-footer-inner">
         {/* Column 1: Identity, Animated Vector Signature, Socials, Copyright */}
         <motion.div
           className="col col1"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0.2, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-40px" }}
-          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: false, margin: "0px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h3>Suman Mahanty</h3>
-          <p className="tagline">Full Stack &amp; Backend Software Engineer</p>
-
-          {/* Authentic Handwriting Signature Vector Animation */}
+          {/* Authentic Handwriting Signature Vector Animation in Neon Blue */}
           <div className="signature-wrap">
             <SignatureAnimation
               variant="suman"
@@ -27,6 +30,8 @@ export default function Footer() {
               className="w-full h-auto !items-start"
             />
           </div>
+
+          <p className="tagline">Full-Stack &amp; Systems Developer</p>
 
           {/* Social Profile Links */}
           <div className="social">
@@ -75,61 +80,107 @@ export default function Footer() {
             </a>
           </div>
 
-          <p className="copyright">2026 © Suman Mahanty • All Rights Reserved</p>
+          <p className="copyright">2026 © Suman Mahanty • Built with React, Three.js, GSAP &amp; Tailwind</p>
         </motion.div>
 
-        {/* Column 2: Navigation Links */}
+        {/* Column 2: Navigation Links (Cardless & Crisp) */}
         <motion.div
           className="col col2"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0.2, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-40px" }}
-          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          viewport={{ once: false, margin: "0px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
         >
-          <p className="col-title">// Navigation</p>
-          <p><a href="#home">Home</a></p>
-          <p><a href="#skills">Skills &amp; Stack</a></p>
-          <p><a href="#projects">Workbench OS</a></p>
-          <p><a href="#timeline">Milestones &amp; Work</a></p>
-          <p><a href="#contact">Contact Radar</a></p>
+          <p className="col-title">
+            <span>//</span>
+            <span>Navigation</span>
+          </p>
+
+          <nav className="link-list">
+            <a href="#home" className="link-item">
+              <span className="link-arrow">→</span>
+              <span>Home</span>
+            </a>
+            <a href="#skills" className="link-item">
+              <span className="link-arrow">→</span>
+              <span>Skills &amp; Architecture</span>
+            </a>
+            <a href="#projects" className="link-item">
+              <span className="link-arrow">→</span>
+              <span>Workbench OS</span>
+            </a>
+            <a href="#timeline" className="link-item">
+              <span className="link-arrow">→</span>
+              <span>Milestones &amp; Experience</span>
+            </a>
+            <a href="#contact" className="link-item">
+              <span className="link-arrow">→</span>
+              <span>Contact Radar</span>
+            </a>
+          </nav>
         </motion.div>
 
-        {/* Column 3: Direct Connect & Links */}
+        {/* Column 3: Direct Connect & Links (Cardless & Clean) */}
         <motion.div
           className="col col3"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0.2, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "-40px" }}
-          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          viewport={{ once: false, margin: "0px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.16 }}
         >
-          <p className="col-title">// Direct Connect</p>
-          <p>
-            <a
-              href="/Suman_Mahanty_CV.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#38bdf8" }}
-            >
-              View Resume (PDF) ↗
-            </a>
+          <p className="col-title">
+            <span>//</span>
+            <span>Direct Connect</span>
           </p>
-          <p>
-            <a href="mailto:sumanmahanty.99@gmail.com">
-              sumanmahanty.99@gmail.com
-            </a>
-          </p>
-          <p>
-            <a
-              href="https://wa.me/919064961649"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              +91 9064961649
-            </a>
-          </p>
-          <p style={{ color: "#818181", fontSize: "0.85em" }}>
-            Jamshedpur / Kolkata, India
-          </p>
+
+          <div className="status-pill">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.9)]" />
+            </span>
+            <span>Open for new opportunities</span>
+          </div>
+
+          <div className="connect-list">
+            <div className="connect-item">
+              <span className="connect-label">Resume / CV</span>
+              <a
+                href="/Suman_Mahanty_CV.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="resume-link"
+              >
+                <span>View Full Resume (PDF)</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
+            <div className="connect-item">
+              <span className="connect-label">Email</span>
+              <a href="mailto:sumanmahanty.99@gmail.com" className="connect-value">
+                sumanmahanty.99@gmail.com
+              </a>
+            </div>
+
+            <div className="connect-item">
+              <span className="connect-label">WhatsApp</span>
+              <a
+                href="https://wa.me/919064961649"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="connect-value"
+              >
+                +91 9064961649
+              </a>
+            </div>
+
+            <div className="connect-item">
+              <span className="connect-label">Location</span>
+              <span className="text-neutral-400 text-xs font-mono">
+                Jamshedpur &amp; Kolkata, India • UTC+5:30
+              </span>
+            </div>
+          </div>
         </motion.div>
       </div>
     </footer>

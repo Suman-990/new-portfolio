@@ -138,9 +138,11 @@ function Skills() {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setCardsVisible(entry.isIntersecting)
+        if (entry.isIntersecting) {
+          setCardsVisible(true)
+        }
       },
-      { threshold: 0.15 },
+      { threshold: 0.1 },
     )
     observer.observe(el)
     return () => observer.disconnect()
@@ -361,7 +363,7 @@ function Skills() {
             <motion.div
               initial={{ opacity: 0, y: 55, scale: 0.98 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, margin: "-60px" }}
+              viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
               className="mt-12 hidden md:block"
             >
@@ -371,7 +373,7 @@ function Skills() {
             <motion.div
               initial={{ opacity: 0, y: 35 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false, margin: "-50px" }}
+              viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
               className="mt-10 grid grid-cols-1 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-3 md:hidden"
             >
