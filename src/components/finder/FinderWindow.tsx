@@ -24,6 +24,14 @@ interface FinderWindowProps {
   onOpenDocument: (item: FinderItem) => void;
   onFocus?: () => void;
   zIndex?: number;
+  activeFolderId?: string;
+  onActiveFolderChange?: (folderId: string) => void;
+  selectedItemId?: string | null;
+  onSelectedItemIdChange?: (id: string | null) => void;
+  viewMode?: FinderViewMode;
+  onViewModeChange?: (mode: FinderViewMode) => void;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
 }
 
 export default function FinderWindow({
@@ -40,11 +48,31 @@ export default function FinderWindow({
   onOpenDocument,
   onFocus,
   zIndex = 25,
+  activeFolderId: externalActiveFolderId,
+  onActiveFolderChange,
+  selectedItemId: externalSelectedItemId,
+  onSelectedItemIdChange,
+  viewMode: externalViewMode,
+  onViewModeChange,
+  searchQuery: externalSearchQuery,
+  onSearchChange,
 }: FinderWindowProps) {
-  const [activeFolderId, setActiveFolderId] = useState<string>("documents");
-  const [selectedItemId, setSelectedItemId] = useState<string | null>("resume-pdf");
-  const [viewMode, setViewMode] = useState<FinderViewMode>("icons");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [internalActiveFolderId, setInternalActiveFolderId] = useState<string>("documents");
+  const activeFolderId = externalActiveFolderId !== undefined ? externalActiveFolderId : internalActiveFolderId;
+  const setActiveFolderId = onActiveFolderChange || setInternalActiveFolderId;
+
+  const [internalSelectedItemId, setInternalSelectedItemId] = useState<string | null>("resume-pdf");
+  const selectedItemId = externalSelectedItemId !== undefined ? externalSelectedItemId : internalSelectedItemId;
+  const setSelectedItemId = onSelectedItemIdChange || setInternalSelectedItemId;
+
+  const [internalViewMode, setInternalViewMode] = useState<FinderViewMode>("icons");
+  const viewMode = externalViewMode !== undefined ? externalViewMode : internalViewMode;
+  const setViewMode = onViewModeChange || setInternalViewMode;
+
+  const [internalSearchQuery, setInternalSearchQuery] = useState("");
+  const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
+  const setSearchQuery = onSearchChange || setInternalSearchQuery;
+
   const [history, setHistory] = useState<string[]>(["documents"]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [isQuickLookOpen, setIsQuickLookOpen] = useState(false);

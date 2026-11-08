@@ -1,13 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
 
-interface HistoryEntry {
+export interface HistoryEntry {
   id: string;
   command: string;
   output?: React.ReactNode;
 }
 
-export default function InteractiveTerminal() {
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
+interface InteractiveTerminalProps {
+  history?: HistoryEntry[];
+  onHistoryChange?: React.Dispatch<React.SetStateAction<HistoryEntry[]>>;
+  isFocusedMode?: boolean;
+  onToggleFocus?: () => void;
+}
+
+export default function InteractiveTerminal({
+  history: externalHistory,
+  onHistoryChange,
+  isFocusedMode = false,
+  onToggleFocus,
+}: InteractiveTerminalProps = {}) {
+  const [internalHistory, setInternalHistory] = useState<HistoryEntry[]>([]);
+  const history = externalHistory !== undefined ? externalHistory : internalHistory;
+  const setHistory = onHistoryChange || setInternalHistory;
+
   const [input, setInput] = useState("");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyPointer, setHistoryPointer] = useState<number>(-1);
@@ -76,11 +91,51 @@ export default function InteractiveTerminal() {
               <span className="text-gray-300">- Direct reachout channels</span>
             </div>
             <div className="flex">
+              <span className="text-yellow-400 font-semibold w-24">focus</span>
+              <span className="text-gray-300">- Open screen in full-screen focused window</span>
+            </div>
+            <div className="flex">
+              <span className="text-yellow-400 font-semibold w-24">exit</span>
+              <span className="text-gray-300">- Exit focused screen mode (or press Esc)</span>
+            </div>
+            <div className="flex">
               <span className="text-yellow-400 font-semibold w-24">clear</span>
               <span className="text-gray-300">- Clear terminal screen</span>
             </div>
           </div>
         );
+      } else if (lower === "focus" || lower === "fullscreen" || lower === "theater") {
+        if (onToggleFocus) {
+          if (!isFocusedMode) {
+            onToggleFocus();
+            output = (
+              <div className="text-cyan-400 py-0.5 font-mono text-xs">
+                Entering focused screen mode... (Type <span className="text-yellow-300">"exit"</span> or press <span className="text-yellow-300">Esc</span> to return)
+              </div>
+            );
+          } else {
+            output = (
+              <div className="text-yellow-400 py-0.5 font-mono text-xs">
+                Display is already in focused full-screen mode.
+              </div>
+            );
+          }
+        }
+      } else if (lower === "exit" || lower === "exit-focus" || lower === "unfocus" || lower === "normal") {
+        if (isFocusedMode && onToggleFocus) {
+          onToggleFocus();
+          output = (
+            <div className="text-cyan-400 py-0.5 font-mono text-xs">
+              Exiting focused screen mode, returning to laptop view...
+            </div>
+          );
+        } else {
+          output = (
+            <div className="text-gray-400 py-0.5 font-mono text-xs">
+              Terminal session active. Type <span className="text-yellow-300">"help"</span> for commands, or <span className="text-yellow-300">"focus"</span> to expand screen.
+            </div>
+          );
+        }
       } else if (lower === "about") {
         output = (
           <div className="text-gray-300 pl-2 py-1 space-y-1">
