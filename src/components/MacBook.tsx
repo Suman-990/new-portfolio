@@ -1,6 +1,9 @@
 import VSCodeWindow from "./VSCodeWindow";
 import InteractiveTerminal from "./InteractiveTerminal";
 import InteractiveKeyboard from "./InteractiveKeyboard";
+import FinderWindow from "./finder/FinderWindow";
+import DocumentPreviewWindow from "./finder/DocumentPreviewWindow";
+import type { FinderItem } from "./finder/types";
 import { useEffect, useRef, useState } from "react";
 import { FloatingDockDesktop } from "./ui/floating-dock";
 import "./MacBook.css"
@@ -28,6 +31,25 @@ function MacBook() {
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const [time, setTime] = useState("");
 
+  // Window Focus State
+  type WindowId = "finder" | "preview" | "vscode" | "shell";
+  const [focusedWindow, setFocusedWindow] = useState<WindowId>("finder");
+
+  // Finder Window State
+  const [isFinderOpen, setIsFinderOpen] = useState(true);
+  const [isFinderMaximized, setIsFinderMaximized] = useState(false);
+  const [isFinderMinimized, setIsFinderMinimized] = useState(false);
+  const [isFinderDragging, setIsFinderDragging] = useState(false);
+  const [finderPosition, setFinderPosition] = useState({ x: 30, y: 32 });
+
+  // Document Preview Window State (macOS Preview.app)
+  const [previewItem, setPreviewItem] = useState<FinderItem | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isPreviewMaximized, setIsPreviewMaximized] = useState(false);
+  const [isPreviewMinimized, setIsPreviewMinimized] = useState(false);
+  const [isPreviewDragging, setIsPreviewDragging] = useState(false);
+  const [previewPosition, setPreviewPosition] = useState({ x: 90, y: 36 });
+
   const [isShellOpen, setIsShellOpen] = useState(false)
   const [isShellMaximized, setIsShellMaximized] = useState(false)
   const [isShellMinimized, setIsShellMinimized] = useState(false)
@@ -42,6 +64,15 @@ function MacBook() {
   const [vsCodePosition, setVsCodePosition] = useState({ x: 50, y: 40 })
   const vsCodeRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+
+  const getZIndex = (win: WindowId) => {
+    if (focusedWindow === win) return 35;
+    if (win === "preview") return 30;
+    if (win === "finder") return 25;
+    if (win === "vscode") return 22;
+    if (win === "shell") return 20;
+    return 20;
+  };
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(typeof window !== "undefined" && window.innerWidth < 768);
@@ -167,6 +198,64 @@ function MacBook() {
     }
   }, [])
 
+  const onFinderPointerDown = (e: React.PointerEvent) => {
+    if (isFinderMaximized || isMobile) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsFinderDragging(true);
+    setFocusedWindow("finder");
+  };
+
+  const onFinderPointerMove = (e: React.PointerEvent) => {
+    if (isFinderDragging && !isFinderMaximized && !isMobile && desktopRef.current) {
+      setFinderPosition((p) => {
+        const newX = p.x + (e.movementX / 0.9118);
+        const newY = p.y + (e.movementY / 0.9118);
+
+        const maxX = desktopRef.current!.clientWidth - 660;
+        const maxY = desktopRef.current!.clientHeight - 450;
+
+        return {
+          x: Math.max(0, Math.min(newX, Math.max(0, maxX))),
+          y: Math.max(24, Math.min(newY, Math.max(24, maxY))),
+        };
+      });
+    }
+  };
+
+  const onFinderPointerUp = (e: React.PointerEvent) => {
+    setIsFinderDragging(false);
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  };
+
+  const onPreviewPointerDown = (e: React.PointerEvent) => {
+    if (isPreviewMaximized || isMobile) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsPreviewDragging(true);
+    setFocusedWindow("preview");
+  };
+
+  const onPreviewPointerMove = (e: React.PointerEvent) => {
+    if (isPreviewDragging && !isPreviewMaximized && !isMobile && desktopRef.current) {
+      setPreviewPosition((p) => {
+        const newX = p.x + (e.movementX / 0.9118);
+        const newY = p.y + (e.movementY / 0.9118);
+
+        const maxX = desktopRef.current!.clientWidth - 560;
+        const maxY = desktopRef.current!.clientHeight - 450;
+
+        return {
+          x: Math.max(0, Math.min(newX, Math.max(0, maxX))),
+          y: Math.max(24, Math.min(newY, Math.max(24, maxY))),
+        };
+      });
+    }
+  };
+
+  const onPreviewPointerUp = (e: React.PointerEvent) => {
+    setIsPreviewDragging(false);
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  };
+
   return (
     <section
       id="projects"
@@ -182,12 +271,57 @@ function MacBook() {
             <div ref={screenOpenRef} className="screen-open">
               <div 
                 ref={desktopRef} 
+                data-lenis-prevent="true"
+                onWheel={(e) => e.stopPropagation()}
                 className="absolute w-[94%] left-[3%] h-[88%] top-[6%] bg-cover bg-center overflow-hidden rounded-[2px]" 
                 style={{ backgroundImage: "url('/macbook wallpaper.jpg')" }}
               >
                 {/* Dock with macOS Magnification Hover Animation */}
                 <FloatingDockDesktop
                   items={[
+                    {
+                      title: "Finder",
+                      icon: <img src="/finder_icon.jpeg" alt="Finder" className="w-full h-full object-cover rounded-[7px]" />,
+                      active: isFinderOpen && !isFinderMinimized,
+                      onClick: () => {
+                        if (!isFinderOpen) {
+                          setIsFinderOpen(true);
+                          setIsFinderMinimized(false);
+                          setFocusedWindow("finder");
+                        } else if (isFinderMinimized) {
+                          setIsFinderMinimized(false);
+                          setFocusedWindow("finder");
+                        } else if (focusedWindow !== "finder") {
+                          setFocusedWindow("finder");
+                        } else {
+                          setIsFinderMinimized(true);
+                        }
+                      },
+                    },
+                    {
+                      title: "divider-finder",
+                      isDivider: true,
+                      icon: null,
+                    },
+                    ...(isPreviewOpen
+                      ? [
+                          {
+                            title: previewItem?.name || "Preview",
+                            icon: <img src="/finder_icon.jpeg" alt="Preview" className="w-full h-full object-cover rounded-[7px] brightness-125 saturate-150" />,
+                            active: isPreviewOpen && !isPreviewMinimized,
+                            onClick: () => {
+                              if (isPreviewMinimized) {
+                                setIsPreviewMinimized(false);
+                                setFocusedWindow("preview");
+                              } else if (focusedWindow !== "preview") {
+                                setFocusedWindow("preview");
+                              } else {
+                                setIsPreviewMinimized(true);
+                              }
+                            },
+                          },
+                        ]
+                      : []),
                     {
                       title: "VS Code",
                       icon: <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-full h-full object-contain p-0.5 rounded-[4px]" />,
@@ -196,8 +330,12 @@ function MacBook() {
                         if (!isVSCodeOpen) {
                           setIsVSCodeOpen(true);
                           setIsVSCodeMinimized(false);
+                          setFocusedWindow("vscode");
                         } else if (isVSCodeMinimized) {
                           setIsVSCodeMinimized(false);
+                          setFocusedWindow("vscode");
+                        } else if (focusedWindow !== "vscode") {
+                          setFocusedWindow("vscode");
                         } else {
                           setIsVSCodeMinimized(true);
                         }
@@ -211,8 +349,12 @@ function MacBook() {
                         if (!isShellOpen) {
                           setIsShellOpen(true);
                           setIsShellMinimized(false);
+                          setFocusedWindow("shell");
                         } else if (isShellMinimized) {
                           setIsShellMinimized(false);
+                          setFocusedWindow("shell");
+                        } else if (focusedWindow !== "shell") {
+                          setFocusedWindow("shell");
                         } else {
                           setIsShellMinimized(true);
                         }
@@ -233,31 +375,77 @@ function MacBook() {
                       icon: <img src="/github_transparent.png" alt="Github" className="w-full h-full object-contain p-0.5" />,
                       href: "https://github.com/Suman-990",
                     },
-                    {
-                      title: "divider",
-                      isDivider: true,
-                      icon: null,
-                    },
-                    {
-                      title: "Finder",
-                      icon: <img src="/finder_icon.jpeg" alt="Finder" className="w-full h-full object-cover rounded-[7px]" />,
-                    },
                   ]}
                   baseSize={isMobile ? 24 : 32}
                   magnifiedSize={isMobile ? 36 : 52}
                   distanceLimit={isMobile ? 60 : 110}
-                  className="absolute bottom-1.5 sm:bottom-2 left-1/2 -translate-x-1/2 h-[38px] sm:h-[44px] z-10 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-2 sm:px-2.5 pb-1 sm:pb-1.5 gap-1.5 sm:gap-2 overflow-visible items-end"
+                  className="absolute bottom-1.5 sm:bottom-2 left-1/2 -translate-x-1/2 h-[38px] sm:h-[44px] z-40 bg-white/30 border border-white/30 rounded-2xl shadow-lg px-2 sm:px-2.5 pb-1 sm:pb-1.5 gap-1.5 sm:gap-2 overflow-visible items-end"
                 />
-                {/* Terminal Window */}
+
+                {/* macOS Finder Window */}
+                {isFinderOpen && (
+                  <FinderWindow
+                    isMaximized={isFinderMaximized || isMobile}
+                    isMinimized={isFinderMinimized}
+                    position={finderPosition}
+                    isDragging={isFinderDragging}
+                    zIndex={getZIndex("finder")}
+                    onClose={() => {
+                      setIsFinderOpen(false);
+                      setIsFinderMinimized(false);
+                    }}
+                    onMinimize={() => setIsFinderMinimized(true)}
+                    onMaximize={() => setIsFinderMaximized(!isFinderMaximized)}
+                    onFocus={() => setFocusedWindow("finder")}
+                    onTitlePointerDown={onFinderPointerDown}
+                    onTitlePointerMove={onFinderPointerMove}
+                    onTitlePointerUp={onFinderPointerUp}
+                    onOpenDocument={(item: FinderItem) => {
+                      setPreviewItem(item);
+                      setIsPreviewOpen(true);
+                      setIsPreviewMinimized(false);
+                      setFocusedWindow("preview");
+                    }}
+                  />
+                )}
+
+                {/* macOS Preview.app Window (For PDF Resume, Images & Documents) */}
+                {isPreviewOpen && previewItem && (
+                  <DocumentPreviewWindow
+                    item={previewItem}
+                    isMaximized={isPreviewMaximized || isMobile}
+                    isMinimized={isPreviewMinimized}
+                    position={previewPosition}
+                    isDragging={isPreviewDragging}
+                    zIndex={getZIndex("preview")}
+                    onClose={() => {
+                      setIsPreviewOpen(false);
+                      setIsPreviewMinimized(false);
+                      setPreviewItem(null);
+                    }}
+                    onMinimize={() => setIsPreviewMinimized(true)}
+                    onToggleMaximize={() => setIsPreviewMaximized(!isPreviewMaximized)}
+                    onFocus={() => setFocusedWindow("preview")}
+                    onTitlePointerDown={onPreviewPointerDown}
+                    onTitlePointerMove={onPreviewPointerMove}
+                    onTitlePointerUp={onPreviewPointerUp}
+                  />
+                )}
+
+                {/* VS Code Window */}
                 {isVSCodeOpen && (
                   <div 
                     ref={vsCodeRef}
-                    className={`absolute z-30 shadow-2xl rounded-xl ${!isVSCodeDragging ? "transition-all duration-300 ease-out" : ""} ${
+                    data-lenis-prevent="true"
+                    onWheel={(e) => e.stopPropagation()}
+                    onClick={() => setFocusedWindow("vscode")}
+                    className={`absolute shadow-2xl rounded-xl ${!isVSCodeDragging ? "transition-all duration-300 ease-out" : ""} ${
                       isVSCodeMaximized || isMobile
                         ? "rounded-none" 
                         : "w-[700px] h-[460px]"
                     } ${isVSCodeMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
                     style={{ 
+                      zIndex: getZIndex("vscode"),
                       ...(isVSCodeMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${vsCodePosition.y}px`, left: `${vsCodePosition.x}px` })
                     }}
                   >
@@ -271,6 +459,7 @@ function MacBook() {
                         if (isVSCodeMaximized || isMobile) return;
                         e.currentTarget.setPointerCapture(e.pointerId);
                         setIsVSCodeDragging(true);
+                        setFocusedWindow("vscode");
                       }}
                       onTitlePointerMove={(e: React.PointerEvent) => {
                         if (isVSCodeDragging && !isVSCodeMaximized && !isMobile && desktopRef.current && vsCodeRef.current) {
@@ -298,12 +487,16 @@ function MacBook() {
                 {isShellOpen && (
                   <div 
                     ref={shellRef}
-                    className={`absolute z-20 shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isShellDragging ? "transition-all duration-300 ease-out" : ""} ${
+                    data-lenis-prevent="true"
+                    onWheel={(e) => e.stopPropagation()}
+                    onClick={() => setFocusedWindow("shell")}
+                    className={`absolute shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isShellDragging ? "transition-all duration-300 ease-out" : ""} ${
                       isShellMaximized || isMobile
                         ? "rounded-none" 
                         : "w-[480px] h-[360px]"
                     } ${isShellMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
                     style={{ 
+                      zIndex: getZIndex("shell"),
                       fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
                       ...(isShellMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${shellPosition.y}px`, left: `${shellPosition.x}px` })
                     }}
@@ -315,6 +508,7 @@ function MacBook() {
                         if (isShellMaximized || isMobile) return;
                         e.currentTarget.setPointerCapture(e.pointerId);
                         setIsShellDragging(true);
+                        setFocusedWindow("shell");
                       }}
                       onPointerMove={(e) => {
                         if (isShellDragging && !isShellMaximized && !isMobile && desktopRef.current && shellRef.current) {
@@ -368,15 +562,33 @@ function MacBook() {
                   </div>
                 )}
                 {/* macOS Navbar */}
-                <div className="w-full h-6 bg-[#1a1a1a]/40 flex items-center justify-between px-3 text-white text-[11px] font-medium font-sans border-b border-white/10 shadow-sm relative z-10">
+                <div className="w-full h-6 bg-[#1a1a1a]/60 backdrop-blur-md flex items-center justify-between px-3 text-white text-[11px] font-medium font-sans border-b border-white/10 shadow-sm relative z-40">
                   {/* Left items */}
-                  <div className="flex items-center space-x-1">
-                    <div className="cursor-pointer hover:bg-white/20 h-full px-3 flex items-center justify-center transition-colors">
-                      <svg viewBox="0 0 384 512" width="12" height="12" fill="currentColor" className="mb-[1px]">
+                  <div className="flex items-center space-x-2">
+                    <div className="cursor-pointer hover:bg-white/20 h-full px-2 flex items-center justify-center transition-colors">
+                      <svg viewBox="0 0 384 512" width="11" height="11" fill="currentColor" className="mb-[1px]">
                         <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
                       </svg>
                     </div>
-                    
+
+                    <span className="font-bold text-[11.5px] px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors">
+                      {focusedWindow === "finder"
+                        ? "Finder"
+                        : focusedWindow === "preview"
+                        ? "Preview"
+                        : focusedWindow === "vscode"
+                        ? "Code"
+                        : "Terminal"}
+                    </span>
+
+                    <div className="hidden sm:flex items-center space-x-1 text-[11px] text-neutral-300">
+                      <span className="hover:bg-white/10 px-1.5 py-0.5 rounded cursor-pointer">File</span>
+                      <span className="hover:bg-white/10 px-1.5 py-0.5 rounded cursor-pointer">Edit</span>
+                      <span className="hover:bg-white/10 px-1.5 py-0.5 rounded cursor-pointer">View</span>
+                      <span className="hover:bg-white/10 px-1.5 py-0.5 rounded cursor-pointer">Go</span>
+                      <span className="hover:bg-white/10 px-1.5 py-0.5 rounded cursor-pointer">Window</span>
+                      <span className="hover:bg-white/10 px-1.5 py-0.5 rounded cursor-pointer">Help</span>
+                    </div>
                   </div>
                   {/* Right items */}
                   <div className="flex items-center space-x-1">

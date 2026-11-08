@@ -145,8 +145,10 @@ export default function InteractiveTerminal() {
   return (
     <div
       ref={containerRef}
+      data-lenis-prevent="true"
+      onWheel={(e) => e.stopPropagation()}
       onClick={handleContainerClick}
-      className="h-full w-full overflow-y-auto custom-scrollbar p-3 font-mono text-[12px] text-gray-300 flex flex-col space-y-2 cursor-text select-text"
+      className="h-full w-full overflow-y-auto overscroll-contain custom-scrollbar p-3 font-mono text-[12px] text-gray-300 flex flex-col space-y-2 cursor-text select-text"
     >
       {/* Welcome Banner */}
       <div className="text-gray-400 select-none pb-1 border-b border-white/5">
