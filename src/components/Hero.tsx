@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ArrowDown, MapPin, Download, ArrowUpRight } from "lucide-react"
 import HeroParticleImage from "./HeroParticleImage"
 import HeroTypingName from "./ui/HeroTypingName"
 import AnimatedCounter from "./ui/AnimatedCounter"
 import TypingStat from "./ui/TypingStat"
+import gsap from "gsap"
 
 export default function Hero() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const contentStageRef = useRef<HTMLDivElement>(null)
+
   const [isLoaded, setIsLoaded] = useState(() => {
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return true
@@ -21,10 +25,41 @@ export default function Hero() {
     return () => clearTimeout(timeout)
   }, [isLoaded])
 
+  // Lenis & GSAP Scroll Parallax for Hero
+  useEffect(() => {
+    const section = sectionRef.current
+    const content = contentStageRef.current
+    if (!section || !content) return
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (prefersReducedMotion) return
+
+    const ctx = gsap.context(() => {
+      gsap.to(content, {
+        y: 65,
+        opacity: 0.35,
+        scale: 0.97,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: 0.8,
+        },
+      })
+    }, section)
+
+    return () => ctx.revert()
+  }, [])
+
   const scrollToWork = () => {
-    const el = document.getElementById("skills") || document.getElementById("projects")
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" })
+    if (window.__lenis) {
+      window.__lenis.scrollTo("#skills", { offset: -30, duration: 1.4 })
+    } else {
+      const el = document.getElementById("skills") || document.getElementById("projects")
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" })
+      }
     }
   }
 
@@ -45,6 +80,7 @@ export default function Hero() {
   return (
     <section
       id="home"
+      ref={sectionRef}
       className="relative w-full min-h-[92vh] lg:min-h-screen flex flex-col justify-between overflow-hidden bg-[#07080c] text-white pt-6 sm:pt-8 pb-8 sm:pb-12 px-4 sm:px-8 lg:px-12 selection:bg-blue-600 selection:text-white"
     >
       {/* Background Ambient Radial Glow */}
@@ -95,7 +131,7 @@ export default function Hero() {
       </div>
 
       {/* MAIN HERO CONTENT STAGE */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto my-auto py-6 sm:py-8 lg:py-4">
+      <div ref={contentStageRef} className="relative z-10 w-full max-w-7xl mx-auto my-auto py-6 sm:py-8 lg:py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center relative min-h-[580px] lg:min-h-[640px]">
           {/* LEFT COLUMN: Headline, Roles, Bio, CTA, Location */}
           <div className="lg:col-span-4 flex flex-col justify-center text-left relative z-20 order-2 lg:order-1 pt-4 lg:pt-0">

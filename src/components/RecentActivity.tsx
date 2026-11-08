@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { motion } from "motion/react";
 import {
   GitCommitHorizontal,
   Flame,
   Zap,
   Calendar,
-  Trophy,
 } from "lucide-react";
 import GooeyNav, { type GooeyNavItem } from "./ui/GooeyNav";
 import "./RecentActivity.css";
@@ -106,9 +106,41 @@ function calculateStackHeight(count: number, maxCount: number): number {
 }
 
 export default function RecentActivity() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [platform, setPlatform] = useState<"github" | "leetcode">("github");
-  const [viewRange, setViewRange] = useState<"12M" | "6M">("12M");
+  const [viewRange, setViewRange] = useState<"12M" | "6M">(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      return "6M";
+    }
+    return "12M";
+  });
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [isSectionInView, setIsSectionInView] = useState(false);
+
+  // Set default to 6 months on mobile viewports
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setViewRange("6M");
+    }
+  }, []);
+
+  // Trigger blocks falling animation while scrolling to the activity section
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsSectionInView(true);
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   const rawData = platform === "github" ? GITHUB_12_MONTHS : LEETCODE_12_MONTHS;
   const filteredData = viewRange === "6M" ? rawData.slice(-6) : rawData;
@@ -123,10 +155,17 @@ export default function RecentActivity() {
   return (
     <section
       id="activity"
+      ref={sectionRef}
       className="relative w-full pt-16 sm:pt-20 pb-20 text-paper font-mono bg-transparent"
     >
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8">
-        <main className="blocklog">
+        <motion.main
+          className="blocklog"
+          initial={{ opacity: 0, y: 35 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-70px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        >
           {/* Header */}
           <header className="chart-heading pb-4">
             <div className="min-w-0">
@@ -209,13 +248,6 @@ export default function RecentActivity() {
                     <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     <span>305 Active Days</span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-bold">
-                    <Trophy className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                    <span>837 Solved (Beats 99.8%)</span>
-                  </span>
-                  <span className="text-[11px] text-muted hidden lg:inline">
-                    Easy: 176 • Med: 556 • Hard: 105
-                  </span>
                 </>
               )}
             </div>
@@ -252,7 +284,8 @@ export default function RecentActivity() {
               <div className="grid-lines" aria-hidden="true" />
 
               <div
-                className="bars"
+                key={`${platform}-${viewRange}-${isSectionInView ? "in" : "out"}`}
+                className={`bars ${isSectionInView ? "is-in-view" : ""}`}
                 style={
                   {
                     "--col-count": chartData.length,
@@ -325,7 +358,7 @@ export default function RecentActivity() {
               </div>
             </section>
           </div>
-        </main>
+        </motion.main>
       </div>
     </section>
   );

@@ -152,10 +152,12 @@ function MacBook() {
       ([entry]) => {
         if (entry.isIntersecting) {
           window.addEventListener("scroll", requestMeasure, { passive: true })
+          window.addEventListener("lenis-scroll", requestMeasure, { passive: true })
           window.addEventListener("resize", requestMeasure)
           requestMeasure()
         } else {
           window.removeEventListener("scroll", requestMeasure)
+          window.removeEventListener("lenis-scroll", requestMeasure)
           window.removeEventListener("resize", requestMeasure)
         }
       },
@@ -166,6 +168,7 @@ function MacBook() {
     return () => {
       observer.disconnect()
       window.removeEventListener("scroll", requestMeasure)
+      window.removeEventListener("lenis-scroll", requestMeasure)
       window.removeEventListener("resize", requestMeasure)
       if (rafId) cancelAnimationFrame(rafId)
     }

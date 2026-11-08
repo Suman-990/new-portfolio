@@ -1,6 +1,7 @@
 import { WorldMap } from "./ui/WorldMap";
 import OrbitImages, { type OrbitImageItem } from "./ui/OrbitImages";
 import ShapeGrid from "./ui/ShapeGrid";
+import { motion } from "motion/react";
 
 interface ContactProfile extends OrbitImageItem {
   id: string;
@@ -112,8 +113,9 @@ export default function Contact() {
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pointer-events-none">
         {/* Section Heading */}
         <header className="mb-6 sm:mb-10 pointer-events-auto">
-          <p className="text-[11px] font-mono tracking-widest text-cyan-400 uppercase mb-1">
-            GLOBAL REACH / CONNECT
+          <p className="text-xs sm:text-sm font-mono tracking-wider text-cyan-400 uppercase mb-1.5 flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(56,189,248,0.8)]" />
+            Have an interesting idea ? Let&apos;s talk about it
           </p>
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-mono">
             CONTACT.
@@ -123,18 +125,30 @@ export default function Contact() {
         {/* Two-Column Grid: Dotted World Map (Left) + 3D Orbit Profiles (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-16 items-center relative z-20 pointer-events-auto">
           {/* Left Column: 3D Dotted World Map (Shifted to the left & expanded) */}
-          <div className="lg:col-span-6 flex flex-col justify-center items-start w-full relative z-20">
+          <motion.div
+            initial={{ opacity: 0, x: -35 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-70px" }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-6 flex flex-col justify-center items-start w-full relative z-20"
+          >
             <WorldMap
               locationText="I am here"
               lat={22.8}
               lng={86.2}
               className="w-full max-w-[680px] lg:max-w-none"
             />
-          </div>
+          </motion.div>
 
           {/* Right Column: 3D Orbit Profiles (Shifted to the right & expanded) */}
-          <div className="lg:col-span-6 flex flex-col items-center lg:items-end justify-center w-full relative z-20">
-            <div className="w-full max-w-[620px] lg:ml-auto">
+          <motion.div
+            initial={{ opacity: 0, x: 35 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-70px" }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            className="lg:col-span-6 flex flex-col items-center lg:items-end justify-center w-full relative z-20"
+          >
+            <div className="w-full max-w-[620px] lg:ml-auto flex flex-col items-center">
               <OrbitImages
                 images={PROFILES}
                 shape="ellipse"
@@ -155,8 +169,24 @@ export default function Contact() {
                 intro={false}
                 className="w-full"
               />
+
+              {/* Visually appealing 'Socials' indicator */}
+              <div className="w-full flex flex-col items-center justify-center mt-3 sm:mt-5 select-none pointer-events-auto">
+                <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-cyan-500/30 backdrop-blur-md shadow-[0_0_20px_rgba(56,189,248,0.12)]">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400 shadow-[0_0_8px_rgba(56,189,248,0.9)]" />
+                  </span>
+                  <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-blue-400">
+                    Socials
+                  </span>
+                  <span className="text-[10px] text-neutral-400 font-mono tracking-wider font-normal">
+                    // Drag • Orbit • Connect
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

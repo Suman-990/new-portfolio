@@ -41,11 +41,11 @@ export const Timeline = ({
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 10%", "end 50%"],
+    offset: ["start 15%", "end 95%"],
   });
 
   const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
-  const opacityTransform = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+  const opacityTransform = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
 
   return (
     <div
@@ -65,41 +65,77 @@ export const Timeline = ({
 
       <div ref={ref} className="relative max-w-7xl mx-auto pb-16 md:pb-20">
         {data.map((item, index) => (
-          <div
+          <motion.div
             key={index}
+            initial={{ opacity: 0, y: 35 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-70px" }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
             className="flex justify-start pt-8 md:pt-40 md:gap-10"
           >
             <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-              <div className="h-9 w-9 sm:h-10 sm:w-10 absolute left-1.5 sm:left-3 md:left-3 rounded-full bg-onyx flex items-center justify-center">
-                <div className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-neutral-800 border border-neutral-700 p-2" />
-              </div>
-              <h3 className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-neutral-400">
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0.6 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: false, margin: "-80px 0px -120px 0px" }}
+                transition={{ duration: 0.3 }}
+                className="h-9 w-9 sm:h-10 sm:w-10 absolute left-1.5 sm:left-3 md:left-3 rounded-full bg-onyx/90 border border-neutral-700/80 backdrop-blur-md flex items-center justify-center transition-all duration-300"
+              >
+                <div className="relative flex items-center justify-center">
+                  <span className="absolute -inset-1 rounded-full bg-cyan-400/30 blur-sm animate-pulse" />
+                  <div className="relative h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full bg-gradient-to-tr from-cyan-400 to-indigo-500 border border-cyan-300 shadow-[0_0_12px_rgba(56,189,248,0.9)]" />
+                </div>
+              </motion.div>
+              <motion.h3
+                initial={{ opacity: 0.45 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: false, margin: "-80px 0px -120px 0px" }}
+                transition={{ duration: 0.3 }}
+                className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-neutral-200"
+              >
                 {item.title}
-              </h3>
+              </motion.h3>
             </div>
 
             <div className="relative pl-12 sm:pl-16 md:pl-4 pr-1 sm:pr-4 w-full">
-              <h3 className="md:hidden block text-xl sm:text-2xl mb-3 sm:mb-4 text-left font-bold text-neutral-400">
+              <h3 className="md:hidden block text-xl sm:text-2xl mb-3 sm:mb-4 text-left font-bold text-neutral-200">
                 {item.title}
               </h3>
               {item.content}{" "}
             </div>
-          </div>
+          </motion.div>
         ))}
+
+        {/* Static Background Guide Track */}
         <div
           style={{
             height: height + "px",
           }}
-          className="absolute md:left-8 left-6 top-0 overflow-hidden w-[2px] bg-[linear-gradient(to_bottom,var(--tw-gradient-stops))] from-transparent from-[0%] via-neutral-700 to-transparent to-[99%] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)]"
+          className="absolute md:left-8 left-6 top-0 overflow-hidden w-[3px] bg-neutral-800/60 rounded-full [mask-image:linear-gradient(to_bottom,transparent_0%,black_5%,black_95%,transparent_100%)] pointer-events-none"
         >
+          {/* Animated Radiant Neon Beam */}
           <motion.div
             style={{
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0 w-[2px] bg-gradient-to-t from-purple-500 via-blue-500 to-transparent from-[0%] via-[10%] rounded-full"
+            className="absolute inset-x-0 top-0 w-full bg-gradient-to-t from-cyan-400 via-indigo-500 to-transparent from-[0%] via-[20%] rounded-full shadow-[0_0_18px_rgba(56,189,248,0.9),0_0_35px_rgba(99,102,241,0.6)]"
           />
         </div>
+
+        {/* Traveling Luminous Spark at Beam Head */}
+        <motion.div
+          style={{
+            top: heightTransform,
+            opacity: opacityTransform,
+          }}
+          className="absolute md:left-8 left-6 -translate-x-[4.5px] -translate-y-1.5 pointer-events-none z-30"
+        >
+          <div className="relative flex items-center justify-center">
+            <span className="absolute -inset-1 rounded-full bg-cyan-400/60 blur-xs animate-ping" />
+            <div className="w-3 h-3 rounded-full bg-cyan-300 border border-white shadow-[0_0_12px_rgba(56,189,248,1),0_0_24px_rgba(56,189,248,0.8)]" />
+          </div>
+        </motion.div>
       </div>
     </div>
   );

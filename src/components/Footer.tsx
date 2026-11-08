@@ -1,4 +1,5 @@
 import SignatureAnimation from "./ui/SignatureAnimation";
+import { motion } from "motion/react";
 import "./Footer.css";
 
 export default function Footer() {
@@ -6,7 +7,13 @@ export default function Footer() {
     <footer id="footer" className="juxta-footer">
       <div className="juxta-footer-inner">
         {/* Column 1: Identity, Animated Vector Signature, Socials, Copyright */}
-        <div className="col col1">
+        <motion.div
+          className="col col1"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+        >
           <h3>Suman Mahanty</h3>
           <p className="tagline">Full Stack &amp; Backend Software Engineer</p>
 
@@ -69,20 +76,32 @@ export default function Footer() {
           </div>
 
           <p className="copyright">2026 © Suman Mahanty • All Rights Reserved</p>
-        </div>
+        </motion.div>
 
         {/* Column 2: Navigation Links */}
-        <div className="col col2">
+        <motion.div
+          className="col col2"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+        >
           <p className="col-title">// Navigation</p>
           <p><a href="#home">Home</a></p>
           <p><a href="#skills">Skills &amp; Stack</a></p>
           <p><a href="#projects">Workbench OS</a></p>
           <p><a href="#timeline">Milestones &amp; Work</a></p>
           <p><a href="#contact">Contact Radar</a></p>
-        </div>
+        </motion.div>
 
         {/* Column 3: Direct Connect & Links */}
-        <div className="col col3">
+        <motion.div
+          className="col col3"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        >
           <p className="col-title">// Direct Connect</p>
           <p>
             <a
@@ -111,7 +130,7 @@ export default function Footer() {
           <p style={{ color: "#818181", fontSize: "0.85em" }}>
             Jamshedpur / Kolkata, India
           </p>
-        </div>
+        </motion.div>
       </div>
     </footer>
   );
