@@ -1,25 +1,18 @@
 import SignatureAnimation from "./ui/SignatureAnimation";
-import { motion } from "motion/react";
+import FooterWaves from "./ui/FooterWaves";
 import { ArrowUpRight } from "lucide-react";
 import "./Footer.css";
 
 export default function Footer() {
   return (
     <footer id="footer" className="juxta-footer">
-      {/* Sleek Drawer Grab Handle Accent */}
-      <div className="footer-handle-bar select-none pointer-events-none">
-        <div className="footer-handle-pill" />
-      </div>
+      {/* Liquid Wave Header Animation */}
+      <FooterWaves />
 
-      <div className="juxta-footer-inner">
+      <div className="juxta-footer-body">
+        <div className="juxta-footer-inner">
         {/* Column 1: Identity, Animated Vector Signature, Socials, Copyright */}
-        <motion.div
-          className="col col1"
-          initial={{ opacity: 0.2, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "0px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <div className="col col1">
           {/* Authentic Handwriting Signature Vector Animation in Neon Blue */}
           <div className="signature-wrap">
             <SignatureAnimation
@@ -81,16 +74,10 @@ export default function Footer() {
           </div>
 
           <p className="copyright">2026 © Suman Mahanty • Built with React, Three.js, GSAP &amp; Tailwind</p>
-        </motion.div>
+        </div>
 
         {/* Column 2: Navigation Links (Cardless & Crisp) */}
-        <motion.div
-          className="col col2"
-          initial={{ opacity: 0.2, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "0px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
-        >
+        <div className="col col2">
           <p className="col-title">
             <span>//</span>
             <span>Navigation</span>
@@ -118,16 +105,10 @@ export default function Footer() {
               <span>Contact Radar</span>
             </a>
           </nav>
-        </motion.div>
+        </div>
 
         {/* Column 3: Direct Connect & Links (Cardless & Clean) */}
-        <motion.div
-          className="col col3"
-          initial={{ opacity: 0.2, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, margin: "0px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.16 }}
-        >
+        <div className="col col3">
           <p className="col-title">
             <span>//</span>
             <span>Direct Connect</span>
@@ -181,7 +162,8 @@ export default function Footer() {
               </span>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </div>
       </div>
     </footer>
   );
