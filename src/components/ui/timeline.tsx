@@ -69,7 +69,7 @@ export const Timeline = ({
             key={index}
             initial={{ opacity: 0, y: 35 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-70px" }}
+            viewport={{ once: false, margin: "-60px" }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
             className="flex justify-start pt-8 md:pt-40 md:gap-10"
           >
@@ -98,9 +98,15 @@ export const Timeline = ({
             </div>
 
             <div className="relative pl-12 sm:pl-16 md:pl-4 pr-1 sm:pr-4 w-full">
-              <h3 className="md:hidden block text-xl sm:text-2xl mb-3 sm:mb-4 text-left font-bold text-neutral-200">
+              <motion.h3
+                initial={{ opacity: 0.45 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: false, margin: "-80px 0px -120px 0px" }}
+                transition={{ duration: 0.3 }}
+                className="md:hidden block text-xl sm:text-2xl mb-3 sm:mb-4 text-left font-bold text-neutral-200"
+              >
                 {item.title}
-              </h3>
+              </motion.h3>
               {item.content}{" "}
             </div>
           </motion.div>

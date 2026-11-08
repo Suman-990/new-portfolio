@@ -1,6 +1,7 @@
 import { PinContainer } from "@/components/ui/3d-pin";
 import { Timeline } from "@/components/ui/timeline";
 import { Trophy, Medal } from "lucide-react";
+import { motion } from "motion/react";
 
 export function TimelineDemo() {
   const projects = [
@@ -35,15 +36,25 @@ export function TimelineDemo() {
       title: "Projects",
       content: (
         <div>
-          <h4 className="mb-4 text-base sm:text-xl font-semibold tracking-tight text-paper">
+          <motion.h4
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-4 text-base sm:text-xl font-semibold tracking-tight text-paper"
+          >
             Shipped multiple projects end-to-end
-          </h4>
+          </motion.h4>
 
           {/* Two cards in each row with tight gaps and edge-to-edge screenshots */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 sm:gap-y-8 gap-x-6 sm:gap-x-8 lg:gap-x-10 w-full pt-2 pb-6">
-            {projects.map((project) => (
-              <div
+            {projects.map((project, idx) => (
+              <motion.div
                 key={project.title}
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: idx * 0.1 }}
                 className="h-[20rem] sm:h-[22rem] w-full flex items-center justify-center"
               >
                 <PinContainer
@@ -69,7 +80,7 @@ export function TimelineDemo() {
                     </div>
                   </div>
                 </PinContainer>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -79,17 +90,30 @@ export function TimelineDemo() {
       title: "Experience",
       content: (
         <div className="w-full max-w-4xl">
-          <h4 className="mb-2 text-base sm:text-xl font-semibold tracking-tight text-paper">
-            Work Experience & Internships
-          </h4>
-          <p className="mb-8 text-xs sm:text-sm font-normal text-dim max-w-xl">
-            Professional software engineering roles, full-stack contributions, and production deployments.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h4 className="mb-2 text-base sm:text-xl font-semibold tracking-tight text-paper">
+              Work Experience & Internships
+            </h4>
+            <p className="mb-8 text-xs sm:text-sm font-normal text-dim max-w-xl">
+              Professional software engineering roles, full-stack contributions, and production deployments.
+            </p>
+          </motion.div>
 
           <div className="space-y-10 sm:space-y-12">
             {/* emissio */}
             <div className="space-y-4 text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+              >
                 <div className="flex items-center gap-3.5">
                   <img
                     src="/emissio_in_logo.jpeg"
@@ -115,9 +139,15 @@ export function TimelineDemo() {
                 <div className="text-xs sm:text-sm font-mono text-dim/90 self-start sm:self-center shrink-0">
                   October 2026 – Present
                 </div>
-              </div>
+              </motion.div>
 
-              <ul className="space-y-2.5 text-xs sm:text-sm text-neutral-300/90 pl-1 sm:pl-2">
+              <motion.ul
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+                className="space-y-2.5 text-xs sm:text-sm text-neutral-300/90 pl-1 sm:pl-2"
+              >
                 <li className="flex items-start gap-2.5">
                   <span className="text-cyan-400 text-xs mt-1 shrink-0 font-mono">▹</span>
                   <span className="leading-relaxed">
@@ -136,9 +166,15 @@ export function TimelineDemo() {
                     Built automated CI/CD deployment workflows and containerized backend services using Docker for zero-downtime releases.
                   </span>
                 </li>
-              </ul>
+              </motion.ul>
 
-              <div className="flex flex-wrap gap-2 pt-2 pl-1 sm:pl-2">
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.14 }}
+                className="flex flex-wrap gap-2 pt-2 pl-1 sm:pl-2"
+              >
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-white/5 border border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20 transition-colors">
                   Microservices
                 </span>
@@ -151,7 +187,7 @@ export function TimelineDemo() {
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-white/5 border border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20 transition-colors">
                   REST APIs
                 </span>
-              </div>
+              </motion.div>
             </div>
 
             {/* Subtle Divider */}
@@ -159,7 +195,13 @@ export function TimelineDemo() {
 
             {/* Mentorque */}
             <div className="space-y-4 text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+              >
                 <div className="flex items-center gap-3.5">
                   <img
                     src="/mentorquedu_logo.jpeg"
@@ -179,9 +221,15 @@ export function TimelineDemo() {
                 <div className="text-xs sm:text-sm font-mono text-dim/90 self-start sm:self-center shrink-0">
                   July 2026 – September 2026
                 </div>
-              </div>
+              </motion.div>
 
-              <ul className="space-y-2.5 text-xs sm:text-sm text-neutral-300/90 pl-1 sm:pl-2">
+              <motion.ul
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+                className="space-y-2.5 text-xs sm:text-sm text-neutral-300/90 pl-1 sm:pl-2"
+              >
                 <li className="flex items-start gap-2.5">
                   <span className="text-cyan-400 text-xs mt-1 shrink-0 font-mono">▹</span>
                   <span className="leading-relaxed">
@@ -200,9 +248,15 @@ export function TimelineDemo() {
                     Integrated OmniScout’s asynchronous automated job aggregation system into the Mentorque platform and developed three dedicated dashboards for monitoring and managing the feature.
                   </span>
                 </li>
-              </ul>
+              </motion.ul>
 
-              <div className="flex flex-wrap gap-2 pt-2 pl-1 sm:pl-2">
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.14 }}
+                className="flex flex-wrap gap-2 pt-2 pl-1 sm:pl-2"
+              >
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-white/5 border border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20 transition-colors">
                   Full Stack
                 </span>
@@ -215,7 +269,7 @@ export function TimelineDemo() {
                 <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-white/5 border border-white/10 text-neutral-400 hover:text-neutral-200 hover:border-white/20 transition-colors">
                   OmniScout Pipeline
                 </span>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -225,17 +279,30 @@ export function TimelineDemo() {
       title: "Achievements",
       content: (
         <div className="w-full max-w-4xl">
-          <h4 className="mb-2 text-base sm:text-xl font-semibold tracking-tight text-paper">
-            Competitions & Recognition
-          </h4>
-          <p className="mb-8 text-xs sm:text-sm font-normal text-dim max-w-xl">
-            Competitive programming rankings, hackathon wins, and technical milestones.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h4 className="mb-2 text-base sm:text-xl font-semibold tracking-tight text-paper">
+              Competitions & Recognition
+            </h4>
+            <p className="mb-8 text-xs sm:text-sm font-normal text-dim max-w-xl">
+              Competitive programming rankings, hackathon wins, and technical milestones.
+            </p>
+          </motion.div>
 
           <div className="space-y-12 sm:space-y-14">
             {/* Achievement 1: LeetCode */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8 text-left">
-              <div className="flex-1 space-y-3.5">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex-1 space-y-3.5"
+              >
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-amber-400 bg-amber-400/10 border border-amber-400/20 px-3 py-1 rounded-full">
                   <Trophy className="w-3.5 h-3.5 shrink-0" />
                   <span>Competitive Programming</span>
@@ -262,10 +329,16 @@ export function TimelineDemo() {
                     73.1% Acceptance
                   </span>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Screenshot */}
-              <div className="shrink-0 w-full lg:w-auto flex justify-center lg:justify-end">
+              <motion.div
+                initial={{ opacity: 0, x: 30, scale: 0.94 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+                className="shrink-0 w-full lg:w-auto flex justify-center lg:justify-end"
+              >
                 <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/50 shadow-2xl transition-all duration-300 hover:border-amber-400/30 hover:scale-[1.01]">
                   <img
                     src="/leetcode-stats.png"
@@ -273,7 +346,7 @@ export function TimelineDemo() {
                     className="w-full max-w-[340px] sm:max-w-[370px] h-auto object-contain"
                   />
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Subtle Divider */}
@@ -281,7 +354,13 @@ export function TimelineDemo() {
 
             {/* Achievement 2: TechSprint Hackathon */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8 text-left">
-              <div className="flex-1 space-y-3.5">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex-1 space-y-3.5"
+              >
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-mono font-medium text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-full">
                   <Medal className="w-3.5 h-3.5 shrink-0" />
                   <span>Hackathon Winner</span>
@@ -308,10 +387,16 @@ export function TimelineDemo() {
                     School of Engineering & IT
                   </span>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Screenshot */}
-              <div className="shrink-0 w-full lg:w-auto flex justify-center lg:justify-end">
+              <motion.div
+                initial={{ opacity: 0, x: 30, scale: 0.94 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: false, margin: "-40px" }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+                className="shrink-0 w-full lg:w-auto flex justify-center lg:justify-end"
+              >
                 <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/50 shadow-2xl transition-all duration-300 hover:border-cyan-400/30 hover:scale-[1.01]">
                   <img
                     src="/techsprint-hackathon.png"
@@ -319,7 +404,7 @@ export function TimelineDemo() {
                     className="w-full max-w-[250px] sm:max-w-[270px] h-auto max-h-[340px] object-contain"
                   />
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>

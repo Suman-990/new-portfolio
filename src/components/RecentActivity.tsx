@@ -124,16 +124,14 @@ export default function RecentActivity() {
     }
   }, []);
 
-  // Trigger blocks falling animation while scrolling to the activity section
+  // Trigger blocks falling animation while scrolling to the activity section (both scroll down and scroll up)
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsSectionInView(true);
-        }
+        setIsSectionInView(entry.isIntersecting);
       },
       { threshold: 0.15 }
     );
@@ -163,7 +161,7 @@ export default function RecentActivity() {
           className="blocklog"
           initial={{ opacity: 0, y: 35 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-70px" }}
+          viewport={{ once: false, margin: "-70px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           {/* Header */}

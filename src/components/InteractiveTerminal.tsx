@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { AsciiArt } from "./ui/ascii-art";
 
 interface HistoryEntry {
   id: string;
@@ -7,11 +6,7 @@ interface HistoryEntry {
   output?: React.ReactNode;
 }
 
-interface InteractiveTerminalProps {
-  onOpenAsciiTerminal?: () => void;
-}
-
-export default function InteractiveTerminal({ onOpenAsciiTerminal }: InteractiveTerminalProps) {
+export default function InteractiveTerminal() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [input, setInput] = useState("");
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -67,10 +62,18 @@ export default function InteractiveTerminal({ onOpenAsciiTerminal }: Interactive
       if (lower === "help") {
         output = (
           <div className="space-y-1 text-gray-300 pl-2 py-1">
-            <div className="text-gray-400">Available commands:</div>
+            <div className="text-gray-400 font-medium">Available commands:</div>
             <div className="flex">
-              <span className="text-yellow-400 font-semibold w-24">ascii</span>
-              <span className="text-gray-300">- Run ASCII portrait art animation</span>
+              <span className="text-yellow-400 font-semibold w-24">about</span>
+              <span className="text-gray-300">- Brief developer bio & background</span>
+            </div>
+            <div className="flex">
+              <span className="text-yellow-400 font-semibold w-24">skills</span>
+              <span className="text-gray-300">- Core tech stack & programming languages</span>
+            </div>
+            <div className="flex">
+              <span className="text-yellow-400 font-semibold w-24">contact</span>
+              <span className="text-gray-300">- Direct reachout channels</span>
             </div>
             <div className="flex">
               <span className="text-yellow-400 font-semibold w-24">clear</span>
@@ -78,35 +81,35 @@ export default function InteractiveTerminal({ onOpenAsciiTerminal }: Interactive
             </div>
           </div>
         );
-      } else if (lower === "ascii") {
+      } else if (lower === "about") {
         output = (
-          <div className="py-2">
-            <div className="text-gray-400 text-[11px] mb-2 flex items-center justify-between">
-              <span>Rendering ASCII portrait...</span>
-              {onOpenAsciiTerminal && (
-                <button
-                  type="button"
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    onOpenAsciiTerminal();
-                  }}
-                  className="text-blue-400 hover:underline hover:text-blue-300 text-[11px] cursor-pointer"
-                >
-                  [Open dedicated window ↗]
-                </button>
-              )}
-            </div>
-            <div className="h-[220px] w-full max-w-[440px] rounded-lg overflow-hidden bg-black/90 border border-white/10 shadow-inner">
-              <AsciiArt
-                src="/suman.png"
-                resolution={100}
-                color="#e5e5e5"
-                animationStyle="typewriter"
-                animateOnView={false}
-                className="w-full h-full"
-                objectFit="contain"
-              />
-            </div>
+          <div className="text-gray-300 pl-2 py-1 space-y-1">
+            <p className="text-cyan-400 font-semibold">Suman Mahanty</p>
+            <p className="text-xs text-neutral-300">
+              Full Stack & Backend Software Engineer specializing in scalable microservices, interactive web applications, and low-latency systems.
+            </p>
+          </div>
+        );
+      } else if (lower === "skills") {
+        output = (
+          <div className="text-gray-300 pl-2 py-1 space-y-1">
+            <p className="text-xs text-emerald-400 font-mono">
+              Languages: Java, TypeScript, JavaScript, Golang, C, HTML5, CSS3
+            </p>
+            <p className="text-xs text-sky-400 font-mono">
+              Frameworks: Spring Boot, Node.js, Express, React, Tailwind CSS
+            </p>
+            <p className="text-xs text-purple-400 font-mono">
+              Cloud & Infra: Docker, PostgreSQL, MySQL, Redis, Git, Linux
+            </p>
+          </div>
+        );
+      } else if (lower === "contact") {
+        output = (
+          <div className="text-gray-300 pl-2 py-1 space-y-1 text-xs font-mono">
+            <p>Email: <a href="mailto:sumanmahanty.99@gmail.com" className="text-cyan-400 hover:underline">sumanmahanty.99@gmail.com</a></p>
+            <p>LinkedIn: <a href="https://linkedin.com/in/suman990" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">linkedin.com/in/suman990</a></p>
+            <p>GitHub: <a href="https://github.com/Suman-990" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">github.com/Suman-990</a></p>
           </div>
         );
       } else {

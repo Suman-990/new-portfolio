@@ -112,7 +112,13 @@ export default function Contact() {
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pointer-events-none">
         {/* Section Heading */}
-        <header className="mb-6 sm:mb-10 pointer-events-auto">
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-6 sm:mb-10 pointer-events-auto"
+        >
           <p className="text-xs sm:text-sm font-mono tracking-wider text-cyan-400 uppercase mb-1.5 flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(56,189,248,0.8)]" />
             Have an interesting idea ? Let&apos;s talk about it
@@ -120,7 +126,7 @@ export default function Contact() {
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-mono">
             CONTACT.
           </h2>
-        </header>
+        </motion.header>
 
         {/* Two-Column Grid: Dotted World Map (Left) + 3D Orbit Profiles (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-16 items-center relative z-20 pointer-events-auto">
@@ -128,7 +134,7 @@ export default function Contact() {
           <motion.div
             initial={{ opacity: 0, x: -35 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-70px" }}
+            viewport={{ once: false, margin: "-70px" }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-6 flex flex-col justify-center items-start w-full relative z-20"
           >
@@ -144,7 +150,7 @@ export default function Contact() {
           <motion.div
             initial={{ opacity: 0, x: 35 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-70px" }}
+            viewport={{ once: false, margin: "-70px" }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
             className="lg:col-span-6 flex flex-col items-center lg:items-end justify-center w-full relative z-20"
           >
@@ -179,9 +185,6 @@ export default function Contact() {
                   </span>
                   <span className="font-mono text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-blue-400">
                     Socials
-                  </span>
-                  <span className="text-[10px] text-neutral-400 font-mono tracking-wider font-normal">
-                    // Drag • Orbit • Connect
                   </span>
                 </div>
               </div>

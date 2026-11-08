@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { motion } from "motion/react"
 
 import TechTree from "./TechTree"
 import Lanyard from "./Lanyard"
@@ -127,23 +128,23 @@ function Skills() {
     return () => observer.disconnect()
   }, [])
 
-  // The card grid gets its entrance when scrolled to
+  // The card grid gets its entrance when scrolled to (both scroll down and scroll up)
   const cardsRef = useRef<HTMLDivElement>(null)
   const [cardsVisible, setCardsVisible] = useState(false)
 
   useEffect(() => {
     const el = cardsRef.current
-    if (!el || cardsVisible) return
+    if (!el) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setCardsVisible(true)
+        setCardsVisible(entry.isIntersecting)
       },
       { threshold: 0.15 },
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [cardsVisible])
+  }, [])
 
   // The lanyard's drag-room box (below) needs to be wide enough that
   // dragging the card doesn't clip at its edge before reaching the
@@ -342,24 +343,42 @@ function Skills() {
                   The stack, categorized.
                 </h2>
               </div>
-              <div className="md:col-span-4 md:col-start-8">
+              <div className="md:col-span-5 md:col-start-8">
                 <p className="text-sm leading-relaxed text-text-secondary md:text-base">
-                  Languages, frameworks, tools, and the databases behind the
-                  projects above — pulled straight from the resume.
+                  Languages, frameworks, tools, and databases. Each file inside the{" "}
+                  <code className="text-cyan-400 font-mono text-xs px-1.5 py-0.5 rounded bg-cyan-950/40 border border-cyan-800/40">
+                    src
+                  </code>{" "}
+                  folder contains an array of relevant skills.
                 </p>
-                <p className="mt-3 font-mono text-[13px] text-text-tertiary">1.0 Stack →</p>
+                <p className="mt-3 font-mono text-[13px] text-cyan-400/90 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  <span>Interactive Editor • Click tabs to inspect arrays →</span>
+                </p>
               </div>
             </div>
 
-            <div className="mt-12 hidden md:block">
+            <motion.div
+              initial={{ opacity: 0, y: 55, scale: 0.98 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: false, margin: "-60px" }}
+              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-12 hidden md:block"
+            >
               <VSCodeWindow />
-            </div>
+            </motion.div>
             {/* Mobile fallback for smaller screens */}
-            <div className="mt-10 grid grid-cols-1 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-3 md:hidden">
+            <motion.div
+              initial={{ opacity: 0, y: 35 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false, margin: "-50px" }}
+              transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-10 grid grid-cols-1 gap-px bg-border-subtle sm:grid-cols-2 lg:grid-cols-3 md:hidden"
+            >
               {SKILL_CATEGORIES.map((category) => (
                 <SkillCard key={category.varName} category={category} />
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
     </section>

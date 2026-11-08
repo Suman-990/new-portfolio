@@ -11,7 +11,7 @@ export default function Footer() {
           className="col col1"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: false, margin: "-40px" }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
         >
           <h3>Suman Mahanty</h3>
@@ -83,7 +83,7 @@ export default function Footer() {
           className="col col2"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: false, margin: "-40px" }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
         >
           <p className="col-title">// Navigation</p>
@@ -99,7 +99,7 @@ export default function Footer() {
           className="col col3"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
+          viewport={{ once: false, margin: "-40px" }}
           transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
           <p className="col-title">// Direct Connect</p>

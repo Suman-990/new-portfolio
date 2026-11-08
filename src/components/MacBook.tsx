@@ -2,7 +2,6 @@ import VSCodeWindow from "./VSCodeWindow";
 import InteractiveTerminal from "./InteractiveTerminal";
 import InteractiveKeyboard from "./InteractiveKeyboard";
 import { useEffect, useRef, useState } from "react";
-import { AsciiArt } from "./ui/ascii-art";
 import { FloatingDockDesktop } from "./ui/floating-dock";
 import "./MacBook.css"
 
@@ -28,8 +27,7 @@ function MacBook() {
   const screenOpenRef = useRef<HTMLDivElement | null>(null)
   const desktopRef = useRef<HTMLDivElement | null>(null)
   const [time, setTime] = useState("");
-  const [isTerminalOpen, setIsTerminalOpen] = useState(false)
-  
+
   const [isShellOpen, setIsShellOpen] = useState(false)
   const [isShellMaximized, setIsShellMaximized] = useState(false)
   const [isShellMinimized, setIsShellMinimized] = useState(false)
@@ -43,11 +41,6 @@ function MacBook() {
   const [isVSCodeDragging, setIsVSCodeDragging] = useState(false)
   const [vsCodePosition, setVsCodePosition] = useState({ x: 50, y: 40 })
   const vsCodeRef = useRef<HTMLDivElement>(null);
-  const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
-  const [isTerminalMaximized, setIsTerminalMaximized] = useState(false);
-  const [position, setPosition] = useState({ x: 88, y: 164 });
-  const [isDragging, setIsDragging] = useState(false);
-  const terminalRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -195,21 +188,6 @@ function MacBook() {
                 {/* Dock with macOS Magnification Hover Animation */}
                 <FloatingDockDesktop
                   items={[
-                    {
-                      title: "ASCII Portrait",
-                      icon: <img src="/me.jpeg" alt="Me" className="w-full h-full object-cover rounded-[7px]" />,
-                      active: isTerminalOpen && !isTerminalMinimized,
-                      onClick: () => {
-                        if (!isTerminalOpen) {
-                          setIsTerminalOpen(true);
-                          setIsTerminalMinimized(false);
-                        } else if (isTerminalMinimized) {
-                          setIsTerminalMinimized(false);
-                        } else {
-                          setIsTerminalMinimized(true);
-                        }
-                      },
-                    },
                     {
                       title: "VS Code",
                       icon: <img src="/Visual_Studio_Code_1.35_icon.svg.webp" alt="VS Code" className="w-full h-full object-contain p-0.5 rounded-[4px]" />,
@@ -385,94 +363,7 @@ function MacBook() {
                     <div 
                       className={`bg-transparent overflow-hidden rounded-b-lg ${isShellMaximized ? "h-[calc(100%-28px)] rounded-none" : "h-[calc(100%-28px)]"}`}
                     >
-                      <InteractiveTerminal
-                        onOpenAsciiTerminal={() => {
-                          setIsTerminalOpen(true);
-                          setIsTerminalMinimized(false);
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {isTerminalOpen && (
-                  <div 
-                    ref={terminalRef}
-                    className={`absolute z-20 shadow-2xl rounded-lg border border-white/20 bg-black/70 backdrop-blur-xl ${!isDragging ? "transition-all duration-300 ease-out" : ""} ${
-                      isTerminalMaximized || isMobile
-                        ? "rounded-none" 
-                        : "w-[480px] h-[360px]"
-                    } ${isTerminalMinimized ? "opacity-0 scale-75 pointer-events-none translate-y-10" : "opacity-100 scale-100"}`}
-                    style={{ 
-                      fontFamily: "'Menlo', 'Monaco', 'Courier New', monospace",
-                      ...(isTerminalMaximized || isMobile ? { top: '24px', left: 0, width: '100%', height: 'calc(100% - 24px)' } : { top: `${position.y}px`, left: `${position.x}px` })
-                    }}
-                  >
-                    {/* Bar */}
-                    <div 
-                      className={`h-7 flex items-center px-3 relative border-b border-white/10 ${isTerminalMaximized || isMobile ? "cursor-default" : "cursor-grab active:cursor-grabbing"}`}
-                      onPointerDown={(e) => {
-                        if (isTerminalMaximized || isMobile) return;
-                        e.currentTarget.setPointerCapture(e.pointerId);
-                        setIsDragging(true);
-                      }}
-                      onPointerMove={(e) => {
-                        if (isDragging && !isTerminalMaximized && !isMobile && desktopRef.current && terminalRef.current) {
-                          setPosition(p => {
-                            const newX = p.x + (e.movementX / 0.9118);
-                            const newY = p.y + (e.movementY / 0.9118);
-                            
-                            const maxX = desktopRef.current!.clientWidth - terminalRef.current!.clientWidth;
-                            const maxY = desktopRef.current!.clientHeight - terminalRef.current!.clientHeight;
-                            
-                            return {
-                              x: Math.max(0, Math.min(newX, maxX)),
-                              y: Math.max(24, Math.min(newY, maxY))
-                            };
-                          });
-                        }
-                      }}
-                      onPointerUp={(e) => {
-                        setIsDragging(false);
-                        e.currentTarget.releasePointerCapture(e.pointerId);
-                      }}
-                    >
-                      <div className="flex space-x-2 absolute left-3">
-                        <div 
-                          className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] cursor-pointer hover:brightness-110"
-                          onClick={(e) => { e.stopPropagation(); setIsTerminalOpen(false); setIsTerminalMinimized(false); }}
-                          onPointerDown={(e) => e.stopPropagation()}
-                        ></div>
-                        <div 
-                          className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] cursor-pointer hover:brightness-110"
-                          onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(true); }}
-                          onPointerDown={(e) => e.stopPropagation()}
-                        ></div>
-                        <div 
-                          className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] cursor-pointer hover:brightness-110"
-                          onClick={(e) => { e.stopPropagation(); setIsTerminalMaximized(!isTerminalMaximized); }}
-                          onPointerDown={(e) => e.stopPropagation()}
-                        ></div>
-                      </div>
-                      <div className="w-full text-center text-gray-400 text-[11px] font-sans font-semibold tracking-wide pointer-events-none">
-                        suman — -zsh — 80x24
-                      </div>
-                    </div>
-                    
-                    {/* Body */}
-                    <div 
-                      className={`bg-transparent overflow-hidden rounded-b-lg ${isTerminalMaximized ? "h-[calc(100%-28px)] rounded-none" : "h-[calc(100%-28px)]"}`}
-                    >
-                      <AsciiArt
-                        src="/suman.png"
-                        resolution={140}
-                        color="#e5e5e5"
-                        animationStyle="typewriter"
-                        
-                        animateOnView={false}
-                        className="w-full h-full"
-                        objectFit="contain"
-                      />
+                      <InteractiveTerminal />
                     </div>
                   </div>
                 )}
