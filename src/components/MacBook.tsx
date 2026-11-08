@@ -162,33 +162,136 @@ function MacBook() {
     }
   }, [isFocusedMode]);
 
+  // Lid state tracking for interactive dragging & scroll scrubbing
+  const currentProgressRef = useRef(1);
+  const isLidDraggingRef = useRef(false);
+  const isLidClosedRef = useRef(false);
+  const dragStartYRef = useRef(0);
+  const dragStartProgressRef = useRef(1);
+  const hasMovedRef = useRef(false);
+  const snapRafRef = useRef<number | null>(null);
+
+  const applyProgress = (progress: number) => {
+    const closeEl = screenCloseRef.current;
+    const openEl = screenOpenRef.current;
+    const desktop = desktopRef.current;
+    if (!closeEl || !openEl) return;
+
+    const clamped = clamp(progress, 0, 1);
+    const eased = smoothstep(clamped);
+
+    // Rotate fully to -90deg (flat horizontal) when progress is 0, up to 0deg (upright) at 1
+    const openRotate = lerp(-90, 0, eased);
+
+    // Fade out screen frame and desktop content as it reaches fully shut (below 0.18 progress)
+    const openOpacity = smoothstep(clamp(clamped / 0.18, 0, 1));
+    const desktopOpacity = lerp(0, 1, eased);
+
+    // Fade in aluminum closed lid cap when closing (below 0.28 progress)
+    const closeOpacity = 1 - smoothstep(clamp(clamped / 0.28, 0, 1));
+
+    closeEl.style.opacity = `${closeOpacity}`;
+    closeEl.style.pointerEvents = closeOpacity > 0.05 ? "auto" : "none";
+
+    openEl.style.transform = `scale(0.9118) rotateX(${openRotate}deg)`;
+    openEl.style.opacity = `${openOpacity}`;
+    openEl.style.pointerEvents = openOpacity > 0.05 ? "auto" : "none";
+
+    if (desktop) desktop.style.opacity = `${desktopOpacity}`;
+  };
+
+  const animateLidTo = (target: number) => {
+    if (snapRafRef.current) cancelAnimationFrame(snapRafRef.current);
+    let startTime: number | null = null;
+    const startVal = currentProgressRef.current;
+    const duration = 280;
+
+    const step = (now: number) => {
+      if (!startTime) startTime = now;
+      const elapsed = now - startTime;
+      const t = clamp(elapsed / duration, 0, 1);
+      const easedT = 1 - Math.pow(1 - t, 3);
+      const val = lerp(startVal, target, easedT);
+      currentProgressRef.current = val;
+      applyProgress(val);
+
+      if (t < 1) {
+        snapRafRef.current = requestAnimationFrame(step);
+      } else {
+        snapRafRef.current = null;
+      }
+    };
+    snapRafRef.current = requestAnimationFrame(step);
+  };
+
+  const handleLidPointerDown = (e: React.PointerEvent) => {
+    if (snapRafRef.current) {
+      cancelAnimationFrame(snapRafRef.current);
+      snapRafRef.current = null;
+    }
+    e.currentTarget.setPointerCapture(e.pointerId);
+    isLidDraggingRef.current = true;
+    hasMovedRef.current = false;
+    dragStartYRef.current = e.clientY;
+    dragStartProgressRef.current = currentProgressRef.current;
+  };
+
+  const handleLidPointerMove = (e: React.PointerEvent) => {
+    if (!isLidDraggingRef.current) return;
+    const deltaY = e.clientY - dragStartYRef.current;
+    if (Math.abs(deltaY) > 4) {
+      hasMovedRef.current = true;
+    }
+    // ~260px drag distance for complete 0 <-> 1 range
+    const sensitivity = 260;
+    const newProgress = clamp(dragStartProgressRef.current - deltaY / sensitivity, 0, 1);
+    currentProgressRef.current = newProgress;
+    applyProgress(newProgress);
+  };
+
+  const handleLidPointerUp = (e: React.PointerEvent) => {
+    if (!isLidDraggingRef.current) return;
+    isLidDraggingRef.current = false;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+
+    // If it was a quick click/tap on the closed lid without dragging: open it!
+    if (!hasMovedRef.current && isLidClosedRef.current) {
+      isLidClosedRef.current = false;
+      animateLidTo(1);
+      return;
+    }
+
+    // If dragged almost closed (< 0.25): snap shut and stay closed on scroll
+    if (currentProgressRef.current < 0.25) {
+      isLidClosedRef.current = true;
+      animateLidTo(0);
+    } else {
+      // If dragged open (>= 0.25): snap open to 1 and resume normal scroll animation
+      isLidClosedRef.current = false;
+      animateLidTo(1);
+    }
+  };
+
   // Lid openness (0 = shut, 1 = wide open) is driven off how far the
   // section's top/bottom edges have travelled through the *entire* viewport
-  // height, not just a narrow band around it
+  // height, preserving scroll-scrubbed motion only while the lid is open
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     let rafId = 0;
 
-    const applyProgress = (progress: number) => {
-      const closeEl = screenCloseRef.current;
-      const openEl = screenOpenRef.current;
-      const desktop = desktopRef.current;
-      if (!closeEl || !openEl) return;
-
-      const eased = smoothstep(progress);
-      const openRotate = lerp(-82, 0, eased);
-      const opacity = lerp(0.2, 1, eased);
-      const closeOpacity = 1 - smoothstep(clamp(progress / 0.3, 0, 1));
-
-      closeEl.style.opacity = `${closeOpacity}`;
-      openEl.style.transform = `scale(0.9118) rotateX(${openRotate}deg)`;
-      if (desktop) desktop.style.opacity = `${opacity}`;
-    };
-
     const measure = () => {
       rafId = 0;
+      // Do not override while the user is actively dragging the lid
+      if (isLidDraggingRef.current) return;
+
+      // When the lid has been closed, maintain it closed even when scrolling
+      if (isLidClosedRef.current) {
+        applyProgress(0);
+        return;
+      }
+
       const rect = section.getBoundingClientRect();
       const viewportH = window.innerHeight;
 
@@ -200,7 +303,9 @@ function MacBook() {
       const closeEnd = 0;
       const closeProgress = clamp((rect.bottom - closeEnd) / (closeStart - closeEnd), 0, 1);
 
-      applyProgress(Math.min(openProgress, closeProgress));
+      const scrollProgress = Math.min(openProgress, closeProgress);
+      currentProgressRef.current = scrollProgress;
+      applyProgress(scrollProgress);
     };
 
     const requestMeasure = () => {
@@ -231,6 +336,7 @@ function MacBook() {
       window.removeEventListener("lenis-scroll", requestMeasure);
       window.removeEventListener("resize", requestMeasure);
       if (rafId) cancelAnimationFrame(rafId);
+      if (snapRafRef.current) cancelAnimationFrame(snapRafRef.current);
     };
   }, []);
 
@@ -750,8 +856,29 @@ function MacBook() {
         <div className="shrink-0 w-full max-w-[860px] xl:w-[860px]">
           <div className="macbook">
             <div className="screen">
-              <div ref={screenCloseRef} className="screen-close pointer-events-none"></div>
+              <div 
+                ref={screenCloseRef} 
+                className="screen-close cursor-grab active:cursor-grabbing pointer-events-auto touch-none select-none z-40 transition-opacity"
+                title="Click or drag up to open the MacBook lid"
+                onPointerDown={handleLidPointerDown}
+                onPointerMove={handleLidPointerMove}
+                onPointerUp={handleLidPointerUp}
+                onPointerCancel={handleLidPointerUp}
+              />
               <div ref={screenOpenRef} className="screen-open">
+                {/* Physical Top Bezel / Lid Drag Handle */}
+                <div
+                  className="absolute top-0 left-0 right-0 h-9 z-50 cursor-grab active:cursor-grabbing touch-none select-none flex items-center justify-center group"
+                  title="Drag down to close the MacBook lid, or drag up to open"
+                  onPointerDown={handleLidPointerDown}
+                  onPointerMove={handleLidPointerMove}
+                  onPointerUp={handleLidPointerUp}
+                  onPointerCancel={handleLidPointerUp}
+                >
+                  {/* Subtle affordance line on hover */}
+                  <div className="w-16 h-1 rounded-full bg-white/0 group-hover:bg-white/25 transition-all pointer-events-none mt-1 shadow-sm" />
+                </div>
+
                 {isFocusedMode ? (
                   <div 
                     className="absolute w-[94%] left-[3%] h-[88%] top-[6%] bg-[#080d1a]/92 backdrop-blur-md rounded-[2px] flex flex-col items-center justify-center p-6 text-center text-white border border-cyan-500/25 overflow-hidden"
@@ -795,7 +922,7 @@ function MacBook() {
 
           <div className="text-[12px] text-gray-400 font-mono flex items-center pt-1">
             <span className="text-yellow-400 mr-2 font-semibold">Tip:</span>
-            Click the dock icons at the bottom of the screen to start exploring.
+            Click dock icons to explore, or drag the lid to open/close.
           </div>
 
           {/* Interactive 3D Keyboard */}
