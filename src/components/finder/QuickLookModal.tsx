@@ -73,6 +73,16 @@ export default function QuickLookModal({
                 className="w-full h-full object-contain rounded-lg"
               />
             </div>
+          ) : item.type === "markdown" && item.content ? (
+            <div className="w-full h-48 rounded-xl overflow-hidden bg-[#fafafa] border border-black/10 p-3.5 text-left text-[11px] text-neutral-700 font-mono leading-relaxed relative">
+              <div className="line-clamp-8 whitespace-pre-wrap select-none opacity-85 text-xs">
+                {item.content.slice(0, 360)}...
+              </div>
+              <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#fafafa] to-transparent pointer-events-none" />
+              <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-blue-50 text-[#007aff] text-[9.5px] font-mono font-medium border border-blue-200/60 shadow-2xs">
+                Markdown QuickLook
+              </div>
+            </div>
           ) : (
             <div className="p-4 bg-neutral-50 rounded-2xl border border-black/10 shadow-xs flex items-center justify-center">
               <FinderItemIcon

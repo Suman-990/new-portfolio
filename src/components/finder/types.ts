@@ -12,6 +12,7 @@ export interface FinderItem {
   parentId?: string; // id of parent folder, e.g. "documents", "projects", "desktop", "downloads"
   content?: string; // PDF url, image url, or raw markdown/text
   externalUrl?: string; // For external link shortcuts
+  targetFolderId?: string; // For folder aliases that navigate to another folder
   thumbnail?: string; // Thumbnail image path
   tags?: string[]; // e.g., ["Featured", "Production", "Active"]
   description?: string;

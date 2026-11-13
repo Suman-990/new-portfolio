@@ -157,7 +157,7 @@ export default function FinderWindow({
 
   const handleOpenItem = (item: FinderItem) => {
     if (item.type === "folder") {
-      navigateToFolder(item.id);
+      navigateToFolder(item.targetFolderId || item.id);
     } else if (item.type === "link" && item.externalUrl) {
       window.open(item.externalUrl, "_blank", "noopener,noreferrer");
     } else {
